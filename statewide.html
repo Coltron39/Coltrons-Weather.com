@@ -4,48 +4,207 @@
 <head>
 <meta charset="utf-8">
 <title>First Alert - Statewide Temperatures</title>
+
 <link rel="stylesheet" href="style.css">
+
 <style>
-  .stage { position:absolute; top:266px; left:64px; right:64px; bottom:104px; display:flex; gap:30px; }
+  .stage {
+    position:absolute;
+    top:266px;
+    left:64px;
+    right:64px;
+    bottom:104px;
+    display:flex;
+    gap:30px;
+  }
 
-  .mapwrap { flex:none; width:790px; position:relative; }
-  #map { position:absolute; inset:0; }
-  #map svg { position:absolute; top:0; left:50%; transform:translateX(-50%); overflow:visible; }
-  .wi-fill { fill:rgba(53,200,255,.10); stroke:var(--cyan); stroke-width:3.5;
-             filter:drop-shadow(0 0 26px rgba(53,200,255,.35)); }
+  .mapwrap {
+    flex:none;
+    width:790px;
+    position:relative;
+  }
 
-  .dot { position:absolute; width:10px; height:10px; border-radius:50%; background:#fff;
-         transform:translate(-50%,-50%); box-shadow:0 0 0 3px rgba(3,10,28,.8); }
-  .pin { position:absolute; transform:translateY(-50%); display:flex; flex-direction:column;
-         white-space:nowrap; pointer-events:none; }
-  .pin.left { align-items:flex-end; transform:translate(-100%,-50%); }
-  .pin .t { font-family:var(--cond); font-weight:700; font-size:42px; line-height:.88;
-            text-shadow:0 3px 12px rgba(0,0,0,.9); }
-  .pin .n { font-family:var(--sans); font-size:11px; font-weight:700; letter-spacing:1.5px;
-            color:rgba(255,255,255,.8); text-shadow:0 2px 8px rgba(0,0,0,.95); margin-top:3px; }
+  #map {
+    position:absolute;
+    inset:0;
+  }
 
-  .side { flex:1; min-width:0; display:flex; flex-direction:column; gap:16px; }
-  .rowlist { flex:1 1 auto; min-height:0; overflow:hidden;
-             display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-             gap:4px 22px; align-content:start; padding:22px 26px; }
-  .row { display:flex; align-items:center; gap:11px; padding:3px 0; min-width:0;
-         border-bottom:1px solid rgba(255,255,255,.07); }
-  .row .rn { font-family:var(--cond); font-size:26px; line-height:1; letter-spacing:.4px;
-             text-transform:uppercase; white-space:nowrap; overflow:hidden;
-             text-overflow:ellipsis; flex:1; }
-  .row .rt { font-family:var(--cond); font-weight:700; font-size:32px; line-height:1; }
+  #map svg {
+    position:absolute;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    overflow:visible;
+  }
 
-  .extremes { flex:0 0 158px; display:flex; gap:16px; }
-  .ex { flex:1; padding:20px 24px; }
-  .ex .label { margin-bottom:10px; }
-  .ex .v { font-family:var(--cond); font-weight:700; font-size:54px; line-height:.9; }
-  .ex .c { font-family:var(--cond); font-size:25px; color:var(--ink-dim);
-           text-transform:uppercase; margin-top:5px; }
-  .offline { position:absolute; top:52%; left:0; right:0; text-align:center;
-             font-family:var(--cond); font-size:44px; color:var(--alert-2); }
+  .wi-fill {
+    fill:rgba(53,200,255,.10);
+    stroke:var(--cyan);
+    stroke-width:3.5;
+    filter:drop-shadow(0 0 26px rgba(53,200,255,.35));
+  }
+
+  .dot {
+    position:absolute;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#fff;
+    transform:translate(-50%,-50%);
+    box-shadow:0 0 0 3px rgba(3,10,28,.8);
+  }
+
+  .pin {
+    position:absolute;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    white-space:nowrap;
+    pointer-events:none;
+  }
+
+  .pin.left {
+    align-items:flex-end;
+    transform:translate(-100%,-50%);
+  }
+
+  .pin .t {
+    font-family:var(--cond);
+    font-weight:700;
+    font-size:42px;
+    line-height:.88;
+    text-shadow:0 3px 12px rgba(0,0,0,.9);
+  }
+
+  .pin .n {
+    font-family:var(--sans);
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:1.5px;
+    color:rgba(255,255,255,.8);
+    text-shadow:0 2px 8px rgba(0,0,0,.95);
+    margin-top:3px;
+  }
+
+  .side {
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  .rowlist {
+    flex:1 1 auto;
+    min-height:0;
+    overflow:hidden;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:4px 22px;
+    align-content:start;
+    padding:22px 26px;
+  }
+
+  .row {
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:3px 0;
+    min-width:0;
+    border-bottom:1px solid rgba(255,255,255,.07);
+  }
+
+  .row .rn {
+    font-family:var(--cond);
+    font-size:26px;
+    line-height:1;
+    letter-spacing:.4px;
+    text-transform:uppercase;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    flex:1;
+  }
+
+  .row .rt {
+    font-family:var(--cond);
+    font-weight:700;
+    font-size:32px;
+    line-height:1;
+  }
+
+  .extremes {
+    flex:0 0 158px;
+    display:flex;
+    gap:16px;
+  }
+
+  .ex {
+    flex:1;
+    padding:20px 24px;
+  }
+
+  .ex .label {
+    margin-bottom:10px;
+  }
+
+  .ex .v {
+    font-family:var(--cond);
+    font-weight:700;
+    font-size:54px;
+    line-height:.9;
+  }
+
+  .ex .c {
+    font-family:var(--cond);
+    font-size:25px;
+    color:var(--ink-dim);
+    text-transform:uppercase;
+    margin-top:5px;
+  }
+
+  /*
+     This is hidden when the NWS data is working.
+     It only appears if every city request fails.
+  */
+  .offline {
+    position:absolute;
+    top:52%;
+    left:0;
+    right:0;
+    text-align:center;
+    font-family:var(--cond);
+    font-size:44px;
+    color:var(--alert-2);
+    display:none;
+    z-index:20;
+  }
+
+  body.nodata .offline {
+    display:block;
+  }
+
+  .loading-state {
+    position:absolute;
+    top:52%;
+    left:0;
+    right:0;
+    text-align:center;
+    font-family:var(--cond);
+    font-size:38px;
+    color:var(--ink-dim);
+    z-index:10;
+    pointer-events:none;
+  }
+
+  body.ready .loading-state {
+    display:none;
+  }
 </style>
 </head>
+
 <body class="solid">
+
   <div id="header"></div>
 
   <div class="page-title">
@@ -54,100 +213,738 @@
   </div>
 
   <div class="stage">
-    <div class="mapwrap"><div id="map"></div></div>
+
+    <div class="mapwrap">
+      <div id="map"></div>
+    </div>
+
     <div class="side">
+
       <div class="rowlist panel panel-accent" id="list"></div>
+
       <div class="extremes">
-        <div class="ex panel"><div class="label">State's Warm Spot</div>
-          <div class="v" id="hiv">--&deg;</div><div class="c" id="hic">--</div></div>
-        <div class="ex panel"><div class="label">State's Cool Spot</div>
-          <div class="v" id="lov">--&deg;</div><div class="c" id="loc">--</div></div>
+
+        <div class="ex panel">
+          <div class="label">State's Warm Spot</div>
+          <div class="v" id="hiv">--&deg;</div>
+          <div class="c" id="hic">--</div>
+        </div>
+
+        <div class="ex panel">
+          <div class="label">State's Cool Spot</div>
+          <div class="v" id="lov">--&deg;</div>
+          <div class="c" id="loc">--</div>
+        </div>
+
       </div>
+
     </div>
   </div>
 
-  <div class="offline">FIRST ALERT DATA FEED OFFLINE &mdash; start wx_feed.py</div>
+  <div class="loading-state" id="loading">
+    LOADING NWS OBSERVATIONS...
+  </div>
+
+  <div class="offline">
+    FIRST ALERT NWS DATA UNAVAILABLE
+  </div>
+
   <div id="footer"></div>
 
 <script src="wimap.js"></script>
 <script src="wx.js"></script>
+
 <script>
+/* ============================================================
+   COLTRONS FIRST ALERT WEATHER
+   STATEWIDE NWS OBSERVATIONS
+
+   Uses the National Weather Service API directly.
+   No wx_feed.py.
+   No local server.
+   ============================================================ */
+
 mountHeader();
 mountFooter('');
 
-const MAP_H = 646;                       // drawn height of the state, px
+
+/* ============================================================
+   WISCONSIN CITY LOCATIONS
+   ============================================================ */
+
+const CITY_POINTS = [
+  ["SUPERIOR",          46.7208, -92.1041],
+  ["ASHLAND",           46.5927, -90.8838],
+  ["EAU CLAIRE",        44.8113, -91.4985],
+  ["LA CROSSE",         43.8014, -91.2396],
+  ["WAUSAU",            44.9591, -89.6301],
+  ["RHINELANDER",       45.6366, -89.4121],
+  ["GREEN BAY",         44.5133, -88.0133],
+  ["APPLETON",          44.2619, -88.4154],
+  ["SHEBOYGAN",         43.7508, -87.7145],
+  ["MILWAUKEE",         43.0389, -87.9065],
+  ["KENOSHA",           42.5847, -87.8212],
+  ["MADISON",           43.0731, -89.4012],
+  ["WISCONSIN RAPIDS",  44.3836, -89.8173]
+];
+
+
+/* ============================================================
+   MAP SETTINGS
+   ============================================================ */
+
+const MAP_H = 646;
 const SCALE = MAP_H / WI_VIEW.h;
 const MAP_W = WI_VIEW.w * SCALE;
 
-/* Which cities get plotted on the map, and which side their label sits on.
-   Everything else still shows in the list on the right. Hand-placed so the
-   labels never collide on air -- add your own with [side, dx, dy].          */
+
+/* ============================================================
+   MAP LABEL POSITIONS
+   ============================================================ */
+
 const MAP_LABELS = {
-  'SUPERIOR':         ['r',  0,  -4],
-  'ASHLAND':          ['r',  0,   6],
-  'RHINELANDER':      ['r',  0,   0],
-  'GREEN BAY':        ['r',  0,  -6],
-  'SHEBOYGAN':        ['r',  0,   0],
-  'MILWAUKEE':        ['r',  0,  -4],
-  'KENOSHA':          ['r',  0, -10],
-  'EAU CLAIRE':       ['l',  0,   0],
-  'LA CROSSE':        ['l',  0,   0],
-  'WAUSAU':           ['l',  0,  -8],
-  'WISCONSIN RAPIDS': ['l',  0,  10],
-  'APPLETON':         ['l',  0,  14],
-  'MADISON':          ['l',  0,   0],
+
+  'SUPERIOR':
+    ['r', 0, -4],
+
+  'ASHLAND':
+    ['r', 0, 6],
+
+  'RHINELANDER':
+    ['r', 0, 0],
+
+  'GREEN BAY':
+    ['r', 0, -6],
+
+  'SHEBOYGAN':
+    ['r', 0, 0],
+
+  'MILWAUKEE':
+    ['r', 0, -4],
+
+  'KENOSHA':
+    ['r', 0, -10],
+
+  'EAU CLAIRE':
+    ['l', 0, 0],
+
+  'LA CROSSE':
+    ['l', 0, 0],
+
+  'WAUSAU':
+    ['l', 0, -8],
+
+  'WISCONSIN RAPIDS':
+    ['l', 0, 10],
+
+  'APPLETON':
+    ['l', 0, 14],
+
+  'MADISON':
+    ['l', 0, 0]
 };
 
-function drawMap(cities) {
-  const wrap = document.getElementById('map');
-  const pad = (wrap.clientWidth - MAP_W) / 2;
 
-  const pins = cities.filter(c => c.lat !== undefined && MAP_LABELS[c.name]).map(c => {
-    const cfg = MAP_LABELS[c.name];
-    const p = wiXY(c.lat, c.lon);
-    const x = pad + p[0] * SCALE, y = p[1] * SCALE;
-    return { c: c, x: x, y: y, ly: y + cfg[2], dx: cfg[1], flip: cfg[0] === 'l' };
+/* ============================================================
+   NWS API
+   ============================================================ */
+
+async function nws(url) {
+
+  const response = await fetch(url, {
+    headers: {
+      "Accept":
+        "application/geo+json, application/ld+json, application/json"
+    },
+    cache: "no-store"
   });
 
-  wrap.innerHTML =
-    '<svg width="' + MAP_W + '" height="' + MAP_H + '" viewBox="0 0 ' +
-      WI_VIEW.w + ' ' + WI_VIEW.h + '"><path class="wi-fill" d="' + WI_PATH + '"/></svg>' +
-    pins.map(p => `
-      <div class="dot" style="left:${p.x}px; top:${p.y}px"></div>
-      <div class="pin ${p.flip ? 'left' : ''}"
-           style="left:${p.x + p.dx + (p.flip ? -18 : 18)}px; top:${p.ly}px">
-        <span class="t tabnum ${tempClass(p.c.temp)}">${num(p.c.temp)}&deg;</span>
-        <span class="n">${p.c.name}</span>
-      </div>`).join('');
-}
-
-boot((d) => {
-  const cities = (d.cities || []);
-  drawMap(cities);
-
-  document.getElementById('list').innerHTML = cities
-    .slice().sort((a, b) => b.temp - a.temp)
-    .map(c => `<div class="row">
-        ${icon(c.icon, 26)}
-        <span class="rn">${c.name}</span>
-        <span class="rt tabnum ${tempClass(c.temp)}">${num(c.temp)}&deg;</span>
-      </div>`).join('');
-
-  if (cities.length) {
-    const s = cities.slice().sort((a, b) => b.temp - a.temp);
-    const hi = s[0], lo = s[s.length - 1];
-    document.getElementById('hiv').innerHTML = `${hi.temp}&deg;`;
-    document.getElementById('hiv').className = 'v tabnum ' + tempClass(hi.temp);
-    document.getElementById('hic').textContent = hi.name;
-    document.getElementById('lov').innerHTML = `${lo.temp}&deg;`;
-    document.getElementById('lov').className = 'v tabnum ' + tempClass(lo.temp);
-    document.getElementById('loc').textContent = lo.name;
+  if (!response.ok) {
+    throw new Error("NWS " + response.status);
   }
 
-  const fm = document.getElementById('footmsg');
-  if (fm) fm.textContent =
-    `CURRENT TEMPERATURES ACROSS WISCONSIN \u00b7 ${cities.length} REPORTING STATIONS`;
-});
+  return response.json();
+}
+
+
+/* ============================================================
+   CELSIUS TO FAHRENHEIT
+   ============================================================ */
+
+function cToF(c) {
+
+  if (c === null || c === undefined) {
+    return null;
+  }
+
+  return Math.round((c * 9 / 5) + 32);
+}
+
+
+/* ============================================================
+   TEMPERATURE DISPLAY
+   ============================================================ */
+
+function displayTemp(value) {
+
+  if (value === null || value === undefined || isNaN(value)) {
+    return "--";
+  }
+
+  return Math.round(value);
+}
+
+
+function tempClass(value) {
+
+  if (value === null || value === undefined || isNaN(value)) {
+    return "";
+  }
+
+  if (value >= 85) return "hot";
+  if (value >= 70) return "warm";
+  if (value <= 20) return "cold";
+  if (value <= 35) return "cool";
+
+  return "";
+}
+
+
+/* ============================================================
+   SIMPLE WEATHER ICON
+   ============================================================ */
+
+function weatherIcon(text) {
+
+  const s = String(text || "").toLowerCase();
+
+  if (
+    s.includes("thunder") ||
+    s.includes("storm")
+  ) {
+    return `
+      <span style="
+        font-size:24px;
+        width:26px;
+        display:inline-block;
+        text-align:center;
+      ">⛈</span>`;
+  }
+
+  if (
+    s.includes("snow") ||
+    s.includes("sleet") ||
+    s.includes("flurr")
+  ) {
+    return `
+      <span style="
+        font-size:23px;
+        width:26px;
+        display:inline-block;
+        text-align:center;
+      ">❄</span>`;
+  }
+
+  if (
+    s.includes("rain") ||
+    s.includes("shower")
+  ) {
+    return `
+      <span style="
+        font-size:23px;
+        width:26px;
+        display:inline-block;
+        text-align:center;
+      ">🌧</span>`;
+  }
+
+  if (
+    s.includes("cloud") ||
+    s.includes("overcast")
+  ) {
+    return `
+      <span style="
+        font-size:23px;
+        width:26px;
+        display:inline-block;
+        text-align:center;
+      ">☁</span>`;
+  }
+
+  return `
+    <span style="
+      font-size:23px;
+      width:26px;
+      display:inline-block;
+      text-align:center;
+    ">☀</span>`;
+}
+
+
+/* ============================================================
+   GET CURRENT OBSERVATION FOR A CITY
+   ============================================================ */
+
+async function getCityWeather(name, lat, lon) {
+
+  try {
+
+    /*
+       STEP 1
+       Convert the latitude/longitude into the current NWS
+       forecast office/grid and observation station endpoint.
+    */
+
+    const point = await nws(
+      `https://api.weather.gov/points/${lat},${lon}`
+    );
+
+    const stationUrl =
+      point.properties &&
+      point.properties.observationStations;
+
+    if (!stationUrl) {
+      throw new Error("No observation station URL");
+    }
+
+
+    /*
+       STEP 2
+       Get the nearest NWS observation station.
+    */
+
+    const stations = await nws(stationUrl);
+
+    const station =
+      stations.features &&
+      stations.features[0];
+
+    const stationId =
+      station &&
+      station.properties &&
+      station.properties.stationIdentifier;
+
+    if (!stationId) {
+      throw new Error("No NWS station");
+    }
+
+
+    /*
+       STEP 3
+       Get the latest observation.
+    */
+
+    const observation = await nws(
+      `https://api.weather.gov/stations/${stationId}/observations/latest`
+    );
+
+    const p = observation.properties || {};
+
+    const temp = cToF(
+      p.temperature &&
+      p.temperature.value
+    );
+
+    return {
+      name: name,
+      lat: lat,
+      lon: lon,
+      temp: temp,
+      condition: p.textDescription || "",
+      icon: p.textDescription || ""
+    };
+
+  } catch (error) {
+
+    console.warn(
+      "Statewide NWS request failed for",
+      name,
+      error
+    );
+
+    /*
+       Keep the city on the page even if one station
+       temporarily fails.
+    */
+
+    return {
+      name: name,
+      lat: lat,
+      lon: lon,
+      temp: null,
+      condition: "",
+      icon: ""
+    };
+  }
+}
+
+
+/* ============================================================
+   GET ALL WISCONSIN OBSERVATIONS
+   ============================================================ */
+
+async function getAllCities() {
+
+  const results = await Promise.all(
+    CITY_POINTS.map(city =>
+      getCityWeather(
+        city[0],
+        city[1],
+        city[2]
+      )
+    )
+  );
+
+  return results;
+}
+
+
+/* ============================================================
+   DRAW WISCONSIN MAP
+   ============================================================ */
+
+function drawMap(cities) {
+
+  const wrap =
+    document.getElementById("map");
+
+  const pad =
+    (wrap.clientWidth - MAP_W) / 2;
+
+  const pins =
+    cities
+      .filter(c =>
+        c.lat !== undefined &&
+        c.lon !== undefined &&
+        MAP_LABELS[c.name]
+      )
+      .map(c => {
+
+        const cfg =
+          MAP_LABELS[c.name];
+
+        const p =
+          wiXY(c.lat, c.lon);
+
+        const x =
+          pad + p[0] * SCALE;
+
+        const y =
+          p[1] * SCALE;
+
+        return {
+          c: c,
+          x: x,
+          y: y,
+          ly: y + cfg[2],
+          dx: cfg[1],
+          flip: cfg[0] === "l"
+        };
+      });
+
+
+  wrap.innerHTML =
+
+    '<svg width="' + MAP_W +
+    '" height="' + MAP_H +
+    '" viewBox="0 0 ' +
+    WI_VIEW.w + ' ' +
+    WI_VIEW.h +
+    '">' +
+
+      '<path class="wi-fill" d="' +
+      WI_PATH +
+      '"/>' +
+
+    '</svg>' +
+
+    pins.map(p => {
+
+      const temp =
+        displayTemp(p.c.temp);
+
+      const cls =
+        tempClass(p.c.temp);
+
+      return `
+
+        <div
+          class="dot"
+          style="
+            left:${p.x}px;
+            top:${p.y}px;
+          ">
+        </div>
+
+        <div
+          class="pin ${p.flip ? "left" : ""}"
+          style="
+            left:${p.x + p.dx + (p.flip ? -18 : 18)}px;
+            top:${p.ly}px;
+          ">
+
+          <span class="t tabnum ${cls}">
+            ${temp}&deg;
+          </span>
+
+          <span class="n">
+            ${p.c.name}
+          </span>
+
+        </div>
+
+      `;
+    }).join("");
+
+}
+
+
+/* ============================================================
+   DRAW RIGHT-HAND CITY LIST
+   ============================================================ */
+
+function drawList(cities) {
+
+  const list =
+    document.getElementById("list");
+
+  const sorted =
+    cities
+      .slice()
+      .sort((a, b) => {
+
+        const at =
+          a.temp === null ? -999 : a.temp;
+
+        const bt =
+          b.temp === null ? -999 : b.temp;
+
+        return bt - at;
+      });
+
+
+  list.innerHTML =
+    sorted.map(c => {
+
+      const temp =
+        displayTemp(c.temp);
+
+      return `
+
+        <div class="row">
+
+          ${weatherIcon(c.icon)}
+
+          <span class="rn">
+            ${c.name}
+          </span>
+
+          <span class="
+            rt
+            tabnum
+            ${tempClass(c.temp)}
+          ">
+            ${temp}&deg;
+          </span>
+
+        </div>
+
+      `;
+
+    }).join("");
+}
+
+
+/* ============================================================
+   FIND WARMEST / COOLEST
+   ============================================================ */
+
+function drawExtremes(cities) {
+
+  const valid =
+    cities.filter(c =>
+      c.temp !== null &&
+      c.temp !== undefined &&
+      !isNaN(c.temp)
+    );
+
+
+  if (!valid.length) {
+
+    document.body.classList.add("nodata");
+
+    return;
+  }
+
+
+  document.body.classList.remove("nodata");
+
+
+  const sorted =
+    valid
+      .slice()
+      .sort((a, b) =>
+        b.temp - a.temp
+      );
+
+
+  const warm =
+    sorted[0];
+
+  const cool =
+    sorted[sorted.length - 1];
+
+
+  const hi =
+    document.getElementById("hiv");
+
+  const hc =
+    document.getElementById("hic");
+
+  const lo =
+    document.getElementById("lov");
+
+  const lc =
+    document.getElementById("loc");
+
+
+  hi.textContent =
+    `${warm.temp}°`;
+
+  hi.className =
+    "v tabnum " +
+    tempClass(warm.temp);
+
+  hc.textContent =
+    warm.name;
+
+
+  lo.textContent =
+    `${cool.temp}°`;
+
+  lo.className =
+    "v tabnum " +
+    tempClass(cool.temp);
+
+  lc.textContent =
+    cool.name;
+}
+
+
+/* ============================================================
+   MAIN REFRESH
+   ============================================================ */
+
+async function refreshStatewide() {
+
+  const loading =
+    document.getElementById("loading");
+
+  try {
+
+    loading.textContent =
+      "LOADING NWS OBSERVATIONS...";
+
+    const cities =
+      await getAllCities();
+
+
+    const valid =
+      cities.filter(c =>
+        c.temp !== null &&
+        c.temp !== undefined
+      );
+
+
+    /*
+       Draw everything even if one or two
+       NWS stations fail.
+    */
+
+    drawMap(cities);
+
+    drawList(cities);
+
+    drawExtremes(cities);
+
+
+    /*
+       At least one station successfully
+       returned data.
+    */
+
+    if (valid.length > 0) {
+
+      document.body.classList.add("ready");
+      document.body.classList.remove("nodata");
+
+      const fm =
+        document.getElementById("footmsg");
+
+      if (fm) {
+
+        fm.textContent =
+          `CURRENT TEMPERATURES ACROSS WISCONSIN · ${valid.length} REPORTING STATIONS`;
+      }
+
+    } else {
+
+      document.body.classList.remove("ready");
+      document.body.classList.add("nodata");
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Statewide weather error:",
+      error
+    );
+
+    document.body.classList.remove("ready");
+    document.body.classList.add("nodata");
+
+  }
+}
+
+
+/* ============================================================
+   START
+   ============================================================ */
+
+refreshStatewide();
+
+
+/*
+   Refresh every 60 seconds.
+   This matches the online NWS weather engine.
+*/
+
+setInterval(
+  refreshStatewide,
+  60000
+);
+
+
+/*
+   Redraw the map when the browser/OBS
+   window changes size.
+*/
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    /*
+       Re-fetching isn't necessary.
+       The next scheduled refresh will
+       redraw with the new dimensions.
+    */
+
+  }
+);
+
 </script>
+
 </body>
 </html>
