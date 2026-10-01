@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Coltrons First Alert Weather</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;min-height:100%;background:#030a1c;color:#fff;font-family:Arial,Helvetica,sans-serif}
+body{padding:32px}
+.top{max-width:1500px;margin:auto;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:15px}
+.logo{width:60px;height:60px;background:#e2001a;border-radius:13px;display:grid;place-items:center;font-size:38px;font-weight:900}
+h1{margin:0;font-size:27px}
+.brand p{margin:5px 0 0;color:#8fa9cc;font-size:12px;font-weight:bold;letter-spacing:3px}
+.clock{font-size:24px;font-weight:bold}
+.line{max-width:1500px;margin:25px auto;border-top:1px solid #17345e}
+.grid{max-width:1500px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.card{min-height:155px;text-decoration:none;color:white;background:linear-gradient(145deg,#0b1d40,#050f23);border:1px solid #18345b;border-radius:16px;padding:24px;display:block;transition:.15s}
+.card:hover{transform:translateY(-3px);border-color:#35c8ff;box-shadow:0 12px 35px #0008}
+.icon{font-size:34px;margin-bottom:18px}
+.title{font-size:21px;font-weight:900}
+.desc{margin-top:7px;color:#91aace;font-size:13px;line-height:1.45}
+.news{border-color:#66501e}
+.live{grid-column:span 2;border-color:#7e1825;background:linear-gradient(145deg,#4a0715,#110e20)}
+.live .title{font-size:24px}
+.footer{max-width:1500px;margin:28px auto;text-align:center;color:#657fa6;font-size:11px;letter-spacing:2px}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}.live{grid-column:span 2}}
+@media(max-width:600px){body{padding:18px}.grid{grid-template-columns:1fr}.live{grid-column:span 1}.top{gap:20px;align-items:flex-start}.clock{font-size:18px}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="brand">
+    <div class="logo">C</div>
+    <div>
+      <h1>COLTRONS FIRST ALERT WEATHER</h1>
+      <p>WEATHER CENTER CONTROL DASHBOARD</p>
+    </div>
+  </div>
+  <div class="clock" id="clock">--:--:--</div>
+</div>
+
+<div class="line"></div>
+
+<div class="grid">
+
+<a class="card" href="current.html">
+  <div class="icon">🌡️</div>
+  <div class="title">Current Conditions</div>
+  <div class="desc">Live temperature, wind, humidity, pressure and conditions.</div>
+</a>
+
+<a class="card" href="hourly.html">
+  <div class="icon">🕐</div>
+  <div class="title">Hourly Forecast</div>
+  <div class="desc">12-hour forecast with temperature and precipitation chances.</div>
+</a>
+
+<a class="card" href="sevenday.html">
+  <div class="icon">📅</div>
+  <div class="title">7 Day Forecast</div>
+  <div class="desc">Seven-day highs, lows, conditions and rain chances.</div>
+</a>
+
+<a class="card" href="radar.html">
+  <div class="icon">🗺️</div>
+  <div class="title">Doppler Radar</div>
+  <div class="desc">Animated Wisconsin radar display.</div>
+</a>
+
+<a class="card" href="alert.html">
+  <div class="icon">🚨</div>
+  <div class="title">First Alert</div>
+  <div class="desc">Active watches, warnings and advisories.</div>
+</a>
+
+<a class="card" href="statewide.html">
+  <div class="icon">🌎</div>
+  <div class="title">Wisconsin Temps</div>
+  <div class="desc">Statewide temperatures and warm/cool spots.</div>
+</a>
+
+<a class="card" href="overnight.html">
+  <div class="icon">🌙</div>
+  <div class="title">Overnight</div>
+  <div class="desc">Your overnight and morning weather presentation.</div>
+</a>
+
+<a class="card news" href="desk.html">
+  <div class="icon">🎙️</div>
+  <div class="title">News Desk</div>
+  <div class="desc">Open the full-frame News Desk overlay.</div>
+</a>
+
+<a class="card live" href="desk.html">
+  <div class="icon">🔴</div>
+  <div class="title">GO LIVE / NEWS DESK</div>
+  <div class="desc">Open the broadcast-ready News Desk. OBS remains responsible for the actual YouTube stream.</div>
+</a>
+
+</div>
+
+<div class="footer">COLTRONS FIRST ALERT WEATHER • WEATHER CENTER</div>
+
+<script>
+function updateClock(){
+  const d=new Date();
+  document.getElementById("clock").textContent=d.toLocaleTimeString([],{
+    hour:"numeric",minute:"2-digit",second:"2-digit"
+  });
+}
+updateClock();
+setInterval(updateClock,1000);
+</script>
+
+</body>
+</html>
