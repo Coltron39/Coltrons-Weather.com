@@ -10,7 +10,12 @@ html,body{margin:0;width:100%;min-height:100%;background:#030a1c;color:#fff;font
 body{padding:32px}
 .top{max-width:1500px;margin:auto;display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:15px}
-.logo{width:60px;height:60px;background:#e2001a;border-radius:13px;display:grid;place-items:center;font-size:38px;font-weight:900}
+.logo{width:min(620px,62vw);height:112px;object-fit:contain;object-position:left center;display:block;border-radius:10px}
+.tvOverlay{display:none;position:fixed;inset:0;background:#000;z-index:99999}
+.tvOverlay.active{display:block}
+#tvFrame{width:100%;height:100%;border:0;display:block;background:#000}
+.tvOverlay::after{content:"TV MODE • ESC TO EXIT";position:absolute;right:18px;top:14px;padding:7px 10px;border-radius:6px;background:rgba(0,0,0,.55);color:rgba(255,255,255,.7);font:700 11px Arial,sans-serif;letter-spacing:1.5px;pointer-events:none;opacity:0;transition:opacity .3s}
+.tvOverlay:hover::after{opacity:1}
 h1{margin:0;font-size:27px}
 .brand p{margin:5px 0 0;color:#8fa9cc;font-size:12px;font-weight:bold;letter-spacing:3px}
 .clock{font-size:24px;font-weight:bold}
@@ -37,7 +42,7 @@ h1{margin:0;font-size:27px}
 
 <div class="top">
   <div class="brand">
-    <div class="logo">C</div>
+    <img class="logo" src="coltrons-logo.png" alt="Coltrons First Alert Weather">
     <div>
       <h1>COLTRONS FIRST ALERT WEATHER</h1>
       <p>WEATHER CENTER CONTROL DASHBOARD</p>
@@ -82,7 +87,7 @@ h1{margin:0;font-size:27px}
 
 <a class="card" href="statewide.html">
   <div class="icon">🌎</div>
-  <div class="title">Wisconsin Temps[ERROR]</div>
+  <div class="title">Wisconsin Temps</div>
   <div class="desc">Statewide temperatures and warm/cool spots.</div>
 </a>
 
@@ -94,14 +99,14 @@ h1{margin:0;font-size:27px}
 
 <a class="card news" href="desk.html">
   <div class="icon">🎙️</div>
-  <div class="title">News Desk[ERROR]</div>
+  <div class="title">News Desk</div>
   <div class="desc">Open the full-frame News Desk overlay.</div>
 </a>
 
 <button class="card live" id="tvButton" onclick="startTV()">
   <div class="icon">📺</div>
-  <div class="title">TV MODE[ERROR]</div>
-  <div class="desc">Enter full-screen TV mode. Press ESC to exit.</div>
+  <div class="title">TV MODE</div>
+  <div class="desc">Fullscreen TV mode. Automatically cycles weather pages. Press ESC to exit.</div>
 </button>
 
 </div>
@@ -118,23 +123,62 @@ function updateClock(){
 updateClock();
 setInterval(updateClock,1000);
 
+const tvPages=[
+  "current.html",
+  "hourly.html",
+  "sevenday.html",
+  "radar.html",
+  "alert.html",
+  "statewide.html"
+];
+let tvIndex=0;
+let tvTimer=null;
+
 async function startTV(){
+  const overlay=document.getElementById("tvOverlay");
+  const frame=document.getElementById("tvFrame");
+
+  tvIndex=0;
+  frame.src=tvPages[tvIndex];
+  overlay.classList.add("active");
+  overlay.setAttribute("aria-hidden","false");
+
   try{
     if(document.documentElement.requestFullscreen){
       await document.documentElement.requestFullscreen();
     }
   }catch(e){
-    console.warn("Fullscreen was blocked:", e);
+    console.warn("Fullscreen was blocked:",e);
   }
+
+  clearInterval(tvTimer);
+  tvTimer=setInterval(()=>{
+    tvIndex=(tvIndex+1)%tvPages.length;
+    frame.src=tvPages[tvIndex];
+  },10000);
+}
+
+function stopTV(){
+  clearInterval(tvTimer);
+  tvTimer=null;
+  const overlay=document.getElementById("tvOverlay");
+  const frame=document.getElementById("tvFrame");
+  overlay.classList.remove("active");
+  overlay.setAttribute("aria-hidden","true");
+  frame.src="about:blank";
 }
 
 document.addEventListener("fullscreenchange",()=>{
   const button=document.getElementById("tvButton");
-  if(button){
-    button.style.display=document.fullscreenElement ? "none" : "";
-  }
+  const isFull=!!document.fullscreenElement;
+  if(button) button.style.display=isFull ? "none" : "";
+  if(!isFull) stopTV();
 });
 </script>
+
+<div class="tvOverlay" id="tvOverlay" aria-hidden="true">
+  <iframe id="tvFrame" title="Coltrons First Alert Weather TV Mode" allowfullscreen></iframe>
+</div>
 
 </body>
 </html>
