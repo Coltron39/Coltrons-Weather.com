@@ -1,0 +1,192 @@
+/* ============================================================
+   COLTRONS FIRST ALERT WEATHER - broadcast graphics package
+   All pages are designed at exactly 1920 x 1080.
+   Brand colors live in :root - change them once, change the
+   whole station.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Inter:wght@400;600;700;800&display=swap');
+
+:root {
+  /* ---- STATION BRAND ---- */
+  --navy-0:   #030a1c;
+  --navy-1:   #071634;
+  --navy-2:   #0d2a5c;
+  --navy-3:   #14418c;
+  --cyan:     #35c8ff;
+  --cyan-dim: #1a86c9;
+  --alert:    #e2001a;
+  --alert-2:  #ff3b2f;
+  --amber:    #ffb020;
+  --ink:      #ffffff;
+  --ink-dim:  rgba(255, 255, 255, 0.62);
+  --hairline: rgba(255, 255, 255, 0.12);
+
+  --cond: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  --sans: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: transparent;         /* OBS composites over your scene */
+  font-family: var(--sans);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Every page is one fixed 1920x1080 frame - OBS browser sources use exactly
+   that size, so absolute positions line up 1:1. */
+body { position: relative; }
+
+body.solid {
+  background:
+    radial-gradient(1200px 800px at 18% 8%, var(--navy-3) 0%, transparent 62%),
+    radial-gradient(900px 700px at 88% 92%, var(--navy-2) 0%, transparent 60%),
+    linear-gradient(160deg, var(--navy-1) 0%, var(--navy-0) 100%);
+}
+
+/* faint broadcast texture so flat panels don't look dead */
+body.solid::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none;
+  background-image: repeating-linear-gradient(
+    0deg, rgba(255,255,255,.022) 0 1px, transparent 1px 3px);
+}
+
+/* ---------------- shared header ---------------- */
+.header {
+  position: absolute; top: 0; left: 0; right: 0; height: 132px;
+  display: flex; align-items: center; gap: 28px;
+  padding: 0 64px;
+  background: linear-gradient(90deg, rgba(3,10,28,.96) 0%, rgba(13,42,92,.72) 55%, rgba(3,10,28,0) 100%);
+  border-bottom: 3px solid var(--cyan);
+}
+
+.logo-mark {
+  width: 76px; height: 76px; flex: none;
+  border-radius: 12px;
+  background: linear-gradient(150deg, var(--alert) 0%, #8f0010 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--cond); font-weight: 700; font-size: 46px;
+  letter-spacing: -1px; line-height: 1;
+  box-shadow: 0 10px 30px rgba(226, 0, 26, .38);
+}
+
+.logo-text .l1 {
+  font-family: var(--cond); font-weight: 700;
+  font-size: 46px; line-height: .96; letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.logo-text .l1 em {
+  font-style: normal;
+  color: var(--alert-2);
+}
+.logo-text .l2 {
+  font-family: var(--sans); font-weight: 700;
+  font-size: 15px; letter-spacing: 5.5px;
+  color: var(--ink-dim); text-transform: uppercase; margin-top: 5px;
+}
+
+.header-right {
+  margin-left: auto; text-align: right;
+  font-family: var(--cond);
+}
+.header-right .clock {
+  font-size: 52px; font-weight: 600; line-height: 1; letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
+}
+.header-right .date {
+  font-family: var(--sans); font-size: 15px; font-weight: 600;
+  letter-spacing: 3.4px; color: var(--ink-dim); margin-top: 6px;
+}
+
+/* ---------------- page titles ---------------- */
+.page-title {
+  position: absolute; top: 172px; left: 64px;
+  display: flex; align-items: baseline; gap: 22px;
+}
+.page-title h1 {
+  font-family: var(--cond); font-weight: 700;
+  font-size: 78px; line-height: .9; letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.page-title .kicker {
+  font-family: var(--sans); font-size: 16px; font-weight: 700;
+  letter-spacing: 4px; color: var(--cyan); text-transform: uppercase;
+  padding-bottom: 10px;
+}
+
+/* ---------------- cards / panels ---------------- */
+.panel {
+  background: linear-gradient(165deg, rgba(20,65,140,.55) 0%, rgba(7,22,52,.82) 100%);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  backdrop-filter: blur(2px);
+}
+.panel-accent { border-top: 4px solid var(--cyan); }
+
+.label {
+  font-family: var(--sans); font-size: 14px; font-weight: 700;
+  letter-spacing: 3.2px; color: var(--ink-dim); text-transform: uppercase;
+}
+
+/* ---------------- footer bar / bug ---------------- */
+.footer {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 74px;
+  display: flex; align-items: center; gap: 26px; padding: 0 64px;
+  background: linear-gradient(90deg, var(--alert) 0 340px, rgba(3,10,28,.94) 340px 100%);
+}
+.footer .brandchip {
+  font-family: var(--cond); font-weight: 700; font-size: 30px;
+  letter-spacing: 1.5px; text-transform: uppercase; width: 276px; flex: none;
+}
+.footer .msg {
+  font-family: var(--cond); font-size: 30px; letter-spacing: .6px;
+  text-transform: uppercase; color: rgba(255,255,255,.9);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.footer .stamp {
+  margin-left: auto; flex: none;
+  font-family: var(--sans); font-size: 13px; font-weight: 700;
+  letter-spacing: 3px; color: var(--ink-dim);
+}
+
+/* ---------------- icons ---------------- */
+.wxicon { display: block; }
+.wxicon .sun   { fill: #ffcf3f; }
+.wxicon .moon  { fill: #e8f2ff; }
+.wxicon .cloud { fill: #eaf3ff; }
+.wxicon .cloud-dk { fill: #b9cbe4; }
+.wxicon .drop  { fill: var(--cyan); }
+.wxicon .bolt  { fill: var(--amber); }
+.wxicon .flake { stroke: #dff1ff; }
+
+/* ---------------- animation helpers ---------------- */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.rise { animation: fadeUp .55s cubic-bezier(.2,.7,.2,1) both; }
+
+@keyframes wipeIn { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.wipe { animation: wipeIn .6s cubic-bezier(.3,.8,.2,1) both; }
+
+@keyframes pulseAlert {
+  0%,100% { background: var(--alert); }
+  50%     { background: var(--alert-2); }
+}
+
+.tabnum { font-variant-numeric: tabular-nums; }
+.offline { display: none; }
+body.nodata .offline { display: block; }
+
+/* ---------------- temperature color scale ---------------- */
+.c-extreme { color: #ff4a2e; }
+.c-hot     { color: #ff8a3d; }
+.c-warm    { color: #ffc247; }
+.c-mild    { color: #8ef0b8; }
+.c-cool    { color: #6fe0ff; }
+.c-cold    { color: #56aaff; }
+.c-frigid  { color: #b39cff; }
+.c-na      { color: var(--ink-dim); }
