@@ -2,170 +2,181 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Coltrons First Alert Weather</title>
 
 <style>
-*{box-sizing:border-box}
-
-html,body{
-  margin:0;
-  width:100%;
-  min-height:100%;
-  background:#030a1c;
-  color:#fff;
-  font-family:Arial,Helvetica,sans-serif
+* {
+  box-sizing: border-box;
 }
 
-body{
-  padding:32px
+html, body {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+  background: #030a1c;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-.top{
-  max-width:1500px;
-  margin:auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between
+body {
+  padding: 32px;
 }
 
-.brand{
-  display:flex;
-  align-items:center;
-  gap:15px
+.top {
+  max-width: 1500px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.logo{
-  width:60px;
-  height:60px;
-  background:#e2001a;
-  border-radius:13px;
-  display:grid;
-  place-items:center;
-  font-size:38px;
-  font-weight:900
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
-h1{
-  margin:0;
-  font-size:27px
+.logo {
+  width: 60px;
+  height: 60px;
+  background: #e2001a;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  font-size: 38px;
+  font-weight: 900;
 }
 
-.brand p{
-  margin:5px 0 0;
-  color:#8fa9cc;
-  font-size:12px;
-  font-weight:bold;
-  letter-spacing:3px
+h1 {
+  margin: 0;
+  font-size: 27px;
 }
 
-.clock{
-  font-size:24px;
-  font-weight:bold
+.brand p {
+  margin: 5px 0 0;
+  color: #8fa9cc;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 3px;
 }
 
-.line{
-  max-width:1500px;
-  margin:25px auto;
-  border-top:1px solid #17345e
+.clock {
+  font-size: 24px;
+  font-weight: bold;
 }
 
-.grid{
-  max-width:1500px;
-  margin:auto;
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:18px
+.line {
+  max-width: 1500px;
+  margin: 25px auto;
+  border-top: 1px solid #17345e;
 }
 
-.card{
-  min-height:155px;
-  text-decoration:none;
-  color:white;
-  background:linear-gradient(145deg,#0b1d40,#050f23);
-  border:1px solid #18345b;
-  border-radius:16px;
-  padding:24px;
-  display:block;
-  transition:.15s
+.grid {
+  max-width: 1500px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
 }
 
-.card:hover{
-  transform:translateY(-3px);
-  border-color:#35c8ff;
-  box-shadow:0 12px 35px #0008
+.card {
+  min-height: 155px;
+  text-decoration: none;
+  color: white;
+  background: linear-gradient(145deg, #0b1d40, #050f23);
+  border: 1px solid #18345b;
+  border-radius: 16px;
+  padding: 24px;
+  display: block;
+  transition: 0.15s;
 }
 
-.icon{
-  font-size:34px;
-  margin-bottom:18px
+.card:hover {
+  transform: translateY(-3px);
+  border-color: #35c8ff;
+  box-shadow: 0 12px 35px #0008;
 }
 
-.title{
-  font-size:21px;
-  font-weight:900
+.icon {
+  font-size: 34px;
+  margin-bottom: 18px;
 }
 
-.desc{
-  margin-top:7px;
-  color:#91aace;
-  font-size:13px;
-  line-height:1.45
+.title {
+  font-size: 21px;
+  font-weight: 900;
 }
 
-.news{
-  border-color:#66501e
+.desc {
+  margin-top: 7px;
+  color: #91aace;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
-.live{
-  grid-column:span 2;
-  border-color:#7e1825;
-  background:linear-gradient(145deg,#4a0715,#110e20)
+.news {
+  border-color: #66501e;
 }
 
-.live .title{
-  font-size:24px
+.live {
+  grid-column: span 2;
+  border-color: #7e1825;
+  background: linear-gradient(145deg, #4a0715, #110e20);
 }
 
-.footer{
-  max-width:1500px;
-  margin:28px auto;
-  text-align:center;
-  color:#657fa6;
-  font-size:11px;
-  letter-spacing:2px
+.live .title {
+  font-size: 24px;
 }
 
-@media(max-width:1000px){
-  .grid{
-    grid-template-columns:repeat(2,1fr)
+.footer {
+  max-width: 1500px;
+  margin: 28px auto;
+  text-align: center;
+  color: #657fa6;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .live{
-    grid-column:span 2
+  .live {
+    grid-column: span 2;
   }
 }
 
-@media(max-width:600px){
-  body{
-    padding:18px
+@media (max-width: 600px) {
+  body {
+    padding: 18px;
   }
 
-  .grid{
-    grid-template-columns:1fr
+  .grid {
+    grid-template-columns: 1fr;
   }
 
-  .live{
-    grid-column:span 1
+  .live {
+    grid-column: span 1;
   }
 
-  .top{
-    gap:20px;
-    align-items:flex-start
+  .top {
+    gap: 20px;
+    align-items: flex-start;
   }
 
-  .clock{
-    font-size:18px
+  .clock {
+    font-size: 18px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  .brand p {
+    font-size: 10px;
+    letter-spacing: 2px;
   }
 }
 </style>
@@ -174,106 +185,92 @@ h1{
 <body>
 
 <div class="top">
-
   <div class="brand">
-
     <div class="logo">C</div>
-
     <div>
       <h1>COLTRONS FIRST ALERT WEATHER</h1>
       <p>WEATHER CENTER CONTROL DASHBOARD</p>
     </div>
-
   </div>
 
   <div class="clock" id="clock">--:--:--</div>
-
 </div>
 
 <div class="line"></div>
 
 <div class="grid">
 
-<!-- CURRENT CONDITIONS -->
-<a class="card" href="Weather/current.html">
-  <div class="icon">🌡️</div>
-  <div class="title">Current Conditions</div>
-  <div class="desc">
-    Live temperature, wind, humidity, pressure and conditions.
-  </div>
-</a>
+  <a class="card" href="/Coltrons-Weather.com/current.html">
+    <div class="icon">🌡️</div>
+    <div class="title">Current Conditions</div>
+    <div class="desc">
+      Live temperature, wind, humidity, pressure and conditions.
+    </div>
+  </a>
 
-<!-- HOURLY -->
-<a class="card" href="Weather/hourly.html">
-  <div class="icon">🕐</div>
-  <div class="title">Hourly Forecast</div>
-  <div class="desc">
-    12-hour forecast with temperature and precipitation chances.
-  </div>
-</a>
+  <a class="card" href="/Coltrons-Weather.com/hourly.html">
+    <div class="icon">🕐</div>
+    <div class="title">Hourly Forecast</div>
+    <div class="desc">
+      12-hour forecast with temperature and precipitation chances.
+    </div>
+  </a>
 
-<!-- 7 DAY -->
-<a class="card" href="Weather/sevenday.html">
-  <div class="icon">📅</div>
-  <div class="title">7 Day Forecast</div>
-  <div class="desc">
-    Seven-day highs, lows, conditions and rain chances.
-  </div>
-</a>
+  <a class="card" href="/Coltrons-Weather.com/sevenday.html">
+    <div class="icon">📅</div>
+    <div class="title">7 Day Forecast</div>
+    <div class="desc">
+      Seven-day highs, lows, conditions and rain chances.
+    </div>
+  </a>
 
-<!-- RADAR -->
-<a class="card" href="Weather/radar.html">
-  <div class="icon">🗺️</div>
-  <div class="title">Doppler Radar</div>
-  <div class="desc">
-    Animated Wisconsin radar display.
-  </div>
-</a>
+  <a class="card" href="/Coltrons-Weather.com/radar.html">
+    <div class="icon">🗺️</div>
+    <div class="title">Doppler Radar</div>
+    <div class="desc">
+      Animated Wisconsin radar display.
+    </div>
+  </a>
 
-<!-- ALERTS -->
-<a class="card" href="Weather/alert.html">
-  <div class="icon">🚨</div>
-  <div class="title">First Alert</div>
-  <div class="desc">
-    Active watches, warnings and advisories.
-  </div>
-</a>
+  <a class="card" href="/Coltrons-Weather.com/alert.html">
+    <div class="icon">🚨</div>
+    <div class="title">First Alert</div>
+    <div class="desc">
+      Active watches, warnings and advisories.
+    </div>
+  </a>
 
-<!-- STATEWIDE -->
-<a class="card" href="Weather/statewide.html">
-  <div class="icon">🌎</div>
-  <div class="title">Wisconsin Temps</div>
-  <div class="desc">
-    Statewide temperatures and warm/cool spots.
-  </div>
-</a>
+  <a class="card" href="/Coltrons-Weather.com/statewide.html">
+    <div class="icon">🌎</div>
+    <div class="title">Wisconsin Temps</div>
+    <div class="desc">
+      Statewide temperatures and warm/cool spots.
+    </div>
+  </a>
 
-<!-- OVERNIGHT -->
-<a class="card" href="Weather/overnight.html">
-  <div class="icon">🌙</div>
-  <div class="title">Overnight</div>
-  <div class="desc">
-    Your overnight and morning weather presentation.
-  </div>
-</a>
+  <a class="card" href="/Coltrons-Weather.com/overnight.html">
+    <div class="icon">🌙</div>
+    <div class="title">Overnight</div>
+    <div class="desc">
+      Your overnight and morning weather presentation.
+    </div>
+  </a>
 
-<!-- NEWS DESK -->
-<a class="card news" href="Weather/desk.html">
-  <div class="icon">🎙️</div>
-  <div class="title">News Desk</div>
-  <div class="desc">
-    Open the full-frame News Desk overlay.
-  </div>
-</a>
+  <a class="card news" href="/Coltrons-Weather.com/desk.html">
+    <div class="icon">🎙️</div>
+    <div class="title">News Desk</div>
+    <div class="desc">
+      Open the full-frame News Desk overlay.
+    </div>
+  </a>
 
-<!-- GO LIVE -->
-<a class="card live" href="Weather/desk.html">
-  <div class="icon">🔴</div>
-  <div class="title">GO LIVE / NEWS DESK</div>
-  <div class="desc">
-    Open the broadcast-ready News Desk. OBS remains responsible for the actual YouTube stream.
-  </div>
-</a>
+  <a class="card live" href="/Coltrons-Weather.com/desk.html">
+    <div class="icon">🔴</div>
+    <div class="title">GO LIVE / NEWS DESK</div>
+    <div class="desc">
+      Open the broadcast-ready News Desk. OBS remains responsible for the actual YouTube stream.
+    </div>
+  </a>
 
 </div>
 
@@ -282,24 +279,19 @@ h1{
 </div>
 
 <script>
-
-function updateClock(){
-
+function updateClock() {
   const d = new Date();
 
   document.getElementById("clock").textContent =
-    d.toLocaleTimeString([],{
-      hour:"numeric",
-      minute:"2-digit",
-      second:"2-digit"
+    d.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit"
     });
-
 }
 
 updateClock();
-
-setInterval(updateClock,1000);
-
+setInterval(updateClock, 1000);
 </script>
 
 </body>
