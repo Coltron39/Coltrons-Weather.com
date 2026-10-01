@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NEWS DESK - Coltrons First Alert Weather</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* =====================================================================
+     FULL-FRAME NEWS DESK OVERLAY
+     Transparent. Your camera fills the whole 1920x1080 frame underneath;
+     this page only draws the furniture on top of it.
+     ===================================================================== */
+
+  /* top-left station slug */
+  .slug { position:absolute; left:0; top:0; display:flex; align-items:center;
+          background:linear-gradient(90deg, rgba(3,10,28,.94) 0%, rgba(3,10,28,.72) 100%);
+          border-bottom-right-radius:20px; padding:16px 34px 15px 24px;
+          box-shadow:0 14px 40px rgba(0,0,0,.45); }
+  .slug .c { width:52px; height:52px; border-radius:11px; background:var(--alert);
+             display:flex; align-items:center; justify-content:center;
+             font-family:var(--cond); font-size:38px; font-weight:800; margin-right:16px;
+             box-shadow:0 8px 22px rgba(226,0,26,.45); }
+  .slug h2 { font-family:var(--cond); font-size:32px; font-weight:800; letter-spacing:1px;
+             text-transform:uppercase; line-height:1; }
+  .slug h2 em { font-style:normal; color:var(--alert); }
+  .slug p { font-size:13px; font-weight:900; letter-spacing:5px; color:#7f9ec9; margin-top:5px; }
+
+  /* top-right clock + temp bug */
+  .bug { position:absolute; right:44px; top:34px; display:flex; align-items:center; gap:18px;
+         padding:14px 24px; border-radius:16px; background:rgba(3,10,28,.82);
+         border:1px solid rgba(53,200,255,.26); box-shadow:0 16px 44px rgba(0,0,0,.45); }
+  .bug .t { font-family:var(--cond); font-size:40px; font-weight:800; line-height:1;
+            font-variant-numeric:tabular-nums; }
+  .bug .div { width:1px; height:40px; background:rgba(255,255,255,.16); }
+  .bug .temp { display:flex; align-items:center; gap:12px; }
+  .bug .temp b { font-family:var(--cond); font-size:44px; font-weight:800; line-height:1; }
+  .bug .temp span { font-size:13px; font-weight:900; letter-spacing:3px; color:#9fc3ef; }
+
+  /* LIVE flag */
+  .live { position:absolute; left:34px; top:132px; display:flex; align-items:center; gap:12px;
+          background:var(--alert); padding:11px 22px 10px; border-radius:10px;
+          box-shadow:0 12px 34px rgba(226,0,26,.45); }
+  .live i { width:12px; height:12px; border-radius:50%; background:#fff;
+            animation:blink 1.6s infinite; }
+  .live span { font-size:19px; font-weight:900; letter-spacing:6px; }
+  @keyframes blink { 0%,60%{opacity:1} 80%,100%{opacity:.25} }
+
+  /* ---- headline stack, bottom left ---- */
+  .head { position:absolute; left:0; bottom:132px; max-width:1360px; }
+  .topic { display:inline-block; background:var(--cyan); color:#04162b;
+           font-size:19px; font-weight:900; letter-spacing:6px; padding:10px 22px 9px;
+           border-radius:0 10px 10px 0; margin-left:0; }
+  .topic.wx { background:var(--alert); color:#fff; }
+  .band { margin-top:10px; background:linear-gradient(90deg, rgba(3,10,28,.95) 0%,
+          rgba(7,22,52,.92) 78%, rgba(7,22,52,0) 100%);
+          border-left:9px solid var(--alert); padding:20px 90px 22px 30px; }
+  .band h1 { font-family:var(--cond); font-size:76px; font-weight:800; line-height:.96;
+             text-transform:uppercase; letter-spacing:-.5px; }
+  .band p { font-size:26px; font-weight:700; letter-spacing:2px; color:#bcd6f5; margin-top:10px; }
+
+  /* ---- ticker ---- */
+  .ticker { position:absolute; left:0; right:0; bottom:0; height:74px; display:flex;
+            align-items:stretch; background:rgba(3,10,28,.94);
+            border-top:2px solid rgba(53,200,255,.35); }
+  .ticker .tag { flex:0 0 250px; background:var(--alert); display:flex; align-items:center;
+                 justify-content:center; font-size:22px; font-weight:900; letter-spacing:5px; }
+  .ticker .win { flex:1; overflow:hidden; position:relative; }
+  .ticker .run { position:absolute; white-space:nowrap; top:50%; transform:translateY(-50%);
+                 font-size:27px; font-weight:800; letter-spacing:2px; color:#e9f3ff;
+                 animation:crawl 46s linear infinite; }
+  .ticker .run b { color:var(--cyan); margin:0 14px; }
+  @keyframes crawl { from{transform:translate(0,-50%)} to{transform:translate(-100%,-50%)} }
+  .ticker .clockcell { flex:0 0 210px; display:flex; align-items:center; justify-content:center;
+        border-left:1px solid rgba(255,255,255,.14); font-family:var(--cond); font-size:32px;
+        font-weight:700; letter-spacing:2px; color:#cfe2ff; }
+</style>
+</head>
+<body>
+  <!-- transparent: camera shows through everywhere except this furniture -->
+
+  <div class="slug">
+    <span class="c">C</span>
+    <div>
+      <h2>COLTRONS <em>FIRST ALERT</em> WEATHER</h2>
+      <p>WISCONSIN'S WEATHER AUTHORITY</p>
+    </div>
+  </div>
+
+  <div class="bug">
+    <div class="t" id="clock">--:--</div>
+    <div class="div"></div>
+    <div class="temp">
+      <span id="bugicon"></span>
+      <b id="bugtemp">--&deg;</b>
+      <span id="bugcity">WISCONSIN RAPIDS</span>
+    </div>
+  </div>
+
+  <div class="live"><i></i><span>LIVE</span></div>
+
+  <div class="head">
+    <div class="topic" id="topic">FIRST ALERT WEATHER</div>
+    <div class="band">
+      <h1 id="hl">TRACKING TONIGHT'S FORECAST</h1>
+      <p id="sub">WISCONSIN RAPIDS - WOOD COUNTY</p>
+    </div>
+  </div>
+
+  <div class="ticker">
+    <div class="tag">FIRST ALERT</div>
+    <div class="win"><div class="run" id="run">LOADING...</div></div>
+    <div class="clockcell" id="tclock">--:--</div>
+  </div>
+
+<script src="wx.js"></script>
+<script>
+/* =====================================================================
+   FIRST ALERT NIGHTCAST - rundown for Monday, August 24
+   SHOW_MODE "clock" walks the rundown by the wall clock, so the graphics
+   follow the show sheet on their own. Switch to "rotate" to just cycle.
+   Test any moment with  desk.html?now=21:06
+   ===================================================================== */
+const SHOW_MODE = "clock";
+const SHOW_NAME = "FIRST ALERT NIGHTCAST";
+
+const PRESHOW = { topic:"COMING UP AT 9:00", wx:true,
+  hl:"FIRST ALERT NIGHTCAST",
+  sub:"YOUR FORECAST FOR CENTRAL WISCONSIN - STARTS AT 9 PM" };
+
+const POSTSHOW = { topic:"FIRST ALERT WEATHER", wx:true,
+  hl:"THANKS FOR WATCHING",
+  sub:"NEXT UPDATE IN THE MORNING - COLTRONS FIRST ALERT WEATHER" };
+
+/* at = when this headline goes up, 24-hour local time */
+const STORIES = [
+  { at:"21:00", topic:"FIRST ALERT NIGHTCAST", wx:true,
+    hl:"A COOL, QUIET NIGHT AHEAD",
+    sub:"MONDAY, AUGUST 24 - WISCONSIN RAPIDS" },
+  { at:"21:02", topic:"RIGHT NOW", wx:true,
+    hl:"CLEAR AND CALM<br>ACROSS CENTRAL WISCONSIN",
+    sub:"WISCONSIN RAPIDS 61 DEGREES - WIND CALM" },
+  { at:"21:04", topic:"FIRST ALERT RADAR",
+    hl:"RADAR IS QUIET STATEWIDE",
+    sub:"NO RAIN ON THE MAP THROUGH SUNRISE" },
+  { at:"21:06", topic:"STATEWIDE",
+    hl:"LA CROSSE WARMEST AT 72",
+    sub:"SUPERIOR COOLEST AT 57 - 15 DEGREE SPREAD ACROSS THE STATE" },
+  { at:"21:08", topic:"TONIGHT", wx:true,
+    hl:"LOW OF 54 BY DAYBREAK",
+    sub:"PARTLY CLOUDY - PATCHY FOG POSSIBLE IN THE RIVER VALLEYS" },
+  { at:"21:10", topic:"FIRST ALERT FORECAST", wx:true,
+    hl:"82 AND HUMID TUESDAY",
+    sub:"HEAT INDEX NEAR 83 - SOUTH WIND GUSTING TO 21" },
+  { at:"21:13", topic:"FIRST ALERT WEATHER", wx:true,
+    hl:"STORM CHANCES RETURN<br>TUESDAY NIGHT",
+    sub:"30 PERCENT CHANCE - BEST WINDOW 7 PM TO 3 AM" },
+  { at:"21:16", topic:"LAKESHORE",
+    hl:"BEACH HAZARDS IN SHEBOYGAN COUNTY",
+    sub:"WAVES TO 4 FEET AND DANGEROUS CURRENTS TUESDAY AFTERNOON" },
+  { at:"21:18", topic:"7 DAY FORECAST", wx:true,
+    hl:"SUNSHINE HOLDS<br>THROUGH FRIDAY",
+    sub:"80 WEDNESDAY - 81 THURSDAY AND FRIDAY - STORMS THIS WEEKEND" },
+  { at:"21:21", topic:"FIRST ALERT NIGHTCAST", wx:true,
+    hl:"ONE MORE LOOK AT TONIGHT",
+    sub:"CLEAR, CALM AND 54 - GREAT SLEEPING WEATHER" },
+  { at:"21:23", ...POSTSHOW },
+];
+const STORY_SECONDS = 14;        // only used when SHOW_MODE = "rotate"
+
+const TICKER_LINES = [
+  "COLTRONS FIRST ALERT WEATHER - LIVE FROM WISCONSIN RAPIDS",
+  "TONIGHT: PARTLY CLOUDY, LOW NEAR 54, WIND CALM",
+  "TUESDAY: PARTLY SUNNY AND HUMID, HIGH 82, HEAT INDEX NEAR 83",
+  "TUESDAY NIGHT: SHOWERS AND STORMS POSSIBLE 7 PM TO 3 AM, 30 PERCENT CHANCE",
+  "BEACH HAZARDS STATEMENT - SHEBOYGAN COUNTY - WAVES TO 4 FEET TUESDAY",
+  "WEDNESDAY 80 AND SUNNY - THURSDAY 81 - FRIDAY 81",
+  "NEXT BEST RAIN CHANCE ARRIVES SATURDAY WITH SCATTERED STORMS",
+  "FORECAST DATA FROM THE NATIONAL WEATHER SERVICE, UPDATED EVERY FIVE MINUTES",
+];
+/* ===================================================================== */
+
+/* clock in two places (station bug + ticker) */
+(function () {
+  const a = document.getElementById('clock'), b = document.getElementById('tclock');
+  const tick = () => {
+    const d = new Date();
+    const h = d.getHours() % 12 || 12;
+    const m = String(d.getMinutes()).padStart(2, '0');
+    const label = `${h}:${m} ${d.getHours() >= 12 ? 'PM' : 'AM'}`;
+    if (a) a.textContent = label;
+    if (b) b.textContent = label;
+  };
+  tick(); setInterval(tick, 1000);
+})();
+
+function paint(st) {
+  const tab = document.getElementById('topic');
+  tab.textContent = st.topic;
+  tab.className = 'topic' + (st.wx ? ' wx' : '');
+  document.getElementById('hl').innerHTML = st.hl;
+  document.getElementById('sub').textContent = st.sub;
+}
+
+/* what time is it, honouring ?now=HH:MM for rehearsal */
+function minutesNow() {
+  const q = new URLSearchParams(location.search).get('now');
+  if (q && /^\d{1,2}:\d{2}$/.test(q)) {
+    const [h, m] = q.split(':').map(Number);
+    return h * 60 + m;
+  }
+  const d = new Date();
+  return d.getHours() * 60 + d.getMinutes();
+}
+const toMin = (hhmm) => {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+};
+
+if (SHOW_MODE === 'clock') {
+  let shown = null;
+  const follow = () => {
+    const now = minutesNow();
+    let cur = PRESHOW;
+    for (const st of STORIES) if (now >= toMin(st.at)) cur = st;
+    if (cur !== shown) { paint(cur); shown = cur; }
+  };
+  follow();
+  setInterval(follow, 5000);
+} else {
+  let s = 0;
+  const cycle = () => {
+    paint(STORIES[s % STORIES.length]);
+    s++;
+    setTimeout(cycle, STORY_SECONDS * 1000);
+  };
+  cycle();
+}
+
+/* live data: corner bug + crawl */
+boot(data => {
+  const p = data.primary || {};
+  document.getElementById('bugicon').innerHTML = icon(p.icon, 40);
+  const t = document.getElementById('bugtemp');
+  t.textContent = (p.temp ?? '--') + '\u00B0';
+  t.className = tempClass(p.temp);
+  document.getElementById('bugcity').textContent = p.name || '';
+
+  const wx = [];
+  const tn = (data.periods || []).find(x => !x.is_day) || (data.periods || [])[0];
+  if (tn) wx.push(`${tn.name || 'NEXT'}: ${tn.short || ''}, ${tn.temp ?? '--'}\u00B0`);
+  (data.alerts || []).forEach(a =>
+    wx.push(`${a.event}: ${(a.areas || '').slice(0, 90)}`));
+  (data.cities || []).slice(0, 10).forEach(c =>
+    wx.push(`${c.name} ${c.temp ?? '--'}\u00B0`));
+
+  const all = [...TICKER_LINES, ...wx];
+  const line = all.join('   \u2022   ') + '   \u2022   ';
+  document.getElementById('run').innerHTML = line + line;   // doubled = seamless loop
+});
+</script>
+</body>
+</html>

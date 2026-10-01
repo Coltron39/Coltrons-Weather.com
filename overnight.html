@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OVERNIGHT - Coltrons First Alert Weather</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* =====================================================================
+     OVERNIGHT / BED TIME SLATE
+     Goes up at 9 PM and sits there all night. At 8 AM it turns itself into
+     a GOOD MORNING card. Nothing to press.
+     Rehearse any moment:  overnight.html?now=03:20
+     ===================================================================== */
+
+  .sky { position:absolute; inset:0;
+         background:
+           radial-gradient(1400px 900px at 50% 120%, #0b2a5e 0%, transparent 60%),
+           radial-gradient(900px 700px at 15% 10%, #10265a 0%, transparent 55%),
+           linear-gradient(180deg, #030a1c 0%, #010512 100%); }
+
+  /* slow drifting star field - gentle, so it can sit on screen for hours */
+  .stars, .stars2 { position:absolute; inset:-10% -10%; opacity:.5;
+        background-image:
+          radial-gradient(1.6px 1.6px at 12% 22%, #cfe4ff 50%, transparent 51%),
+          radial-gradient(1.4px 1.4px at 28% 61%, #9fc3ef 50%, transparent 51%),
+          radial-gradient(1.8px 1.8px at 44% 15%, #e9f3ff 50%, transparent 51%),
+          radial-gradient(1.3px 1.3px at 61% 44%, #bcd6f5 50%, transparent 51%),
+          radial-gradient(1.7px 1.7px at 74% 26%, #dff1ff 50%, transparent 51%),
+          radial-gradient(1.4px 1.4px at 86% 68%, #a9cbf2 50%, transparent 51%),
+          radial-gradient(1.5px 1.5px at 35% 84%, #cfe4ff 50%, transparent 51%),
+          radial-gradient(1.3px 1.3px at 68% 88%, #9fc3ef 50%, transparent 51%);
+        animation:drift 220s linear infinite, twinkle 7s ease-in-out infinite alternate; }
+  .stars2 { animation-duration:340s, 9s; animation-direction:reverse, alternate; opacity:.3; }
+  @keyframes drift { to { transform:translate(-60px, 30px); } }
+  @keyframes twinkle { from{opacity:.28} to{opacity:.55} }
+
+  /* moon */
+  .moon { position:absolute; right:210px; top:150px; width:170px; height:170px;
+          border-radius:50%; background:radial-gradient(circle at 36% 32%, #ffffff, #cddff5 60%, #93b3d8 100%);
+          box-shadow:0 0 90px rgba(180,215,255,.35), 0 0 220px rgba(120,170,240,.22);
+          animation:breathe 12s ease-in-out infinite alternate; }
+  .moon::after { content:''; position:absolute; right:-14px; top:-6px; width:150px; height:150px;
+          border-radius:50%; background:#030a1c; }
+  @keyframes breathe { from{opacity:.9} to{opacity:1} }
+
+  .wrap { position:absolute; inset:0; display:flex; flex-direction:column;
+          align-items:center; justify-content:center; text-align:center; }
+
+  .mark { display:flex; align-items:center; gap:18px; margin-bottom:34px; }
+  .mark .c { width:66px; height:66px; border-radius:14px; background:var(--alert);
+             display:flex; align-items:center; justify-content:center;
+             font-family:var(--cond); font-size:46px; font-weight:800;
+             box-shadow:0 10px 30px rgba(226,0,26,.45); }
+  .mark .n { font-family:var(--cond); font-size:38px; font-weight:800; letter-spacing:2px;
+             text-transform:uppercase; line-height:1; text-align:left; }
+  .mark .n em { font-style:normal; color:var(--alert); }
+  .mark .n span { display:block; font-family:var(--sans); font-size:13px; font-weight:900;
+             letter-spacing:6px; color:#7f9ec9; margin-top:6px; }
+
+  h1 { font-family:var(--cond); font-size:210px; font-weight:800; line-height:.84;
+       letter-spacing:-2px; text-transform:uppercase;
+       text-shadow:0 20px 70px rgba(0,0,0,.6); }
+  h1 em { font-style:normal; color:var(--cyan); }
+  .sub { font-size:31px; font-weight:700; letter-spacing:8px; color:#bcd6f5; margin-top:22px; }
+
+  .rule { width:340px; height:5px; margin:34px auto 30px; border-radius:3px;
+          background:linear-gradient(90deg, transparent, var(--cyan), transparent); }
+
+  .back { font-size:19px; font-weight:900; letter-spacing:8px; color:#7f9ec9; }
+  .count { font-family:var(--cond); font-size:104px; font-weight:800; line-height:1;
+           margin-top:8px; font-variant-numeric:tabular-nums; color:#fff; }
+
+  /* overnight numbers */
+  .strip { display:flex; gap:16px; justify-content:center; margin-top:40px; }
+  .chip { display:flex; align-items:center; gap:14px; padding:16px 26px; border-radius:14px;
+          background:rgba(255,255,255,.055); border:1px solid rgba(53,200,255,.2); }
+  .chip .k { font-size:14px; font-weight:900; letter-spacing:5px; color:#7f9ec9; }
+  .chip .v { font-family:var(--cond); font-size:44px; font-weight:800; line-height:1; }
+  .chip .w { font-size:17px; font-weight:800; letter-spacing:2px; color:#cfe2ff; }
+
+  .foot { position:absolute; left:0; right:0; bottom:0; height:70px; display:flex;
+          align-items:center; justify-content:space-between; padding:0 40px;
+          background:rgba(3,10,28,.75); border-top:1px solid rgba(53,200,255,.22);
+          font-size:17px; font-weight:900; letter-spacing:5px; color:#8fb0d8; }
+  .foot .now { font-family:var(--cond); font-size:30px; letter-spacing:2px; color:#e9f3ff; }
+
+  /* morning variant */
+  body.morning .sky { background:
+        radial-gradient(1300px 900px at 50% 120%, #1b4f8c 0%, transparent 60%),
+        radial-gradient(900px 700px at 80% 8%, #2a6ca8 0%, transparent 55%),
+        linear-gradient(180deg, #071634 0%, #0d2a5c 100%); }
+  body.morning .stars, body.morning .stars2 { opacity:.12; }
+  body.morning .moon { background:radial-gradient(circle at 40% 35%, #fff6d8, #ffcf5e 55%, #ff9d1f 100%);
+        box-shadow:0 0 110px rgba(255,190,90,.45), 0 0 240px rgba(255,160,50,.25); }
+  body.morning .moon::after { display:none; }
+  body.morning h1 em { color:var(--amber); }
+</style>
+</head>
+<body>
+  <div class="sky"></div>
+  <div class="stars"></div>
+  <div class="stars2"></div>
+  <div class="moon"></div>
+
+  <div class="wrap">
+    <div class="mark">
+      <span class="c">C</span>
+      <div class="n">COLTRONS <em>FIRST ALERT</em> WEATHER<span id="slogan">WISCONSIN'S WEATHER AUTHORITY</span></div>
+    </div>
+
+    <h1 id="big">BED <em>TIME</em></h1>
+    <div class="sub" id="sub">WE'RE OFF THE AIR FOR THE NIGHT</div>
+
+    <div class="rule"></div>
+
+    <div class="back" id="backlabel">BACK ON AIR AT 8:00 AM</div>
+    <div class="count" id="count">--H --M</div>
+
+    <div class="strip">
+      <div class="chip"><span class="k">NOW</span><span id="nowicon"></span>
+        <span class="v" id="nowtemp">--&deg;</span><span class="w" id="nowcond">--</span></div>
+      <div class="chip"><span class="k" id="ovkey">OVERNIGHT LOW</span>
+        <span class="v" id="lowtemp">--&deg;</span><span class="w" id="lowtext">--</span></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span id="footleft">COLTRONS FIRST ALERT WEATHER &nbsp;&middot;&nbsp; WISCONSIN RAPIDS</span>
+    <span class="now" id="clocknow">--:--</span>
+    <span id="stamp">UPDATED --:--</span>
+  </div>
+
+<script src="wx.js"></script>
+<script>
+/* =====================================================================
+   EDIT THESE
+   ===================================================================== */
+const BED_TIME = "21:00";      // slate goes to BED TIME at 9 PM
+const REOPEN   = "08:00";      // flips to GOOD MORNING at 8 AM
+
+const NIGHT = {
+  big:  "BED <em>TIME</em>",
+  sub:  "WE'RE OFF THE AIR FOR THE NIGHT",
+  back: "BACK ON AIR AT 8:00 AM",
+  foot: "COLTRONS FIRST ALERT WEATHER \u00B7 WISCONSIN RAPIDS",
+};
+const MORNING = {
+  big:  "GOOD <em>MORNING</em>",
+  sub:  "COLTRONS FIRST ALERT WEATHER IS BACK",
+  back: "STARTING THE DAY AT",
+  foot: "GOOD MORNING, WISCONSIN \u00B7 FIRST ALERT WEATHER",
+};
+/* ===================================================================== */
+
+const q = new URLSearchParams(location.search).get('now');
+function fakeable() {
+  const d = new Date();
+  if (q && /^\d{1,2}:\d{2}$/.test(q)) {
+    const [h, m] = q.split(':').map(Number);
+    d.setHours(h, m, 0, 0);
+  }
+  return d;
+}
+const toMin = (s) => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+const bed = toMin(BED_TIME), open = toMin(REOPEN);
+
+/* night runs from BED_TIME through REOPEN, crossing midnight */
+function isNight(d) {
+  const n = d.getHours() * 60 + d.getMinutes();
+  return bed > open ? (n >= bed || n < open) : (n >= bed && n < open);
+}
+
+function label12(mins) {
+  const h24 = Math.floor(mins / 60), m = mins % 60;
+  const h = h24 % 12 || 12;
+  return `${h}:${String(m).padStart(2, '0')} ${h24 >= 12 ? 'PM' : 'AM'}`;
+}
+
+let mode = null;
+function paint() {
+  const d = fakeable();
+  const night = isNight(d);
+
+  if (mode !== night) {
+    const t = night ? NIGHT : MORNING;
+    document.body.classList.toggle('morning', !night);
+    document.getElementById('big').innerHTML = t.big;
+    document.getElementById('sub').textContent = t.sub;
+    document.getElementById('footleft').textContent = t.foot;
+    document.getElementById('ovkey').textContent = night ? 'OVERNIGHT LOW' : 'TODAY\u0027S HIGH';
+    mode = night;
+  }
+
+  /* clock in the footer */
+  const h = d.getHours() % 12 || 12;
+  document.getElementById('clocknow').textContent =
+    `${h}:${String(d.getMinutes()).padStart(2, '0')} ${d.getHours() >= 12 ? 'PM' : 'AM'}`;
+
+  /* countdown to 8 AM, or the current time once we're back */
+  if (isNight(d)) {
+    const target = new Date(d);
+    target.setHours(Math.floor(open / 60), open % 60, 0, 0);
+    if (target <= d) target.setDate(target.getDate() + 1);
+    const secs = Math.max(0, Math.round((target - d) / 1000));
+    const hh = Math.floor(secs / 3600), mm = Math.floor((secs % 3600) / 60);
+    document.getElementById('backlabel').textContent = `BACK ON AIR AT ${label12(open)}`;
+    document.getElementById('count').textContent =
+      hh > 0 ? `${hh}H ${String(mm).padStart(2, '0')}M` : `${mm}M`;
+  } else {
+    document.getElementById('backlabel').textContent = MORNING.back;
+    document.getElementById('count').textContent = document.getElementById('clocknow').textContent;
+  }
+}
+paint();
+setInterval(paint, 1000);
+
+/* live numbers, still refreshing all night */
+boot(data => {
+  const p = data.primary || {};
+  document.getElementById('nowicon').innerHTML = icon(p.icon, 40);
+  const t = document.getElementById('nowtemp');
+  t.textContent = (p.temp ?? '--') + '\u00B0';
+  t.className = 'v ' + tempClass(p.temp);
+  document.getElementById('nowcond').textContent = p.condition || '';
+
+  const night = isNight(fakeable());
+  const periods = data.periods || [];
+  const pick = night ? (periods.find(x => !x.is_day) || periods[0])
+                     : (periods.find(x => x.is_day) || periods[0]);
+  const lt = document.getElementById('lowtemp');
+  lt.textContent = (pick && pick.temp !== null && pick.temp !== undefined ? pick.temp : '--') + '\u00B0';
+  lt.className = 'v ' + tempClass(pick && pick.temp);
+  document.getElementById('lowtext').textContent = pick ? (pick.short || '') : '';
+});
+</script>
+</body>
+</html>

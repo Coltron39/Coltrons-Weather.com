@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<!-- SCENE: BREAKING NEWS / FIRST ALERT   1920x1080 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>First Alert - Active Alerts</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .alertbar {
+    position:absolute; top:0; left:0; right:0; height:150px;
+    display:flex; align-items:center; gap:30px; padding:0 60px;
+    background:var(--alert); animation:pulseAlert 2s ease-in-out infinite;
+  }
+  .alertbar .badge {
+    width:96px; height:96px; flex:none; border-radius:14px; background:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--cond); font-weight:700; font-size:64px; color:var(--alert);
+  }
+  .alertbar .txt .a1 { font-family:var(--cond); font-weight:700; font-size:60px; line-height:.94;
+                       letter-spacing:1px; text-transform:uppercase; }
+  .alertbar .txt .a2 { font-family:var(--sans); font-size:15px; font-weight:800;
+                       letter-spacing:6px; margin-top:6px; color:rgba(255,255,255,.86); }
+  .alertbar .exp { margin-left:auto; text-align:right; }
+  .alertbar .exp .l { font-family:var(--sans); font-size:13px; font-weight:800;
+                      letter-spacing:3.4px; color:rgba(255,255,255,.8); }
+  .alertbar .exp .v { font-family:var(--cond); font-weight:700; font-size:52px; line-height:1; }
+
+  .body { position:absolute; top:190px; left:60px; right:60px; bottom:150px;
+          display:flex; gap:28px; }
+  .main { flex:1.6; padding:40px 44px; display:flex; flex-direction:column; }
+  .main .h { font-family:var(--cond); font-weight:700; font-size:54px; line-height:1.02;
+             text-transform:uppercase; color:#fff; }
+  .main .counties { margin-top:24px; }
+  .main .counties .v { font-family:var(--cond); font-size:38px; line-height:1.2;
+                       margin-top:8px; color:rgba(255,255,255,.94); }
+  .main .body-text { margin-top:auto; font-family:var(--sans); font-size:23px; line-height:1.55;
+                     color:rgba(255,255,255,.86); max-height:300px; overflow:hidden; }
+
+  .side { flex:1; display:flex; flex-direction:column; gap:18px; }
+  .other { flex:1; padding:28px 30px; overflow:hidden; }
+  .other .it { display:flex; gap:14px; align-items:flex-start; padding:14px 0;
+               border-bottom:1px solid rgba(255,255,255,.09); }
+  .other .it .tag { flex:none; padding:5px 10px; border-radius:5px; background:var(--amber);
+                    color:#221500; font-family:var(--sans); font-size:12px; font-weight:800;
+                    letter-spacing:1.4px; }
+  .other .it .tag.w { background:var(--alert); color:#fff; }
+  .other .it .n { font-family:var(--cond); font-size:27px; line-height:1.12;
+                  text-transform:uppercase; }
+  .other .it .n span { display:block; font-family:var(--sans); font-size:13px;
+                       letter-spacing:1.4px; color:var(--ink-dim); margin-top:4px; }
+  .action { padding:26px 30px; }
+  .action .v { font-family:var(--sans); font-size:19px; line-height:1.5; margin-top:10px;
+               color:rgba(255,255,255,.9); max-height:190px; overflow:hidden; }
+
+  /* all-clear state */
+  .clear { position:absolute; inset:190px 60px 150px; display:none;
+           flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  body.allclear .clear { display:flex; }
+  body.allclear .body, body.allclear .alertbar { display:none; }
+  .clear .big { font-family:var(--cond); font-weight:700; font-size:104px; line-height:1;
+                text-transform:uppercase; }
+  .clear .sm { font-family:var(--cond); font-size:44px; color:var(--ink-dim); margin-top:20px;
+               text-transform:uppercase; }
+  .clear .ring { width:150px; height:150px; border-radius:50%; border:8px solid #4ee08a;
+                 display:flex; align-items:center; justify-content:center; margin-bottom:38px;
+                 color:#4ee08a; font-size:76px; font-family:var(--cond); font-weight:700; }
+
+  /* crawl */
+  .crawl { position:absolute; bottom:0; left:0; right:0; height:88px; display:flex;
+           align-items:center; background:rgba(3,10,28,.96); border-top:4px solid var(--alert); }
+  .crawl .cap { flex:none; height:100%; padding:0 30px; background:var(--alert);
+                display:flex; align-items:center; font-family:var(--cond); font-weight:700;
+                font-size:32px; letter-spacing:1.4px; }
+  .crawl .track { flex:1; overflow:hidden; position:relative; height:100%; }
+  .crawl .move { position:absolute; white-space:nowrap; top:50%; transform:translateY(-50%);
+                 font-family:var(--cond); font-size:36px; letter-spacing:.6px;
+                 animation:scroll 46s linear infinite; padding-left:100%; }
+  @keyframes scroll { from { transform:translate(0,-50%); } to { transform:translate(-100%,-50%); } }
+</style>
+</head>
+<body class="solid">
+  <div class="alertbar">
+    <div class="badge">!</div>
+    <div class="txt">
+      <div class="a1" id="event">--</div>
+      <div class="a2">COLTRONS FIRST ALERT WEATHER &middot; NATIONAL WEATHER SERVICE</div>
+    </div>
+    <div class="exp">
+      <div class="l">IN EFFECT UNTIL</div>
+      <div class="v" id="expires">--</div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="main panel">
+      <div class="h" id="headline">--</div>
+      <div class="counties">
+        <div class="label">Counties Affected</div>
+        <div class="v" id="counties">--</div>
+      </div>
+      <div class="body-text" id="text"></div>
+    </div>
+    <div class="side">
+      <div class="other panel panel-accent">
+        <div class="label">Other Active Alerts In Wisconsin</div>
+        <div id="others"></div>
+      </div>
+      <div class="action panel">
+        <div class="label">What You Should Do</div>
+        <div class="v" id="instruction">Stay with Coltrons First Alert Weather for updates.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="clear">
+    <div class="ring">&check;</div>
+    <div class="big">No Active Watches Or Warnings</div>
+    <div class="sm">Quiet across all of Wisconsin &middot; First Alert Weather is monitoring</div>
+  </div>
+
+  <div class="crawl">
+    <div class="cap" id="crawlcap">FIRST ALERT</div>
+    <div class="track"><div class="move" id="crawltext"></div></div>
+  </div>
+
+<script src="wx.js"></script>
+<script>
+boot((d) => {
+  const a = d.alerts || [];
+  document.body.classList.toggle('allclear', a.length === 0);
+
+  const crawl = document.getElementById('crawltext');
+  if (!a.length) {
+    crawl.textContent =
+      `NO ACTIVE WATCHES OR WARNINGS FOR WISCONSIN \u00b7 UPDATED ${d.updated_label} \u00b7 ` +
+      `${(d.primary || {}).name}: ${(d.primary || {}).temp}\u00b0 ${(d.primary || {}).condition} \u00b7 ` +
+      `COLTRONS FIRST ALERT WEATHER \u00b7 `;
+    document.getElementById('crawlcap').textContent = 'FIRST ALERT';
+    return;
+  }
+
+  const top = a[0];
+  document.getElementById('event').textContent = top.event;
+  document.getElementById('expires').textContent = top.expires_label || '--';
+  document.getElementById('headline').textContent = top.headline || top.event;
+  document.getElementById('counties').textContent = top.areas;
+  document.getElementById('text').textContent = top.text;
+  document.getElementById('instruction').textContent =
+    top.instruction || 'Stay with Coltrons First Alert Weather for the latest updates.';
+
+  document.getElementById('others').innerHTML = a.slice(1, 7).map(x => `
+    <div class="it">
+      <span class="tag ${x.event.includes('WARNING') ? 'w' : ''}">
+        ${x.event.includes('WARNING') ? 'WARN' : x.event.includes('WATCH') ? 'WATCH' : 'ADV'}</span>
+      <span class="n">${x.event}<span>${x.areas.slice(0, 64)}</span></span>
+    </div>`).join('') ||
+    '<div class="it"><span class="n">NO OTHER ACTIVE ALERTS</span></div>';
+
+  crawl.textContent = a.map(x =>
+    `${x.event} \u2014 ${x.areas}${x.expires_label ? ' UNTIL ' + x.expires_label : ''}`
+  ).join('  \u2022  ') + '  \u2022  ';
+  document.getElementById('crawlcap').textContent = `${a.length} ACTIVE`;
+});
+</script>
+</body>
+</html>

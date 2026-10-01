@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!-- SCENE: WEATHER - HOUR BY HOUR   1920x1080 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>First Alert - Hour by Hour</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .stage { position:absolute; top:300px; left:64px; right:64px; bottom:104px;
+           padding:38px 44px 30px; display:flex; flex-direction:column; }
+  .chart { position:relative; flex:1; }
+  .chart svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+  .line { fill:none; stroke:var(--cyan); stroke-width:5; stroke-linejoin:round;
+          filter:drop-shadow(0 0 14px rgba(53,200,255,.55)); }
+  .area { fill:url(#g1); }
+  .hours { display:grid; gap:0; margin-top:16px; }
+  .hr { text-align:center; }
+  .hr .ic { display:flex; justify-content:center; margin-bottom:12px; }
+  .hr .t  { font-family:var(--cond); font-weight:700; font-size:52px; line-height:.9; }
+  .hr .h  { font-family:var(--sans); font-size:15px; font-weight:700; letter-spacing:2.2px;
+            color:var(--ink-dim); margin-top:12px; }
+  .hr .p  { font-family:var(--sans); font-size:14px; font-weight:700; letter-spacing:1.4px;
+            color:var(--cyan); margin-top:7px; }
+  .hr .p.zero { color:rgba(255,255,255,.22); }
+  .offline { position:absolute; top:52%; left:0; right:0; text-align:center;
+             font-family:var(--cond); font-size:44px; color:var(--alert-2); }
+</style>
+</head>
+<body class="solid">
+  <div id="header"></div>
+
+  <div class="page-title">
+    <span class="kicker">Next 12 Hours</span>
+    <h1>Hour By Hour</h1>
+  </div>
+
+  <div class="stage panel panel-accent">
+    <div class="chart"><svg id="svg" preserveAspectRatio="none" viewBox="0 0 1000 260">
+      <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgba(53,200,255,.45)"/>
+        <stop offset="100%" stop-color="rgba(53,200,255,0)"/>
+      </linearGradient></defs>
+      <path class="area" id="area"></path><path class="line" id="ln"></path>
+    </svg></div>
+    <div class="hours" id="hours"></div>
+  </div>
+
+  <div class="offline">FIRST ALERT DATA FEED OFFLINE &mdash; start wx_feed.py</div>
+  <div id="footer"></div>
+
+<script src="wx.js"></script>
+<script>
+mountHeader();
+mountFooter('');
+
+boot((d) => {
+  const hrs = (d.hourly || []).slice(0, 12);
+  if (!hrs.length) return;
+
+  const temps = hrs.map(h => h.temp);
+  const lo = Math.min(...temps) - 4, hi = Math.max(...temps) + 4;
+  const W = 1000, H = 260;
+  const step = W / (hrs.length - 1 || 1);
+  const pt = (t, i) => [i * step, H - ((t - lo) / (hi - lo || 1)) * H];
+
+  const pts = temps.map(pt);
+  const dLine = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  document.getElementById('ln').setAttribute('d', dLine);
+  document.getElementById('area').setAttribute('d', `${dLine} L${W},${H} L0,${H} Z`);
+
+  const wrap = document.getElementById('hours');
+  wrap.style.gridTemplateColumns = `repeat(${hrs.length},1fr)`;
+  wrap.innerHTML = hrs.map(h => `
+    <div class="hr">
+      <div class="ic">${icon(h.icon, 54)}</div>
+      <div class="t tabnum ${tempClass(h.temp)}">${h.temp}&deg;</div>
+      <div class="h">${h.label}</div>
+      <div class="p ${(h.precip || 0) === 0 ? 'zero' : ''}">${h.precip || 0}%</div>
+    </div>`).join('');
+
+  const fm = document.getElementById('footmsg');
+  if (fm) fm.textContent =
+    `${(d.primary || {}).name || ''} \u00b7 HOURLY TEMPERATURE TREND AND RAIN CHANCE`;
+});
+</script>
+</body>
+</html>

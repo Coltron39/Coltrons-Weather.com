@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<!-- SCENE: WEATHER - STATEWIDE TEMPS   1920x1080 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>First Alert - Statewide Temperatures</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .stage { position:absolute; top:266px; left:64px; right:64px; bottom:104px; display:flex; gap:30px; }
+
+  .mapwrap { flex:none; width:790px; position:relative; }
+  #map { position:absolute; inset:0; }
+  #map svg { position:absolute; top:0; left:50%; transform:translateX(-50%); overflow:visible; }
+  .wi-fill { fill:rgba(53,200,255,.10); stroke:var(--cyan); stroke-width:3.5;
+             filter:drop-shadow(0 0 26px rgba(53,200,255,.35)); }
+
+  .dot { position:absolute; width:10px; height:10px; border-radius:50%; background:#fff;
+         transform:translate(-50%,-50%); box-shadow:0 0 0 3px rgba(3,10,28,.8); }
+  .pin { position:absolute; transform:translateY(-50%); display:flex; flex-direction:column;
+         white-space:nowrap; pointer-events:none; }
+  .pin.left { align-items:flex-end; transform:translate(-100%,-50%); }
+  .pin .t { font-family:var(--cond); font-weight:700; font-size:42px; line-height:.88;
+            text-shadow:0 3px 12px rgba(0,0,0,.9); }
+  .pin .n { font-family:var(--sans); font-size:11px; font-weight:700; letter-spacing:1.5px;
+            color:rgba(255,255,255,.8); text-shadow:0 2px 8px rgba(0,0,0,.95); margin-top:3px; }
+
+  .side { flex:1; min-width:0; display:flex; flex-direction:column; gap:16px; }
+  .rowlist { flex:1 1 auto; min-height:0; overflow:hidden;
+             display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+             gap:4px 22px; align-content:start; padding:22px 26px; }
+  .row { display:flex; align-items:center; gap:11px; padding:3px 0; min-width:0;
+         border-bottom:1px solid rgba(255,255,255,.07); }
+  .row .rn { font-family:var(--cond); font-size:26px; line-height:1; letter-spacing:.4px;
+             text-transform:uppercase; white-space:nowrap; overflow:hidden;
+             text-overflow:ellipsis; flex:1; }
+  .row .rt { font-family:var(--cond); font-weight:700; font-size:32px; line-height:1; }
+
+  .extremes { flex:0 0 158px; display:flex; gap:16px; }
+  .ex { flex:1; padding:20px 24px; }
+  .ex .label { margin-bottom:10px; }
+  .ex .v { font-family:var(--cond); font-weight:700; font-size:54px; line-height:.9; }
+  .ex .c { font-family:var(--cond); font-size:25px; color:var(--ink-dim);
+           text-transform:uppercase; margin-top:5px; }
+  .offline { position:absolute; top:52%; left:0; right:0; text-align:center;
+             font-family:var(--cond); font-size:44px; color:var(--alert-2); }
+</style>
+</head>
+<body class="solid">
+  <div id="header"></div>
+
+  <div class="page-title">
+    <span class="kicker">Statewide</span>
+    <h1>Wisconsin Temperatures</h1>
+  </div>
+
+  <div class="stage">
+    <div class="mapwrap"><div id="map"></div></div>
+    <div class="side">
+      <div class="rowlist panel panel-accent" id="list"></div>
+      <div class="extremes">
+        <div class="ex panel"><div class="label">State's Warm Spot</div>
+          <div class="v" id="hiv">--&deg;</div><div class="c" id="hic">--</div></div>
+        <div class="ex panel"><div class="label">State's Cool Spot</div>
+          <div class="v" id="lov">--&deg;</div><div class="c" id="loc">--</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="offline">FIRST ALERT DATA FEED OFFLINE &mdash; start wx_feed.py</div>
+  <div id="footer"></div>
+
+<script src="wimap.js"></script>
+<script src="wx.js"></script>
+<script>
+mountHeader();
+mountFooter('');
+
+const MAP_H = 646;                       // drawn height of the state, px
+const SCALE = MAP_H / WI_VIEW.h;
+const MAP_W = WI_VIEW.w * SCALE;
+
+/* Which cities get plotted on the map, and which side their label sits on.
+   Everything else still shows in the list on the right. Hand-placed so the
+   labels never collide on air -- add your own with [side, dx, dy].          */
+const MAP_LABELS = {
+  'SUPERIOR':         ['r',  0,  -4],
+  'ASHLAND':          ['r',  0,   6],
+  'RHINELANDER':      ['r',  0,   0],
+  'GREEN BAY':        ['r',  0,  -6],
+  'SHEBOYGAN':        ['r',  0,   0],
+  'MILWAUKEE':        ['r',  0,  -4],
+  'KENOSHA':          ['r',  0, -10],
+  'EAU CLAIRE':       ['l',  0,   0],
+  'LA CROSSE':        ['l',  0,   0],
+  'WAUSAU':           ['l',  0,  -8],
+  'WISCONSIN RAPIDS': ['l',  0,  10],
+  'APPLETON':         ['l',  0,  14],
+  'MADISON':          ['l',  0,   0],
+};
+
+function drawMap(cities) {
+  const wrap = document.getElementById('map');
+  const pad = (wrap.clientWidth - MAP_W) / 2;
+
+  const pins = cities.filter(c => c.lat !== undefined && MAP_LABELS[c.name]).map(c => {
+    const cfg = MAP_LABELS[c.name];
+    const p = wiXY(c.lat, c.lon);
+    const x = pad + p[0] * SCALE, y = p[1] * SCALE;
+    return { c: c, x: x, y: y, ly: y + cfg[2], dx: cfg[1], flip: cfg[0] === 'l' };
+  });
+
+  wrap.innerHTML =
+    '<svg width="' + MAP_W + '" height="' + MAP_H + '" viewBox="0 0 ' +
+      WI_VIEW.w + ' ' + WI_VIEW.h + '"><path class="wi-fill" d="' + WI_PATH + '"/></svg>' +
+    pins.map(p => `
+      <div class="dot" style="left:${p.x}px; top:${p.y}px"></div>
+      <div class="pin ${p.flip ? 'left' : ''}"
+           style="left:${p.x + p.dx + (p.flip ? -18 : 18)}px; top:${p.ly}px">
+        <span class="t tabnum ${tempClass(p.c.temp)}">${num(p.c.temp)}&deg;</span>
+        <span class="n">${p.c.name}</span>
+      </div>`).join('');
+}
+
+boot((d) => {
+  const cities = (d.cities || []);
+  drawMap(cities);
+
+  document.getElementById('list').innerHTML = cities
+    .slice().sort((a, b) => b.temp - a.temp)
+    .map(c => `<div class="row">
+        ${icon(c.icon, 26)}
+        <span class="rn">${c.name}</span>
+        <span class="rt tabnum ${tempClass(c.temp)}">${num(c.temp)}&deg;</span>
+      </div>`).join('');
+
+  if (cities.length) {
+    const s = cities.slice().sort((a, b) => b.temp - a.temp);
+    const hi = s[0], lo = s[s.length - 1];
+    document.getElementById('hiv').innerHTML = `${hi.temp}&deg;`;
+    document.getElementById('hiv').className = 'v tabnum ' + tempClass(hi.temp);
+    document.getElementById('hic').textContent = hi.name;
+    document.getElementById('lov').innerHTML = `${lo.temp}&deg;`;
+    document.getElementById('lov').className = 'v tabnum ' + tempClass(lo.temp);
+    document.getElementById('loc').textContent = lo.name;
+  }
+
+  const fm = document.getElementById('footmsg');
+  if (fm) fm.textContent =
+    `CURRENT TEMPERATURES ACROSS WISCONSIN \u00b7 ${cities.length} REPORTING STATIONS`;
+});
+</script>
+</body>
+</html>
