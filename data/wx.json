@@ -1,0 +1,522 @@
+{
+ "station": {
+  "name": "COLTRONS FIRST ALERT WEATHER",
+  "slogan": "WISCONSIN'S WEATHER AUTHORITY"
+ },
+ "updated": "2026-09-30T20:40:49.781574",
+ "updated_label": "8:40 PM",
+ "date_label": "WEDNESDAY, SEPTEMBER 30",
+ "primary": {
+  "name": "WISCONSIN RAPIDS",
+  "station": "KISW",
+  "station_name": "Wisconsin Rapids, Alexander Field South Wood County Airport",
+  "temp": 66,
+  "condition": "CLOUDY",
+  "icon": "cloudy",
+  "dewpoint": 64,
+  "humidity": 94,
+  "wind": 5,
+  "gust": null,
+  "wind_dir": "S",
+  "feels_like": null,
+  "pressure": 29.82,
+  "visibility": 8
+ },
+ "periods": [
+  {
+   "name": "TONIGHT",
+   "start": "2026-09-30T20:00:00-05:00",
+   "is_day": false,
+   "temp": 62,
+   "short": "AREAS OF FOG",
+   "detailed": "Areas of fog before 2am, then areas of fog and a chance of rain showers. Cloudy, with a low around 62. Southwest wind around 3 mph. Chance of precipitation is 30%. New rainfall amounts less than a tenth of an inch possible.",
+   "precip": 29,
+   "wind": "SW 3 mph",
+   "icon": "rain"
+  },
+  {
+   "name": "THURSDAY",
+   "start": "2026-10-01T06:00:00-05:00",
+   "is_day": true,
+   "temp": 68,
+   "short": "AREAS OF FOG THEN CLOUDY",
+   "detailed": "Areas of fog and a chance of rain showers before 9am, then a chance of rain showers and patchy fog between 9am and 10am, then patchy fog and a slight chance of rain showers between 10am and 11am. Cloudy. High near 68, with temperatures falling to around 66 in the afternoon. Northwest wind 2 to 9 mph. Chance of precipitation is 40%. New rainfall amounts less than a tenth of an inch possible.",
+   "precip": 43,
+   "wind": "NW 2 to 9 mph",
+   "icon": "rain"
+  },
+  {
+   "name": "THURSDAY NIGHT",
+   "start": "2026-10-01T18:00:00-05:00",
+   "is_day": false,
+   "temp": 45,
+   "short": "PARTLY CLOUDY",
+   "detailed": "Partly cloudy. Low around 45, with temperatures rising to around 47 overnight. Northwest wind around 7 mph.",
+   "precip": 0,
+   "wind": "NW 7 mph",
+   "icon": "pcloudy_night"
+  },
+  {
+   "name": "FRIDAY",
+   "start": "2026-10-02T06:00:00-05:00",
+   "is_day": true,
+   "temp": 63,
+   "short": "SUNNY",
+   "detailed": "Sunny, with a high near 63. Northwest wind 6 to 9 mph.",
+   "precip": 0,
+   "wind": "NW 6 to 9 mph",
+   "icon": "clear"
+  },
+  {
+   "name": "FRIDAY NIGHT",
+   "start": "2026-10-02T18:00:00-05:00",
+   "is_day": false,
+   "temp": 39,
+   "short": "MOSTLY CLEAR THEN PATCHY FOG",
+   "detailed": "Patchy fog after 4am. Mostly clear, with a low around 39. North wind 0 to 6 mph.",
+   "precip": 0,
+   "wind": "N 0 to 6 mph",
+   "icon": "fog"
+  },
+  {
+   "name": "SATURDAY",
+   "start": "2026-10-03T06:00:00-05:00",
+   "is_day": true,
+   "temp": 64,
+   "short": "MOSTLY SUNNY",
+   "detailed": "Mostly sunny, with a high near 64.",
+   "precip": 3,
+   "wind": "SSE 1 to 9 mph",
+   "icon": "pcloudy"
+  },
+  {
+   "name": "SATURDAY NIGHT",
+   "start": "2026-10-03T18:00:00-05:00",
+   "is_day": false,
+   "temp": 47,
+   "short": "PARTLY CLOUDY",
+   "detailed": "Partly cloudy, with a low around 47.",
+   "precip": 11,
+   "wind": "SW 7 mph",
+   "icon": "pcloudy_night"
+  },
+  {
+   "name": "SUNDAY",
+   "start": "2026-10-04T06:00:00-05:00",
+   "is_day": true,
+   "temp": 66,
+   "short": "SUNNY",
+   "detailed": "Sunny, with a high near 66.",
+   "precip": 11,
+   "wind": "WNW 6 to 13 mph",
+   "icon": "clear"
+  },
+  {
+   "name": "SUNDAY NIGHT",
+   "start": "2026-10-04T18:00:00-05:00",
+   "is_day": false,
+   "temp": 38,
+   "short": "MOSTLY CLEAR",
+   "detailed": "Mostly clear, with a low around 38.",
+   "precip": 0,
+   "wind": "NNW 2 to 8 mph",
+   "icon": "pcloudy_night"
+  },
+  {
+   "name": "MONDAY",
+   "start": "2026-10-05T06:00:00-05:00",
+   "is_day": true,
+   "temp": 61,
+   "short": "SUNNY",
+   "detailed": "Sunny, with a high near 61.",
+   "precip": 0,
+   "wind": "NNW 5 mph",
+   "icon": "clear"
+  },
+  {
+   "name": "MONDAY NIGHT",
+   "start": "2026-10-05T18:00:00-05:00",
+   "is_day": false,
+   "temp": 39,
+   "short": "MOSTLY CLEAR",
+   "detailed": "Mostly clear, with a low around 39.",
+   "precip": 0,
+   "wind": "ENE 0 to 3 mph",
+   "icon": "pcloudy_night"
+  },
+  {
+   "name": "TUESDAY",
+   "start": "2026-10-06T06:00:00-05:00",
+   "is_day": true,
+   "temp": 65,
+   "short": "MOSTLY SUNNY",
+   "detailed": "Mostly sunny, with a high near 65.",
+   "precip": 0,
+   "wind": "S 3 to 13 mph",
+   "icon": "pcloudy"
+  },
+  {
+   "name": "TUESDAY NIGHT",
+   "start": "2026-10-06T18:00:00-05:00",
+   "is_day": false,
+   "temp": 49,
+   "short": "PARTLY CLOUDY THEN SLIGHT CHANCE RAIN SHOWERS",
+   "detailed": "A slight chance of rain showers after 1am. Partly cloudy, with a low around 49. Chance of precipitation is 20%.",
+   "precip": 15,
+   "wind": "SSW 8 to 12 mph",
+   "icon": "rain"
+  },
+  {
+   "name": "WEDNESDAY",
+   "start": "2026-10-07T06:00:00-05:00",
+   "is_day": true,
+   "temp": 69,
+   "short": "SLIGHT CHANCE RAIN SHOWERS",
+   "detailed": "A slight chance of rain showers before 1pm. Mostly sunny, with a high near 69. Chance of precipitation is 20%.",
+   "precip": 16,
+   "wind": "WSW 8 to 12 mph",
+   "icon": "rain"
+  }
+ ],
+ "days": [
+  {
+   "date": "2026-09-30",
+   "hi": null,
+   "lo": 62,
+   "short": "AREAS OF FOG",
+   "icon": "rain",
+   "precip": 29,
+   "label": "TONIGHT",
+   "dow": "TODAY",
+   "short_date": "09/30"
+  },
+  {
+   "date": "2026-10-01",
+   "hi": 68,
+   "lo": 45,
+   "short": "AREAS OF FOG THEN CLOUDY",
+   "icon": "rain",
+   "precip": 43,
+   "label": "THURSDAY",
+   "dow": "THU",
+   "short_date": "10/01"
+  },
+  {
+   "date": "2026-10-02",
+   "hi": 63,
+   "lo": 39,
+   "short": "SUNNY",
+   "icon": "clear",
+   "precip": 0,
+   "label": "FRIDAY",
+   "dow": "FRI",
+   "short_date": "10/02"
+  },
+  {
+   "date": "2026-10-03",
+   "hi": 64,
+   "lo": 47,
+   "short": "MOSTLY SUNNY",
+   "icon": "pcloudy",
+   "precip": 11,
+   "label": "SATURDAY",
+   "dow": "SAT",
+   "short_date": "10/03"
+  },
+  {
+   "date": "2026-10-04",
+   "hi": 66,
+   "lo": 38,
+   "short": "SUNNY",
+   "icon": "clear",
+   "precip": 11,
+   "label": "SUNDAY",
+   "dow": "SUN",
+   "short_date": "10/04"
+  },
+  {
+   "date": "2026-10-05",
+   "hi": 61,
+   "lo": 39,
+   "short": "SUNNY",
+   "icon": "clear",
+   "precip": 0,
+   "label": "MONDAY",
+   "dow": "MON",
+   "short_date": "10/05"
+  },
+  {
+   "date": "2026-10-06",
+   "hi": 65,
+   "lo": 49,
+   "short": "MOSTLY SUNNY",
+   "icon": "pcloudy",
+   "precip": 15,
+   "label": "TUESDAY",
+   "dow": "TUE",
+   "short_date": "10/06"
+  }
+ ],
+ "hourly": [
+  {
+   "label": "8P",
+   "temp": 66,
+   "short": "PATCHY FOG",
+   "precip": 14,
+   "icon": "fog"
+  },
+  {
+   "label": "9P",
+   "temp": 65,
+   "short": "PATCHY FOG",
+   "precip": 13,
+   "icon": "fog"
+  },
+  {
+   "label": "10P",
+   "temp": 65,
+   "short": "PATCHY FOG",
+   "precip": 11,
+   "icon": "fog"
+  },
+  {
+   "label": "11P",
+   "temp": 65,
+   "short": "PATCHY FOG",
+   "precip": 9,
+   "icon": "fog"
+  },
+  {
+   "label": "12A",
+   "temp": 65,
+   "short": "PATCHY FOG",
+   "precip": 11,
+   "icon": "fog"
+  },
+  {
+   "label": "1A",
+   "temp": 64,
+   "short": "AREAS OF FOG",
+   "precip": 13,
+   "icon": "fog"
+  },
+  {
+   "label": "2A",
+   "temp": 65,
+   "short": "AREAS OF FOG",
+   "precip": 16,
+   "icon": "rain"
+  },
+  {
+   "label": "3A",
+   "temp": 65,
+   "short": "AREAS OF FOG",
+   "precip": 18,
+   "icon": "rain"
+  },
+  {
+   "label": "4A",
+   "temp": 64,
+   "short": "AREAS OF FOG",
+   "precip": 24,
+   "icon": "rain"
+  },
+  {
+   "label": "5A",
+   "temp": 63,
+   "short": "AREAS OF FOG",
+   "precip": 29,
+   "icon": "rain"
+  },
+  {
+   "label": "6A",
+   "temp": 63,
+   "short": "AREAS OF FOG",
+   "precip": 36,
+   "icon": "rain"
+  },
+  {
+   "label": "7A",
+   "temp": 63,
+   "short": "AREAS OF FOG",
+   "precip": 43,
+   "icon": "rain"
+  }
+ ],
+ "cities": [
+  {
+   "name": "SUPERIOR",
+   "lat": 46.7208,
+   "lon": -92.1041,
+   "temp": 66,
+   "condition": "CLEAR",
+   "icon": "clear_night",
+   "wind": 8,
+   "wind_dir": "SSW"
+  },
+  {
+   "name": "ASHLAND",
+   "lat": 46.5924,
+   "lon": -90.8834,
+   "temp": 59,
+   "condition": "CLEAR",
+   "icon": "clear_night",
+   "wind": 0,
+   "wind_dir": "N"
+  },
+  {
+   "name": "RHINELANDER",
+   "lat": 45.6366,
+   "lon": -89.4121,
+   "temp": 64,
+   "condition": "MOSTLY CLOUDY",
+   "icon": "cloudy",
+   "wind": 6,
+   "wind_dir": "SSW"
+  },
+  {
+   "name": "WAUSAU",
+   "lat": 44.9591,
+   "lon": -89.6301,
+   "temp": 66,
+   "condition": "FOG/MIST",
+   "icon": "fog",
+   "wind": 3,
+   "wind_dir": "S"
+  },
+  {
+   "name": "EAU CLAIRE",
+   "lat": 44.8113,
+   "lon": -91.4985,
+   "temp": 66,
+   "condition": "CLEAR",
+   "icon": "clear_night",
+   "wind": 0,
+   "wind_dir": "N"
+  },
+  {
+   "name": "STEVENS POINT",
+   "lat": 44.5236,
+   "lon": -89.5746,
+   "temp": 67,
+   "condition": "FOG/MIST",
+   "icon": "fog",
+   "wind": 3,
+   "wind_dir": "SW"
+  },
+  {
+   "name": "WISCONSIN RAPIDS",
+   "lat": 44.3836,
+   "lon": -89.8173,
+   "temp": 66,
+   "condition": "CLOUDY",
+   "icon": "cloudy",
+   "wind": 5,
+   "wind_dir": "S"
+  },
+  {
+   "name": "GREEN BAY",
+   "lat": 44.5133,
+   "lon": -88.0133,
+   "temp": 66,
+   "condition": "CLOUDY",
+   "icon": "cloudy",
+   "wind": 5,
+   "wind_dir": "SSW"
+  },
+  {
+   "name": "APPLETON",
+   "lat": 44.2619,
+   "lon": -88.4154,
+   "temp": 68,
+   "condition": "CLOUDY",
+   "icon": "cloudy",
+   "wind": 3,
+   "wind_dir": "SSW"
+  },
+  {
+   "name": "LA CROSSE",
+   "lat": 43.8014,
+   "lon": -91.2396,
+   "temp": 70,
+   "condition": "PARTLY CLOUDY",
+   "icon": "pcloudy_night",
+   "wind": 6,
+   "wind_dir": "S"
+  },
+  {
+   "name": "FOND DU LAC",
+   "lat": 43.773,
+   "lon": -88.447,
+   "temp": 64,
+   "condition": "FOG/MIST",
+   "icon": "fog",
+   "wind": 6,
+   "wind_dir": "SSW"
+  },
+  {
+   "name": "SHEBOYGAN",
+   "lat": 43.7508,
+   "lon": -87.7145,
+   "temp": 64,
+   "condition": "FOG/MIST",
+   "icon": "fog",
+   "wind": 5,
+   "wind_dir": "SSW"
+  },
+  {
+   "name": "MADISON",
+   "lat": 43.0731,
+   "lon": -89.4012,
+   "temp": 64,
+   "condition": "FOG/MIST",
+   "icon": "fog",
+   "wind": 8,
+   "wind_dir": "SSW"
+  },
+  {
+   "name": "MILWAUKEE",
+   "lat": 43.0389,
+   "lon": -87.9065,
+   "temp": 64,
+   "condition": "CLOUDY",
+   "icon": "cloudy",
+   "wind": 8,
+   "wind_dir": "SW"
+  },
+  {
+   "name": "JANESVILLE",
+   "lat": 42.6828,
+   "lon": -89.0187,
+   "temp": 64,
+   "condition": "N/A",
+   "icon": "pcloudy",
+   "wind": 5,
+   "wind_dir": "WSW"
+  },
+  {
+   "name": "KENOSHA",
+   "lat": 42.5847,
+   "lon": -87.8212,
+   "temp": 64,
+   "condition": "CLOUDY",
+   "icon": "cloudy",
+   "wind": 9,
+   "wind_dir": "SW"
+  }
+ ],
+ "alerts": [
+  {
+   "event": "BEACH HAZARDS STATEMENT",
+   "level": 1,
+   "severity": "MODERATE",
+   "urgency": "EXPECTED",
+   "areas": "DOOR; KEWAUNEE; MANITOWOC",
+   "headline": "BEACH HAZARDS STATEMENT ISSUED SEPTEMBER 30 AT 3:27PM CDT UNTIL OCTOBER 1 AT 4:00AM CDT BY NWS GREEN BAY WI",
+   "text": "* WHAT...High waves and dangerous currents expected. * WHERE...Beaches along Lake Michigan in Door, Kewaunee and Manitowoc Counties. * WHEN...Through late tonight. * IMPACTS...Dangerous swimming conditions are expected. Strong currents can pull swimmers into deeper water and high waves can sweep people off piers. * ADDITIONAL DETAILS...Several beaches that will be most susceptible to the dangerous swimming conditions include... Rock Island State Beach, Baileys Harbor beaches and Whitefish Dunes Beach in Door County. Cresent Beach and City of Kewaunee Beach in Kewaunee County. Point Beach, Nesh",
+   "instruction": "Remain out of the water to avoid hazardous swimming conditions.",
+   "expires_label": ""
+  }
+ ],
+ "radar_station": "KARX"
+}
