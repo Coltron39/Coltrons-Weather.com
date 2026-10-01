@@ -4,611 +4,184 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Coltrons First Alert Weather</title>
-
 <style>
 *{box-sizing:border-box}
+html,body{margin:0;width:100%;min-height:100%;background:#030a1c;color:#fff;font-family:Arial,Helvetica,sans-serif}
+body{padding:32px}
+.top{max-width:1500px;margin:auto;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:15px}
+.logo{width:min(620px,62vw);height:112px;object-fit:contain;object-position:left center;display:block;border-radius:10px}
+.tvOverlay{display:none;position:fixed;inset:0;background:#000;z-index:99999}
+.tvOverlay.active{display:block}
+#tvFrame{width:100%;height:100%;border:0;display:block;background:#000}
+.tvOverlay::after{content:"TV MODE • ESC TO EXIT";position:absolute;right:18px;top:14px;padding:7px 10px;border-radius:6px;background:rgba(0,0,0,.55);color:rgba(255,255,255,.7);font:700 11px Arial,sans-serif;letter-spacing:1.5px;pointer-events:none;opacity:0;transition:opacity .3s}
+.tvOverlay:hover::after{opacity:1}
+h1{margin:0;font-size:27px}
+.brand p{margin:5px 0 0;color:#8fa9cc;font-size:12px;font-weight:bold;letter-spacing:3px}
+.clock{font-size:24px;font-weight:bold}
+.line{max-width:1500px;margin:25px auto;border-top:1px solid #17345e}
+.grid{max-width:1500px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.card{min-height:155px;text-decoration:none;color:white;background:linear-gradient(145deg,#0b1d40,#050f23);border:1px solid #18345b;border-radius:16px;padding:24px;display:block;transition:.15s;cursor:pointer;font:inherit;text-align:left}
+.card:hover{transform:translateY(-3px);border-color:#35c8ff;box-shadow:0 12px 35px #0008}
+.icon{font-size:34px;margin-bottom:18px}
+.title{font-size:21px;font-weight:900}
+.desc{margin-top:7px;color:#91aace;font-size:13px;line-height:1.45}
+.news{border-color:#66501e}
+.live{grid-column:span 2;border-color:#7e1825;background:linear-gradient(145deg,#4a0715,#110e20)}
+.live .title{font-size:24px}
+.footer{max-width:1500px;margin:28px auto;text-align:center;color:#657fa6;font-size:11px;letter-spacing:2px}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}.live{grid-column:span 2}}
+@media(max-width:600px){body{padding:18px}.grid{grid-template-columns:1fr}.live{grid-column:span 1}.top{gap:20px;align-items:flex-start}.clock{font-size:18px}}
 
-html,body{
-  margin:0;
-  width:100%;
-  min-height:100%;
-  background:#030a1c;
-  color:#fff;
-  font-family:Arial,Helvetica,sans-serif
-}
-
-body{
-  padding:32px
-}
-
-.top{
-  max-width:1500px;
-  margin:auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between
-}
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:15px
-}
-
-.logo{
-  width:min(620px,62vw);
-  height:112px;
-  object-fit:contain;
-  object-position:left center;
-  display:block;
-  border-radius:10px
-}
-
-/* =========================
-   TV MODE
-   ========================= */
-
-.tvOverlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:#000;
-  z-index:99999
-}
-
-.tvOverlay.active{
-  display:block
-}
-
-#tvFrame{
-  width:100%;
-  height:100%;
-  border:0;
-  display:block;
-  background:#000
-}
-
-.tvOverlay::after{
-  content:"TV MODE • ESC TO EXIT";
-  position:absolute;
-  right:18px;
-  top:14px;
-  padding:7px 10px;
-  border-radius:6px;
-  background:rgba(0,0,0,.55);
-  color:rgba(255,255,255,.7);
-  font:700 11px Arial,sans-serif;
-  letter-spacing:1.5px;
-  pointer-events:none;
-  opacity:0;
-  transition:opacity .3s
-}
-
-.tvOverlay:hover::after{
-  opacity:1
-}
-
-/* =========================
-   DASHBOARD
-   ========================= */
-
-h1{
-  margin:0;
-  font-size:27px
-}
-
-.brand p{
-  margin:5px 0 0;
-  color:#8fa9cc;
-  font-size:12px;
-  font-weight:bold;
-  letter-spacing:3px
-}
-
-.clock{
-  font-size:24px;
-  font-weight:bold
-}
-
-.line{
-  max-width:1500px;
-  margin:25px auto;
-  border-top:1px solid #17345e
-}
-
-.grid{
-  max-width:1500px;
-  margin:auto;
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:18px
-}
-
-.card{
-  min-height:155px;
-  text-decoration:none;
-  color:white;
-  background:linear-gradient(145deg,#0b1d40,#050f23);
-  border:1px solid #18345b;
-  border-radius:16px;
-  padding:24px;
-  display:block;
-  transition:.15s;
-  cursor:pointer;
-  font:inherit;
-  text-align:left
-}
-
-.card:hover{
-  transform:translateY(-3px);
-  border-color:#35c8ff;
-  box-shadow:0 12px 35px #0008
-}
-
-.icon{
-  font-size:34px;
-  margin-bottom:18px
-}
-
-.title{
-  font-size:21px;
-  font-weight:900
-}
-
-.desc{
-  margin-top:7px;
-  color:#91aace;
-  font-size:13px;
-  line-height:1.45
-}
-
-.news{
-  border-color:#66501e
-}
-
-.live{
-  grid-column:span 2;
-  border-color:#7e1825;
-  background:linear-gradient(145deg,#4a0715,#110e20)
-}
-
-.live .title{
-  font-size:24px
-}
-
-.footer{
-  max-width:1500px;
-  margin:28px auto;
-  text-align:center;
-  color:#657fa6;
-  font-size:11px;
-  letter-spacing:2px
-}
-
-/* Hide TV button while browser is fullscreen */
-
-:fullscreen #tvButton{
-  display:none
-}
-
-:-webkit-full-screen #tvButton{
-  display:none
-}
-
-/* =========================
-   RESPONSIVE
-   ========================= */
-
-@media(max-width:1000px){
-
-  .grid{
-    grid-template-columns:repeat(2,1fr)
-  }
-
-  .live{
-    grid-column:span 2
-  }
-}
-
-@media(max-width:600px){
-
-  body{
-    padding:18px
-  }
-
-  .grid{
-    grid-template-columns:1fr
-  }
-
-  .live{
-    grid-column:span 1
-  }
-
-  .top{
-    gap:20px;
-    align-items:flex-start
-  }
-
-  .clock{
-    font-size:18px
-  }
-}
+/* Hide the TV button while the browser is in fullscreen. */
+:fullscreen #tvButton{display:none}
+:-webkit-full-screen #tvButton{display:none}
 </style>
 </head>
-
 <body>
 
-<!-- =========================
-     HEADER
-     ========================= -->
-
 <div class="top">
-
   <div class="brand">
-
-    <img
-      class="logo"
-      src="coltrons-logo.png"
-      alt="Coltrons First Alert Weather"
-    >
-
+    <img class="logo" src="coltrons-logo.png" alt="Coltrons First Alert Weather">
     <div>
       <h1>COLTRONS FIRST ALERT WEATHER</h1>
       <p>WEATHER CENTER CONTROL DASHBOARD</p>
     </div>
-
   </div>
-
   <div class="clock" id="clock">--:--:--</div>
-
 </div>
 
 <div class="line"></div>
 
-
-<!-- =========================
-     DASHBOARD BUTTONS
-     ========================= -->
-
 <div class="grid">
 
-  <a class="card" href="current.html">
-    <div class="icon">🌡️</div>
-    <div class="title">Current Conditions</div>
-    <div class="desc">
-      Live temperature, wind, humidity, pressure and conditions.
-    </div>
-  </a>
+<a class="card" href="current.html">
+  <div class="icon">🌡️</div>
+  <div class="title">Current Conditions</div>
+  <div class="desc">Live temperature, wind, humidity, pressure and conditions.</div>
+</a>
 
+<a class="card" href="hourly.html">
+  <div class="icon">🕐</div>
+  <div class="title">Hourly Forecast</div>
+  <div class="desc">12-hour forecast with temperature and precipitation chances.</div>
+</a>
 
-  <a class="card" href="hourly.html">
-    <div class="icon">🕐</div>
-    <div class="title">Hourly Forecast</div>
-    <div class="desc">
-      12-hour forecast with temperature and precipitation chances.
-    </div>
-  </a>
+<a class="card" href="sevenday.html">
+  <div class="icon">📅</div>
+  <div class="title">7 Day Forecast</div>
+  <div class="desc">Seven-day highs, lows, conditions and rain chances.</div>
+</a>
 
+<a class="card" href="radar.html">
+  <div class="icon">🗺️</div>
+  <div class="title">Doppler Radar</div>
+  <div class="desc">Animated Wisconsin radar display.</div>
+</a>
 
-  <a class="card" href="sevenday.html">
-    <div class="icon">📅</div>
-    <div class="title">7 Day Forecast</div>
-    <div class="desc">
-      Seven-day highs, lows, conditions and rain chances.
-    </div>
-  </a>
+<a class="card" href="alert.html">
+  <div class="icon">🚨</div>
+  <div class="title">First Alert</div>
+  <div class="desc">Active watches, warnings and advisories.</div>
+</a>
 
+<a class="card" href="statewide.html">
+  <div class="icon">🌎</div>
+  <div class="title">Wisconsin Temps</div>
+  <div class="desc">Statewide temperatures and warm/cool spots.</div>
+</a>
 
-  <a class="card" href="radar.html">
-    <div class="icon">🗺️</div>
-    <div class="title">Doppler Radar</div>
-    <div class="desc">
-      Animated Wisconsin radar display.
-    </div>
-  </a>
+<a class="card" href="overnight.html">
+  <div class="icon">🌙</div>
+  <div class="title">Overnight</div>
+  <div class="desc">Your overnight and morning weather presentation.</div>
+</a>
 
+<a class="card news" href="desk.html">
+  <div class="icon">🎙️</div>
+  <div class="title">News Desk</div>
+  <div class="desc">Open the full-frame News Desk overlay.</div>
+</a>
 
-  <a class="card" href="alert.html">
-    <div class="icon">🚨</div>
-    <div class="title">First Alert</div>
-    <div class="desc">
-      Active watches, warnings and advisories.
-    </div>
-  </a>
-
-
-  <a class="card" href="statewide.html">
-    <div class="icon">🌎</div>
-    <div class="title">Wisconsin Temps</div>
-    <div class="desc">
-      Statewide temperatures and warm/cool spots.
-    </div>
-  </a>
-
-
-  <a class="card" href="overnight.html">
-    <div class="icon">🌙</div>
-    <div class="title">Overnight</div>
-    <div class="desc">
-      Your overnight and morning weather presentation.
-    </div>
-  </a>
-
-
-  <a class="card news" href="desk.html">
-    <div class="icon">🎙️</div>
-    <div class="title">News Desk</div>
-    <div class="desc">
-      Open the full-frame News Desk overlay.
-    </div>
-  </a>
-
-
-  <!-- TV MODE -->
-
-  <button
-    class="card live"
-    id="tvButton"
-    onclick="startTV()"
-  >
-
-    <div class="icon">📺</div>
-
-    <div class="title">
-      TV MODE
-    </div>
-
-    <div class="desc">
-      Fullscreen TV mode. Automatically cycles weather pages.
-      Press ESC to exit.
-    </div>
-
-  </button>
+<button class="card live" id="tvButton" onclick="startTV()">
+  <div class="icon">📺</div>
+  <div class="title">TV MODE</div>
+  <div class="desc">Fullscreen TV mode. Automatically cycles weather pages. Press ESC to exit.</div>
+</button>
 
 </div>
 
-
-<div class="footer">
-  COLTRONS FIRST ALERT WEATHER • WEATHER CENTER
-</div>
-
-
-<!-- =========================
-     TV MODE OVERLAY
-     ========================= -->
-
-<div
-  class="tvOverlay"
-  id="tvOverlay"
-  aria-hidden="true"
->
-
-  <iframe
-    id="tvFrame"
-    title="Coltrons First Alert Weather TV Mode"
-    allowfullscreen
-  ></iframe>
-
-</div>
-
-
-<!-- =========================
-     JAVASCRIPT
-     ========================= -->
+<div class="footer">COLTRONS FIRST ALERT WEATHER • WEATHER CENTER</div>
 
 <script>
-
-/* =========================
-   CLOCK
-   ========================= */
-
 function updateClock(){
-
-  const d = new Date();
-
-  document.getElementById("clock").textContent =
-    d.toLocaleTimeString([],{
-      hour:"numeric",
-      minute:"2-digit",
-      second:"2-digit"
-    });
-
+  const d=new Date();
+  document.getElementById("clock").textContent=d.toLocaleTimeString([],{
+    hour:"numeric",minute:"2-digit",second:"2-digit"
+  });
 }
-
 updateClock();
-
 setInterval(updateClock,1000);
 
-
-/* =========================
-   TV MODE PAGES
-   ========================= */
-
-const tvPages = [
-
+const tvPages=[
   "current.html",
-
   "hourly.html",
-
   "sevenday.html",
-
   "radar.html",
-
   "alert.html",
-
   "statewide.html"
-
 ];
-
-
-/* =========================
-   TV MODE VARIABLES
-   ========================= */
-
-let tvIndex = 0;
-let tvTimer = null;
-
-
-/* =========================
-   START TV MODE
-   ========================= */
+let tvIndex=0;
+let tvTimer=null;
 
 async function startTV(){
-
-  const overlay =
-    document.getElementById("tvOverlay");
-
-  const frame =
-    document.getElementById("tvFrame");
-
-
-  /*
-     Enter fullscreen FIRST.
-     This prevents TV mode from starting
-     if the browser blocks fullscreen.
-  */
+  const overlay=document.getElementById("tvOverlay");
+  const frame=document.getElementById("tvFrame");
 
   try{
-
-    if(document.documentElement.requestFullscreen){
-
-      await document.documentElement.requestFullscreen();
-
-    }else{
-
-      console.warn(
-        "Fullscreen is not supported by this browser."
-      );
-
+    if(!document.documentElement.requestFullscreen){
+      console.warn("Fullscreen is not supported by this browser.");
       return;
-
     }
-
+    await document.documentElement.requestFullscreen();
   }catch(e){
-
-    console.warn(
-      "Fullscreen was blocked:",
-      e
-    );
-
+    console.warn("Fullscreen was blocked:",e);
     return;
-
   }
 
-
-  /*
-     Start with Current Conditions.
-  */
-
-  tvIndex = 0;
-
-  frame.src = tvPages[tvIndex];
-
+  tvIndex=0;
+  frame.src=tvPages[tvIndex];
   overlay.classList.add("active");
-
-  overlay.setAttribute(
-    "aria-hidden",
-    "false"
-  );
-
-
-  /*
-     Change page every 10 seconds.
-  */
+  overlay.setAttribute("aria-hidden","false");
 
   clearInterval(tvTimer);
-
-  tvTimer = setInterval(()=>{
-
-    tvIndex =
-      (tvIndex + 1) % tvPages.length;
-
-    frame.src =
-      tvPages[tvIndex];
-
+  tvTimer=setInterval(()=>{
+    tvIndex=(tvIndex+1)%tvPages.length;
+    frame.src=tvPages[tvIndex];
   },10000);
-
 }
-
-
-/* =========================
-   STOP TV MODE
-   ========================= */
 
 function stopTV(){
-
   clearInterval(tvTimer);
-
-  tvTimer = null;
-
-
-  const overlay =
-    document.getElementById("tvOverlay");
-
-  const frame =
-    document.getElementById("tvFrame");
-
-
+  tvTimer=null;
+  const overlay=document.getElementById("tvOverlay");
+  const frame=document.getElementById("tvFrame");
   overlay.classList.remove("active");
-
-  overlay.setAttribute(
-    "aria-hidden",
-    "true"
-  );
-
-
-  /*
-     Stop the page inside the iframe.
-  */
-
-  frame.src = "about:blank";
-
+  overlay.setAttribute("aria-hidden","true");
+  frame.src="about:blank";
 }
 
-
-/* =========================
-   FULLSCREEN CHANGE
-   ========================= */
-
-document.addEventListener(
-  "fullscreenchange",
-  ()=>{
-
-    const button =
-      document.getElementById("tvButton");
-
-    const isFull =
-      !!document.fullscreenElement;
-
-
-    /*
-       Hide TV button while fullscreen.
-    */
-
-    if(button){
-
-      button.style.display =
-        isFull ? "none" : "";
-
-    }
-
-
-    /*
-       ESC exits fullscreen.
-       When that happens, stop TV mode
-       and return to the dashboard.
-    */
-
-    if(!isFull){
-
-      stopTV();
-
-    }
-
-  }
-);
-
+document.addEventListener("fullscreenchange",()=>{
+  const button=document.getElementById("tvButton");
+  const isFull=!!document.fullscreenElement;
+  if(button) button.style.display=isFull ? "none" : "";
+  if(!isFull) stopTV();
+});
 </script>
+
+<div class="tvOverlay" id="tvOverlay" aria-hidden="true">
+  <iframe id="tvFrame" title="Coltrons First Alert Weather TV Mode" allowfullscreen></iframe>
+</div>
 
 </body>
 </html>

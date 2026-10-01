@@ -1,81 +1,110 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>First Alert - Radar</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="stylesheet" href="style.css">
+<!-- SCENE: WEATHER - LIVE RADAR (animated loop)   1920x1080
+     Radar imagery: Iowa Environmental Mesonet NEXRAD composite (NOAA data)
+     Basemap: CARTO dark. Needs an internet connection. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>First Alert - Live Radar</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="style.css">
 <style>
-#map{position:absolute;top:132px;left:0;right:0;bottom:74px;background:#02060f}.leaflet-container{background:#02060f}.leaflet-control-attribution{display:none}#header,#footer{z-index:900}.overlay{position:absolute;pointer-events:none;z-index:850}.titlecard{top:172px;left:56px;padding:22px 30px}.titlecard h1{font-family:var(--cond);font-weight:700;font-size:62px;line-height:.92;text-transform:uppercase}.titlecard .k{font-family:var(--sans);font-size:13px;font-weight:800;letter-spacing:4px;color:var(--cyan);margin-bottom:8px}.legend{bottom:110px;left:56px;padding:20px 24px}.legend .label{margin-bottom:12px}.legend .scale{width:400px;height:16px;border-radius:3px;background:linear-gradient(90deg,#00c6a2,#00a2ff 14%,#00e13c 30%,#f6ff00 50%,#ff9c00 66%,#ff2200 80%,#c400ff)}.legend .ticks{display:flex;justify-content:space-between;width:400px;margin-top:8px;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:1.6px;color:var(--ink-dim)}.loop{bottom:110px;right:56px;padding:18px 24px;text-align:right}.loop .frame{font-family:var(--cond);font-weight:700;font-size:46px;line-height:1}.loop .bars{display:flex;gap:5px;justify-content:flex-end;margin-top:12px}.loop .bars i{width:20px;height:6px;border-radius:3px;background:rgba(255,255,255,.2)}.loop .bars i.on{background:var(--cyan)}.alertstrip{top:132px;left:0;right:0;height:56px;display:none;align-items:center;gap:18px;padding:0 56px;background:var(--alert)}body.hasalert .alertstrip{display:flex}.alertstrip .l{font-family:var(--sans);font-size:13px;font-weight:800;letter-spacing:3px}.alertstrip .v{font-family:var(--cond);font-size:32px;letter-spacing:.6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}to{transform:translateY(980px)}}
-.leaflet-container{background:#00040a!important}.panel{background:rgba(0,4,10,.90)!important;border-color:rgba(255,255,255,.10)!important}
-</style></head><body><div id="map"></div><div id="header"></div><div class="overlay alertstrip"><span class="l">FIRST ALERT</span><span class="v" id="astrip"></span></div><div class="overlay titlecard panel panel-accent"><div class="k">First Alert</div><h1>Doppler Radar</h1></div><div class="overlay legend panel" id="legend"><div class="label" id="legendLabel">Rainfall Reflectivity</div><div class="scale"></div><div class="ticks" id="legendTicks"><span>LIGHT</span><span>MODERATE</span><span>HEAVY</span><span>SEVERE</span></div></div><div class="overlay loop panel" id="loopPanel"><div class="frame" id="frame">-- MIN AGO</div><div class="bars" id="bars"></div></div><div id="footer"></div>
+  #map { position:absolute; top:132px; left:0; right:0; bottom:74px; background:#02060f; }
+  .leaflet-container { background:#02060f; }
+  .leaflet-control-attribution { display:none; }
+
+  /* Leaflet panes go up to z-index 700 - keep all station furniture above them */
+  #header, #footer { z-index:900; }
+  .overlay { position:absolute; pointer-events:none; z-index:850; }
+
+  .titlecard { top:172px; left:56px; padding:22px 30px; }
+  .titlecard h1 { font-family:var(--cond); font-weight:700; font-size:62px; line-height:.92;
+                  text-transform:uppercase; }
+  .titlecard .k { font-family:var(--sans); font-size:13px; font-weight:800; letter-spacing:4px;
+                  color:var(--cyan); margin-bottom:8px; }
+
+  .legend { bottom:110px; left:56px; padding:20px 24px; }
+  .legend .label { margin-bottom:12px; }
+  .legend .scale { width:400px; height:16px; border-radius:3px;
+    background:linear-gradient(90deg,#00c6a2 0%,#00a2ff 14%,#00e13c 30%,#f6ff00 50%,
+                               #ff9c00 66%,#ff2200 80%,#c400ff 100%); }
+  .legend .ticks { display:flex; justify-content:space-between; width:400px; margin-top:8px;
+                   font-family:var(--sans); font-size:12px; font-weight:700; letter-spacing:1.6px;
+                   color:var(--ink-dim); }
+
+  .loop { bottom:110px; right:56px; padding:18px 24px; text-align:right; }
+  .loop .frame { font-family:var(--cond); font-weight:700; font-size:46px; line-height:1; }
+  .loop .bars { display:flex; gap:5px; justify-content:flex-end; margin-top:12px; }
+  .loop .bars i { width:20px; height:6px; border-radius:3px; background:rgba(255,255,255,.2); }
+  .loop .bars i.on { background:var(--cyan); }
+
+  .alertstrip { top:132px; left:0; right:0; height:56px; display:none; align-items:center;
+                gap:18px; padding:0 56px; background:var(--alert); }
+  body.hasalert .alertstrip { display:flex; }
+  .alertstrip .l { font-family:var(--sans); font-size:13px; font-weight:800; letter-spacing:3px; }
+  .alertstrip .v { font-family:var(--cond); font-size:32px; letter-spacing:.6px;
+                   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+</style>
+</head>
+<body>
+  <div id="map"></div>
+  <div id="header"></div>
+
+  <div class="overlay alertstrip">
+    <span class="l">FIRST ALERT</span><span class="v" id="astrip"></span>
+  </div>
+
+  <div class="overlay titlecard panel panel-accent">
+    <div class="k">Live First Alert</div>
+    <h1>Doppler Radar</h1>
+  </div>
+
+  <div class="overlay legend panel">
+    <div class="label">Precipitation Intensity</div>
+    <div class="scale"></div>
+    <div class="ticks"><span>LIGHT</span><span>MODERATE</span><span>HEAVY</span><span>SEVERE</span></div>
+  </div>
+
+  <div class="overlay loop panel">
+    <div class="frame" id="frame">-- MIN AGO</div>
+    <div class="bars" id="bars"></div>
+  </div>
+
+  <div id="footer"></div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="wx.js"></script>
 <script>
-/*
-  CARTO API KEY
-  Paste your key between the quotation marks below.
-*/
-const CARTO_API_KEY = "cb1_3qog_2_d109f0b6c16b560a67dccd7b";
-
 mountHeader();
 mountFooter('');
 
+/* ---- map ---- */
 const map = L.map('map', {
-  zoomControl: false,
-  attributionControl: false,
-  zoomSnap: 0.1,
-  dragging: false,
-  scrollWheelZoom: false,
-  doubleClickZoom: false,
-  keyboard: false
+  zoomControl: false, attributionControl: false, zoomSnap: 0.1,
+  dragging: false, scrollWheelZoom: false, doubleClickZoom: false, keyboard: false
 });
 
-map.fitBounds(
-  [[42.40, -93.20], [47.20, -86.60]],
-  { paddingTopLeft: [430, 90], paddingBottomRight: [430, 120] }
-);
+// frame Wisconsin, leaving room for the title card and the legend
+map.fitBounds([[42.40, -93.20], [47.20, -86.60]],
+  { paddingTopLeft: [430, 90], paddingBottomRight: [430, 120] });
 
-const cartoUrl =
-  'https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png' +
-  '?api_key=' + encodeURIComponent(CARTO_API_KEY);
+L.tileLayer('https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  { maxZoom: 12, opacity: .9 }).addTo(map);
 
-L.tileLayer(
-  `https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(CARTO_API_KEY)}`,
-  {
-    maxZoom: 20,
-    opacity: 0.9,
-    attribution: '© OpenStreetMap contributors, © CARTO'
-  }
-).addTo(map);
+/* ---- animated radar loop: 50 minutes of frames, 5 min apart ---- */
+const OFFSETS = [50, 45, 40, 35, 30, 25, 20, 15, 10, 5, 0];
+const layers = OFFSETS.map(m => {
+  const suffix = m === 0 ? '' : `-m${String(m).padStart(2, '0')}m`;
+  return L.tileLayer(
+    `https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913${suffix}/{z}/{x}/{y}.png`,
+    { opacity: 0, maxZoom: 12 }).addTo(map);
+});
 
-const OFFSETS = [50,45,40,35,30,25,20,15,10,5,0];
-
-function makeRainLayers() {
-  return OFFSETS.map(minutes => {
-    const suffix = minutes === 0
-      ? ''
-      : '-m' + String(minutes).padStart(2, '0') + 'm';
-
-    return L.tileLayer(
-      'https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913' +
-      suffix + '/{z}/{x}/{y}.png',
-      { opacity: 0, maxZoom: 12 }
-    ).addTo(map);
-  });
-}
-
-const rainLayers = makeRainLayers();
-
-fetch('wi.geojson')
-  .then(response => response.json())
-  .then(geojson => {
-    L.geoJSON(geojson, {
-      style: {
-        color: '#8fd8ff',
-        weight: 2.5,
-        fill: false,
-        opacity: 0.95
-      }
-    }).addTo(map);
-  })
-  .catch(() => {});
+/* ---- Wisconsin outline + city markers so viewers know what they're looking at ---- */
+fetch('wi.geojson').then(r => r.json()).then(gj => {
+  L.geoJSON(gj, { style: { color: '#8fd8ff', weight: 2.5, fill: false,
+                           opacity: .95, dashArray: '0' } }).addTo(map);
+}).catch(() => {});
 
 const MARKS = [
   ['WISCONSIN RAPIDS', 44.3836, -89.8173, true],
@@ -84,79 +113,57 @@ const MARKS = [
   ['GREEN BAY', 44.5133, -88.0133, false],
   ['WAUSAU', 44.9591, -89.6301, false],
   ['EAU CLAIRE', 44.8113, -91.4985, false],
-  ['LA CROSSE', 43.8014, -91.2396, false]
+  ['LA CROSSE', 43.8014, -91.2396, false],
 ];
-
-MARKS.forEach(([name, lat, lon, highlight]) => {
+MARKS.forEach(([name, lat, lon, home]) => {
   L.marker([lat, lon], {
     interactive: false,
     icon: L.divIcon({
       className: '',
       iconSize: [0, 0],
-      html:
-        '<div style="transform:translate(-50%,-50%);white-space:nowrap;' +
-        'display:flex;align-items:center;gap:7px;font-family:Arial,sans-serif;' +
-        'font-size:' + (highlight ? 15 : 12) + 'px;font-weight:800;' +
-        'letter-spacing:1.6px;color:' +
-        (highlight ? '#fff' : 'rgba(255,255,255,.72)') +
-        ';text-shadow:0 2px 8px #000">' +
-        '<span style="width:' + (highlight ? 12 : 7) + 'px;height:' +
-        (highlight ? 12 : 7) + 'px;border-radius:50%;background:' +
-        (highlight ? '#e2001a' : '#fff') + '"></span>' +
-        name + '</div>'
+      html: `<div style="transform:translate(-50%,-50%);white-space:nowrap;
+                  display:flex;align-items:center;gap:7px;
+                  font-family:'Inter',Arial,sans-serif;font-size:${home ? 15 : 12}px;
+                  font-weight:800;letter-spacing:1.6px;
+                  color:${home ? '#fff' : 'rgba(255,255,255,.72)'};
+                  text-shadow:0 2px 8px #000">
+              <span style="width:${home ? 12 : 7}px;height:${home ? 12 : 7}px;border-radius:50%;
+                    background:${home ? '#e2001a' : '#fff'};
+                    box-shadow:0 0 0 2px rgba(0,0,0,.7)"></span>${name}</div>`
     })
   }).addTo(map);
 });
 
-document.getElementById('bars').innerHTML =
-  OFFSETS.map(() => '<i></i>').join('');
-
+document.getElementById('bars').innerHTML = OFFSETS.map(() => '<i></i>').join('');
 const bars = [...document.querySelectorAll('#bars i')];
-let frameIndex = 0;
 
-function renderRadar() {
-  rainLayers.forEach((layer, index) => {
-    layer.setOpacity(index === frameIndex ? 0.82 : 0);
-  });
-
-  bars.forEach((bar, index) => {
-    bar.classList.toggle('on', index <= frameIndex);
-  });
-
-  const minutes = OFFSETS[frameIndex];
-  document.getElementById('frame').textContent =
-    minutes === 0 ? 'CURRENT' : '-' + minutes + ' MIN';
+let f = 0;
+function step() {
+  layers.forEach((l, i) => l.setOpacity(i === f ? .82 : 0));
+  bars.forEach((b, i) => b.classList.toggle('on', i <= f));
+  const m = OFFSETS[f];
+  document.getElementById('frame').textContent = m === 0 ? 'LIVE' : `-${m} MIN`;
+  f = (f + 1) % OFFSETS.length;
+  setTimeout(step, f === 0 ? 1400 : 420);   // hold on the newest frame
 }
+setTimeout(step, 1200);
 
-function stepRadar() {
-  renderRadar();
-  frameIndex = (frameIndex + 1) % OFFSETS.length;
-  setTimeout(stepRadar, frameIndex === 0 ? 1400 : 420);
-}
+/* refresh the radar tiles every 4 minutes so the loop stays current */
+setInterval(() => layers.forEach(l => l.redraw()), 240000);
 
-setTimeout(stepRadar, 1200);
-
-setInterval(() => {
-  rainLayers.forEach(layer => layer.redraw());
-}, 240000);
-
-boot(data => {
-  const alerts = data.alerts || [];
-
-  document.body.classList.toggle('hasalert', alerts.length > 0);
-
-  if (alerts.length) {
+/* ---- county warning polygons + text from our feed ---- */
+boot((d) => {
+  const a = d.alerts || [];
+  document.body.classList.toggle('hasalert', a.length > 0);
+  if (a.length) {
     document.getElementById('astrip').textContent =
-      alerts.map(x => x.event + ': ' + x.areas).join('   •   ');
+      a.map(x => `${x.event}: ${x.areas}`).join('   \u2022   ');
   }
-
-  const footerMessage = document.getElementById('footmsg');
-
-  if (footerMessage) {
-    footerMessage.textContent = alerts.length
-      ? alerts[0].event + ' · ' + alerts[0].areas.slice(0, 80)
-      : 'RADAR LOOP · LAST 50 MINUTES · NO ACTIVE WARNINGS';
-  }
+  const fm = document.getElementById('footmsg');
+  if (fm) fm.textContent = a.length
+    ? `${a[0].event} \u00b7 ${a[0].areas.slice(0, 80)}`
+    : `RADAR LOOP \u00b7 LAST 50 MINUTES \u00b7 NO ACTIVE WARNINGS IN WISCONSIN`;
 });
 </script>
-</script></body></html>
+</body>
+</html>
