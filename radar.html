@@ -1,253 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Coltrons First Alert Weather - Radar</title>
+
+<title>First Alert - Radar</title>
 
 <link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      crossorigin="">
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<link rel="stylesheet" href="style.css">
 
 <style>
-* {
-  box-sizing: border-box;
-}
-
-html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #030a1c;
-  color: white;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 #map {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
+  position:absolute;
+  top:132px;
+  left:0;
+  right:0;
+  bottom:74px;
+  background:#02060f;
 }
 
-/* Top station header */
-.header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 118px;
-  z-index: 1000;
-
-  display: flex;
-  align-items: center;
-  gap: 18px;
-
-  padding: 15px 28px;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(3,10,28,.98),
-      rgba(3,10,28,.82),
-      rgba(3,10,28,0)
-    );
-
-  pointer-events: none;
-}
-
-.station-logo {
-  width: 260px;
-  height: 82px;
-  object-fit: contain;
-  object-position: left center;
-}
-
-.header-title {
-  font-weight: 900;
-  font-size: 28px;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 8px #000;
-}
-
-.header-subtitle {
-  margin-top: 4px;
-  color: #8fa9cc;
-  font-size: 12px;
-  font-weight: bold;
-  letter-spacing: 3px;
-}
-
-/* Bottom information bar */
-.bottom-bar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 78px;
-  z-index: 1000;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 0 28px;
-
-  background: rgba(3,10,28,.94);
-  border-top: 2px solid #35c8ff;
-
-  pointer-events: none;
-}
-
-.bottom-left {
-  font-size: 20px;
-  font-weight: 900;
-}
-
-.bottom-center {
-  color: #8fa9cc;
-  font-size: 13px;
-  font-weight: bold;
-  letter-spacing: 2px;
-}
-
-.bottom-right {
-  font-size: 15px;
-  font-weight: bold;
-}
-
-/* Rain / snow controls */
-.controls {
-  position: absolute;
-  right: 20px;
-  top: 135px;
-  z-index: 2000;
-
-  display: flex;
-  gap: 8px;
-
-  background: rgba(3,10,28,.9);
-  padding: 8px;
-  border: 1px solid #31517e;
-  border-radius: 10px;
-  box-shadow: 0 5px 20px #0008;
-}
-
-.controls button {
-  border: 1px solid #31517e;
-  background: #071634;
-  color: white;
-  padding: 9px 15px;
-  border-radius: 7px;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.controls button:hover {
-  border-color: #35c8ff;
-}
-
-.controls button.active {
-  background: #14418c;
-  border-color: #35c8ff;
-}
-
-/* Radar legend */
-.legend {
-  position: absolute;
-  left: 20px;
-  bottom: 98px;
-  z-index: 2000;
-
-  background: rgba(3,10,28,.92);
-  border: 1px solid #31517e;
-  border-radius: 9px;
-  padding: 10px 13px;
-
-  font-size: 11px;
-  font-weight: bold;
-}
-
-.legend-title {
-  margin-bottom: 7px;
-  letter-spacing: 1px;
-}
-
-.legend-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin: 4px 0;
-}
-
-.swatch {
-  width: 18px;
-  height: 10px;
-  border-radius: 2px;
-}
-
-/* Leaflet controls */
-.leaflet-control-zoom {
-  margin-top: 130px !important;
-  margin-left: 18px !important;
+.leaflet-container {
+  background:#02060f !important;
 }
 
 .leaflet-control-attribution {
-  background: rgba(0,0,0,.65) !important;
-  color: #bbb !important;
+  display:none;
 }
 
-.leaflet-control-attribution a {
-  color: #8fdcff !important;
+#header,
+#footer {
+  z-index:900;
 }
 
-/* Mobile */
-@media(max-width:800px) {
-  .header {
-    height: 90px;
-    padding: 8px 12px;
-  }
+.overlay {
+  position:absolute;
+  pointer-events:none;
+  z-index:850;
+}
 
-  .station-logo {
-    width: 170px;
-    height: 65px;
-  }
+.titlecard {
+  top:172px;
+  left:56px;
+  padding:22px 30px;
+}
 
-  .header-title {
-    font-size: 18px;
-  }
+.titlecard h1 {
+  font-family:var(--cond);
+  font-weight:700;
+  font-size:62px;
+  line-height:.92;
+  text-transform:uppercase;
+}
 
-  .header-subtitle {
-    font-size: 8px;
-    letter-spacing: 1px;
-  }
+.titlecard .k {
+  font-family:var(--sans);
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:4px;
+  color:var(--cyan);
+  margin-bottom:8px;
+}
 
-  .controls {
-    top: 98px;
-    right: 10px;
-  }
+.legend {
+  bottom:110px;
+  left:56px;
+  padding:20px 24px;
+}
 
-  .bottom-bar {
-    height: 65px;
-    padding: 0 12px;
-  }
+.legend .label {
+  margin-bottom:12px;
+}
 
-  .bottom-left {
-    font-size: 14px;
-  }
+.legend .scale {
+  width:400px;
+  height:16px;
+  border-radius:3px;
+  background:linear-gradient(
+    90deg,
+    #00c6a2,
+    #00a2ff 14%,
+    #00e13c 30%,
+    #f6ff00 50%,
+    #ff9c00 66%,
+    #ff2200 80%,
+    #c400ff
+  );
+}
 
-  .bottom-center {
-    display: none;
-  }
+.legend .ticks {
+  display:flex;
+  justify-content:space-between;
+  width:400px;
+  margin-top:8px;
+  font-family:var(--sans);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:1.6px;
+  color:var(--ink-dim);
+}
 
-  .bottom-right {
-    font-size: 11px;
-  }
+.loop {
+  bottom:110px;
+  right:56px;
+  padding:18px 24px;
+  text-align:right;
+}
 
-  .legend {
-    bottom: 78px;
-    left: 10px;
-  }
+.loop .frame {
+  font-family:var(--cond);
+  font-weight:700;
+  font-size:46px;
+  line-height:1;
+}
+
+.loop .bars {
+  display:flex;
+  gap:5px;
+  justify-content:flex-end;
+  margin-top:12px;
+}
+
+.loop .bars i {
+  width:20px;
+  height:6px;
+  border-radius:3px;
+  background:rgba(255,255,255,.2);
+}
+
+.loop .bars i.on {
+  background:var(--cyan);
+}
+
+.alertstrip {
+  top:132px;
+  left:0;
+  right:0;
+  height:56px;
+  display:none;
+  align-items:center;
+  gap:18px;
+  padding:0 56px;
+  background:var(--alert);
+}
+
+body.hasalert .alertstrip {
+  display:flex;
+}
+
+.alertstrip .l {
+  font-family:var(--sans);
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:3px;
+}
+
+.alertstrip .v {
+  font-family:var(--cond);
+  font-size:32px;
+  letter-spacing:.6px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.leaflet-container {
+  background:#00040a !important;
+}
+
+.panel {
+  background:rgba(0,4,10,.90) !important;
+  border-color:rgba(255,255,255,.10) !important;
+}
+
+/* =========================================================
+   LOCK THE MAP
+   ========================================================= */
+
+.leaflet-grab,
+.leaflet-grabbing {
+  cursor:default !important;
+}
+
+.leaflet-container {
+  cursor:default !important;
+}
+
+/* Prevent the map from being moved by touch */
+#map {
+  touch-action:none;
 }
 </style>
 </head>
@@ -256,243 +198,512 @@ html, body {
 
 <div id="map"></div>
 
-<!-- Station branding -->
-<div class="header">
-  <img
-    class="station-logo"
-    src="coltrons-logo.png"
-    alt="Coltrons First Alert Weather"
-  >
+<div id="header"></div>
 
-  <div>
-    <div class="header-title">
-      FIRST ALERT RADAR
-    </div>
+<div class="overlay alertstrip">
+  <span class="l">FIRST ALERT</span>
+  <span class="v" id="astrip"></span>
+</div>
 
-    <div class="header-subtitle">
-      COLTRONS FIRST ALERT WEATHER
-    </div>
+<div class="overlay titlecard panel panel-accent">
+  <div class="k">First Alert</div>
+  <h1>Doppler Radar</h1>
+</div>
+
+<div class="overlay legend panel" id="legend">
+  <div class="label" id="legendLabel">
+    Rainfall Reflectivity
+  </div>
+
+  <div class="scale"></div>
+
+  <div class="ticks" id="legendTicks">
+    <span>LIGHT</span>
+    <span>MODERATE</span>
+    <span>HEAVY</span>
+    <span>SEVERE</span>
   </div>
 </div>
 
-<!-- Rain / Snow controls -->
-<div class="controls">
-  <button id="rainBtn" class="active" onclick="setMode('rain')">
-    RAIN
-  </button>
+<div class="overlay loop panel" id="loopPanel">
+  <div class="frame" id="frame">-- MIN AGO</div>
 
-  <button id="snowBtn" onclick="setMode('snow')">
-    SNOW
-  </button>
+  <div class="bars" id="bars"></div>
 </div>
 
-<!-- Legend -->
-<div class="legend">
-  <div class="legend-title" id="legendTitle">
-    RAIN INTENSITY
-  </div>
+<div id="footer"></div>
 
-  <div class="legend-row">
-    <span class="swatch" style="background:#35c8ff"></span>
-    Light
-  </div>
 
-  <div class="legend-row">
-    <span class="swatch" style="background:#35d35a"></span>
-    Moderate
-  </div>
-
-  <div class="legend-row">
-    <span class="swatch" style="background:#ffe600"></span>
-    Heavy
-  </div>
-
-  <div class="legend-row">
-    <span class="swatch" style="background:#ff7a00"></span>
-    Very Heavy
-  </div>
-
-  <div class="legend-row">
-    <span class="swatch" style="background:#ff1744"></span>
-    Extreme
-  </div>
-</div>
-
-<!-- Bottom station bar -->
-<div class="bottom-bar">
-  <div class="bottom-left">
-    FIRST ALERT RADAR
-  </div>
-
-  <div class="bottom-center">
-    WEATHER • RADAR • CONDITIONS
-  </div>
-
-  <div class="bottom-right" id="updated">
-    RADAR DATA
-  </div>
-</div>
-
-<script
-  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-  crossorigin="">
-</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="wx.js"></script>
 
 <script>
-/* =========================================================
-   COLTRONS FIRST ALERT WEATHER
-   KEYLESS RADAR MAP
-   ========================================================= */
-
-/*
-   IMPORTANT:
-   This version contains NO CARTO API KEY.
-   The basemap uses CARTO's public raster tiles directly.
-*/
-
-/* Wisconsin-centered map */
-const map = L.map("map", {
-  zoomControl: true,
-  attributionControl: true
-}).setView([44.5, -89.5], 7);
 
 /* =========================================================
-   KEYLESS DARK BASEMAP
+   CARTO API KEY
+   =========================================================
+
+   PUT YOUR CARTO KEY BETWEEN THE QUOTATION MARKS.
+
+   Example:
+
+   const CARTO_API_KEY = "cb1_3qog_2_d109f0b6c16b560a67dccd7b";
+
    ========================================================= */
 
-const darkMap = L.tileLayer(
-  "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+const CARTO_API_KEY = "PASTE_YOUR_CARTO_API_KEY_HERE";
+
+
+/* =========================================================
+   HEADER / FOOTER
+   ========================================================= */
+
+mountHeader();
+mountFooter('');
+
+
+/* =========================================================
+   MAP
+   =========================================================
+
+   THE MAP IS PERMANENTLY LOCKED.
+
+   dragging: false
+   scrollWheelZoom: false
+   doubleClickZoom: false
+   keyboard: false
+   touchZoom: false
+   boxZoom: false
+   zoomControl: false
+
+   ========================================================= */
+
+const map = L.map('map', {
+
+  zoomControl: false,
+
+  attributionControl: false,
+
+  zoomSnap: 0.1,
+
+  dragging: false,
+
+  scrollWheelZoom: false,
+
+  doubleClickZoom: false,
+
+  keyboard: false,
+
+  touchZoom: false,
+
+  boxZoom: false,
+
+  tap: false
+
+});
+
+
+/* =========================================================
+   LOCK ALL MAP MOVEMENT
+   ========================================================= */
+
+map.dragging.disable();
+map.scrollWheelZoom.disable();
+map.doubleClickZoom.disable();
+map.touchZoom.disable();
+map.boxZoom.disable();
+map.keyboard.disable();
+
+
+/* =========================================================
+   WISCONSIN MAP VIEW
+   ========================================================= */
+
+map.fitBounds(
+  [
+    [42.40, -93.20],
+    [47.20, -86.60]
+  ],
   {
-    subdomains: "abcd",
-    maxZoom: 20,
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    paddingTopLeft: [430, 90],
+    paddingBottomRight: [430, 120]
   }
 );
 
-darkMap.addTo(map);
 
 /* =========================================================
-   RADAR DATA
+   CARTO DARK BASEMAP
    ========================================================= */
 
-/*
-   NOAA / Iowa Environmental Mesonet radar composite.
+const cartoUrl =
+  'https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png' +
+  '?key=' + encodeURIComponent(CARTO_API_KEY);
 
-   This does NOT require a personal API key.
-*/
-
-let radarLayer = null;
-let currentMode = "rain";
-
-/*
-   Radar image layer.
-
-   The service may change its available imagery over time.
-   Keeping this separate from the basemap means the map itself
-   remains usable even if radar imagery is temporarily unavailable.
-*/
-
-function createRadarLayer() {
-
-  if (radarLayer) {
-    map.removeLayer(radarLayer);
-    radarLayer = null;
+L.tileLayer(
+  cartoUrl,
+  {
+    maxZoom:20,
+    opacity:0.9,
+    attribution:'© OpenStreetMap contributors, © CARTO'
   }
+).addTo(map);
 
-  /*
-     NEXRAD composite reflectivity image from IEM.
-  */
 
-  const radarUrl =
-    "https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi" +
-    "?service=WMS" +
-    "&version=1.1.1" +
-    "&request=GetMap" +
-    "&layers=nexrad-n0r-900913" +
-    "&styles=default" +
-    "&format=image/png" +
-    "&transparent=true" +
-    "&width=256" +
-    "&height=256" +
-    "&srs=EPSG:3857" +
-    "&bbox={bbox-epsg-3857}";
+/* =========================================================
+   RADAR LOOP
+   ========================================================= */
 
-  radarLayer = L.tileLayer.wms(
-    "https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi",
-    {
-      layers: "nexrad-n0r-900913",
-      format: "image/png",
-      transparent: true,
-      opacity: 0.72,
-      attribution: "Radar: Iowa Environmental Mesonet / NOAA"
+const OFFSETS = [
+  50,
+  45,
+  40,
+  35,
+  30,
+  25,
+  20,
+  15,
+  10,
+  5,
+  0
+];
+
+
+/* =========================================================
+   CREATE RADAR LAYERS
+   ========================================================= */
+
+function makeRainLayers() {
+
+  return OFFSETS.map(minutes => {
+
+    const suffix =
+      minutes === 0
+        ? ''
+        : '-m' + String(minutes).padStart(2, '0') + 'm';
+
+    return L.tileLayer(
+
+      'https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/' +
+      'nexrad-n0q-900913' +
+      suffix +
+      '/{z}/{x}/{y}.png',
+
+      {
+        opacity:0,
+        maxZoom:12,
+        interactive:false
+      }
+
+    ).addTo(map);
+
+  });
+
+}
+
+
+const rainLayers = makeRainLayers();
+
+
+/* =========================================================
+   WISCONSIN OUTLINE
+   ========================================================= */
+
+fetch('wi.geojson')
+
+  .then(response => response.json())
+
+  .then(geojson => {
+
+    L.geoJSON(
+      geojson,
+      {
+        style: {
+          color:'#8fd8ff',
+          weight:2.5,
+          fill:false,
+          opacity:0.95
+        },
+
+        interactive:false
+      }
+
+    ).addTo(map);
+
+  })
+
+  .catch(() => {});
+
+
+/* =========================================================
+   CITY MARKERS
+   ========================================================= */
+
+const MARKS = [
+
+  ['WISCONSIN RAPIDS',44.3836,-89.8173,true],
+
+  ['MILWAUKEE',43.0389,-87.9065,false],
+
+  ['MADISON',43.0731,-89.4012,false],
+
+  ['GREEN BAY',44.5133,-88.0133,false],
+
+  ['WAUSAU',44.9591,-89.6301,false],
+
+  ['EAU CLAIRE',44.8113,-91.4985,false],
+
+  ['LA CROSSE',43.8014,-91.2396,false]
+
+];
+
+
+MARKS.forEach(
+  ([name,lat,lon,highlight]) => {
+
+    L.marker(
+      [lat,lon],
+      {
+        interactive:false,
+
+        icon:L.divIcon({
+
+          className:'',
+
+          iconSize:[0,0],
+
+          html:
+
+            '<div style="' +
+
+            'transform:translate(-50%,-50%);' +
+
+            'white-space:nowrap;' +
+
+            'display:flex;' +
+
+            'align-items:center;' +
+
+            'gap:7px;' +
+
+            'font-family:Arial,sans-serif;' +
+
+            'font-size:' +
+            (highlight ? 15 : 12) +
+            'px;' +
+
+            'font-weight:800;' +
+
+            'letter-spacing:1.6px;' +
+
+            'color:' +
+            (highlight
+              ? '#fff'
+              : 'rgba(255,255,255,.72)') +
+            ';' +
+
+            'text-shadow:0 2px 8px #000' +
+
+            '">' +
+
+            '<span style="' +
+
+            'width:' +
+            (highlight ? 12 : 7) +
+            'px;' +
+
+            'height:' +
+            (highlight ? 12 : 7) +
+            'px;' +
+
+            'border-radius:50%;' +
+
+            'background:' +
+            (highlight ? '#e2001a' : '#fff') +
+
+            '">' +
+
+            '</span>' +
+
+            name +
+
+            '</div>'
+
+        })
+
+      }
+
+    ).addTo(map);
+
+  }
+);
+
+
+/* =========================================================
+   RADAR LOOP BAR
+   ========================================================= */
+
+document.getElementById('bars').innerHTML =
+  OFFSETS.map(() => '<i></i>').join('');
+
+
+const bars =
+  [...document.querySelectorAll('#bars i')];
+
+
+let frameIndex = 0;
+
+
+/* =========================================================
+   DISPLAY RADAR FRAME
+   ========================================================= */
+
+function renderRadar() {
+
+  rainLayers.forEach(
+    (layer,index) => {
+
+      layer.setOpacity(
+        index === frameIndex
+          ? 0.82
+          : 0
+      );
+
     }
   );
 
-  radarLayer.addTo(map);
+
+  bars.forEach(
+    (bar,index) => {
+
+      bar.classList.toggle(
+        'on',
+        index <= frameIndex
+      );
+
+    }
+  );
+
+
+  const minutes =
+    OFFSETS[frameIndex];
+
+
+  document.getElementById('frame').textContent =
+
+    minutes === 0
+
+      ? 'CURRENT'
+
+      : '-' + minutes + ' MIN';
+
 }
 
-createRadarLayer();
 
 /* =========================================================
-   RAIN / SNOW MODE
+   PLAY RADAR LOOP
    ========================================================= */
 
-function setMode(mode) {
+function stepRadar() {
 
-  currentMode = mode;
+  renderRadar();
 
-  document
-    .getElementById("rainBtn")
-    .classList.toggle("active", mode === "rain");
+  frameIndex =
+    (frameIndex + 1) %
+    OFFSETS.length;
 
-  document
-    .getElementById("snowBtn")
-    .classList.toggle("active", mode === "snow");
+  setTimeout(
 
-  const title = document.getElementById("legendTitle");
+    stepRadar,
 
-  if (mode === "snow") {
-    title.textContent = "SNOW / WINTER WEATHER";
+    frameIndex === 0
+      ? 1400
+      : 420
 
-    /*
-       Radar reflectivity itself does not identify precipitation
-       type. This mode changes the presentation label rather than
-       pretending the radar can determine rain vs snow by itself.
-    */
-  } else {
-    title.textContent = "RAIN INTENSITY";
+  );
+
+}
+
+
+setTimeout(
+  stepRadar,
+  1200
+);
+
+
+/* =========================================================
+   REFRESH RADAR DATA
+   ========================================================= */
+
+setInterval(
+  () => {
+
+    rainLayers.forEach(
+      layer => layer.redraw()
+    );
+
+  },
+  240000
+);
+
+
+/* =========================================================
+   WEATHER / ALERT DATA
+   ========================================================= */
+
+boot(
+  data => {
+
+    const alerts =
+      data.alerts || [];
+
+
+    document.body.classList.toggle(
+      'hasalert',
+      alerts.length > 0
+    );
+
+
+    if (alerts.length) {
+
+      document.getElementById(
+        'astrip'
+      ).textContent =
+
+        alerts
+          .map(
+            x =>
+              x.event +
+              ': ' +
+              x.areas
+          )
+          .join(
+            '   •   '
+          );
+
+    }
+
+
+    const footerMessage =
+      document.getElementById('footmsg');
+
+
+    if (footerMessage) {
+
+      footerMessage.textContent =
+
+        alerts.length
+
+          ? alerts[0].event +
+            ' · ' +
+            alerts[0].areas.slice(0,80)
+
+          : 'RADAR LOOP · LAST 50 MINUTES · NO ACTIVE WARNINGS';
+
+    }
+
   }
-}
+);
 
-/* =========================================================
-   UPDATED CLOCK
-   ========================================================= */
-
-function updateTime() {
-
-  const now = new Date();
-
-  const time = now.toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit"
-  });
-
-  document.getElementById("updated").textContent =
-    "UPDATED " + time;
-}
-
-updateTime();
-setInterval(updateTime, 1000);
-
-/* =========================================================
-   RESIZE
-   ========================================================= */
-
-window.addEventListener("resize", () => {
-  map.invalidateSize();
-});
 </script>
 
 </body>
