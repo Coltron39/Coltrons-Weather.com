@@ -1,1379 +1,306 @@
 <!DOCTYPE html>
-<!-- SCENE: BREAKING NEWS / FIRST ALERT   1920x1080 -->
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>First Alert - Active Alerts</title>
-<link rel="stylesheet" href="style.css">
-<style>
-  .alertbar {
-    position:absolute; top:0; left:0; right:0; height:150px;
-    display:flex; align-items:center; gap:30px; padding:0 60px;
-    background:var(--alert); animation:pulseAlert 2s ease-in-out infinite;
-  }
-  .alertbar .badge {
-    width:96px; height:96px; flex:none; border-radius:14px; background:#fff;
-    display:flex; align-items:center; justify-content:center;
-    font-family:var(--cond); font-weight:700; font-size:64px; color:var(--alert);
-  }
-  .alertbar .txt .a1 { font-family:var(--cond); font-weight:700; font-size:60px; line-height:.94;
-                       letter-spacing:1px; text-transform:uppercase; }
-  .alertbar .txt .a2 { font-family:var(--sans); font-size:15px; font-weight:800;
-                       letter-spacing:6px; margin-top:6px; color:rgba(255,255,255,.86); }
-  .alertbar .exp { margin-left:auto; text-align:right; }
-  .alertbar .exp .l { font-family:var(--sans); font-size:13px; font-weight:800;
-                      letter-spacing:3.4px; color:rgba(255,255,255,.8); }
-  .alertbar .exp .v { font-family:var(--cond); font-weight:700; font-size:52px; line-height:1; }
-
-  .body { position:absolute; top:190px; left:60px; right:60px; bottom:150px;
-          display:flex; gap:28px; }
-  .main { flex:1.6; padding:40px 44px; display:flex; flex-direction:column; }
-  .main .h { font-family:var(--cond); font-weight:700; font-size:54px; line-height:1.02;
-             text-transform:uppercase; color:#fff; }
-  .main .counties { margin-top:24px; }
-  .main .counties .v { font-family:var(--cond); font-size:38px; line-height:1.2;
-                       margin-top:8px; color:rgba(255,255,255,.94); }
-  .main .body-text { margin-top:auto; font-family:var(--sans); font-size:23px; line-height:1.55;
-                     color:rgba(255,255,255,.86); max-height:300px; overflow:hidden; }
-
-  .side { flex:1; display:flex; flex-direction:column; gap:18px; }
-  .other { flex:1; padding:28px 30px; overflow:hidden; }
-  .other .it { display:flex; gap:14px; align-items:flex-start; padding:14px 0;
-               border-bottom:1px solid rgba(255,255,255,.09); }
-  .other .it .tag { flex:none; padding:5px 10px; border-radius:5px; background:var(--amber);
-                    color:#221500; font-family:var(--sans); font-size:12px; font-weight:800;
-                    letter-spacing:1.4px; }
-  .other .it .tag.w { background:var(--alert); color:#fff; }
-  .other .it .n { font-family:var(--cond); font-size:27px; line-height:1.12;
-                  text-transform:uppercase; }
-  .other .it .n span { display:block; font-family:var(--sans); font-size:13px;
-                       letter-spacing:1.4px; color:var(--ink-dim); margin-top:4px; }
-  .action { padding:26px 30px; }
-  .action .v { font-family:var(--sans); font-size:19px; line-height:1.5; margin-top:10px;
-               color:rgba(255,255,255,.9); max-height:190px; overflow:hidden; }
-
-  /* all-clear state */
-  .clear { position:absolute; inset:190px 60px 150px; display:none;
-           flex-direction:column; align-items:center; justify-content:center; text-align:center; }
-  body.allclear .clear { display:flex; }
-  body.allclear .body, body.allclear .alertbar { display:none; }
-  .clear .big { font-family:var(--cond); font-weight:700; font-size:104px; line-height:1;
-                text-transform:uppercase; }
-  .clear .sm { font-family:var(--cond); font-size:44px; color:var(--ink-dim); margin-top:20px;
-               text-transform:uppercase; }
-  .clear .ring { width:150px; height:150px; border-radius:50%; border:8px solid #4ee08a;
-                 display:flex; align-items:center; justify-content:center; margin-bottom:38px;
-                 color:#4ee08a; font-size:76px; font-family:var(--cond); font-weight:700; }
-
-  /* crawl */
-  .crawl { position:absolute; bottom:0; left:0; right:0; height:88px; display:flex;
-           align-items:center; background:rgba(3,10,28,.96); border-top:4px solid var(--alert); }
-  .crawl .cap { flex:none; height:100%; padding:0 30px; background:var(--alert);
-                display:flex; align-items:center; font-family:var(--cond); font-weight:700;
-                font-size:32px; letter-spacing:1.4px; }
-  .crawl .track { flex:1; overflow:hidden; position:relative; height:100%; }
-  .crawl .move { position:absolute; white-space:nowrap; top:50%; transform:translateY(-50%);
-                 font-family:var(--cond); font-size:36px; letter-spacing:.6px;
-                 animation:scroll 46s linear infinite; padding-left:100%; }
-  @keyframes scroll { from { transform:translate(0,-50%); } to { transform:translate(-100%,-50%); } }
-</style>
-</head>
-<body class="solid">
-  <div class="alertbar">
-    <div class="badge">!</div>
-    <div class="txt">
-      <div class="a1" id="event">--</div>
-      <div class="a2">COLTRONS FIRST ALERT WEATHER &middot; NATIONAL WEATHER SERVICE</div>
-    </div>
-    <div class="exp">
-      <div class="l">IN EFFECT UNTIL</div>
-      <div class="v" id="expires">--</div>
-    </div>
-  </div>
-
-  <div class="body">
-    <div class="main panel">
-      <div class="h" id="headline">--</div>
-      <div class="counties">
-        <div class="label">Counties Affected</div>
-        <div class="v" id="counties">--</div>
-      </div>
-      <div class="body-text" id="text"></div>
-    </div>
-    <div class="side">
-      <div class="other panel panel-accent">
-        <div class="label">Other Active Alerts In Wisconsin</div>
-        <div id="others"></div>
-      </div>
-      <div class="action panel">
-        <div class="label">What You Should Do</div>
-        <div class="v" id="instruction">Stay with Coltrons First Alert Weather for updates.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="clear">
-    <div class="ring">&check;</div>
-    <div class="big">No Active Watches Or Warnings</div>
-    <div class="sm">Quiet across all of Wisconsin &middot; First Alert Weather is monitoring</div>
-  </div>
-
-  <div class="crawl">
-    <div class="cap" id="crawlcap">FIRST ALERT</div>
-    <div class="track"><div class="move" id="crawltext"></div></div>
-  </div>
-
-<script src="wx.js"></script>
-<script>
-boot((d) => {
-  const a = d.alerts || [];
-  document.body.classList.toggle('allclear', a.length === 0);
-
-  const crawl = document.getElementById('crawltext');
-  if (!a.length) {
-    crawl.textContent =
-      `NO ACTIVE WATCHES OR WARNINGS FOR WISCONSIN \u00b7 UPDATED ${d.updated_label} \u00b7 ` +
-      `${(d.primary || {}).name}: ${(d.primary || {}).temp}\u00b0 ${(d.primary || {}).condition} \u00b7 ` +
-      `COLTRONS FIRST ALERT WEATHER \u00b7 `;
-    document.getElementById('crawlcap').textContent = 'FIRST ALERT';
-    return;
-  }
-
-  const top = a[0];
-  document.getElementById('event').textContent = top.event;
-  document.getElementById('expires').textContent = top.expires_label || '--';
-  document.getElementById('headline').textContent = top.headline || top.event;
-  document.getElementById('counties').textContent = top.areas;
-  document.getElementById('text').textContent = top.text;
-  document.getElementById('instruction').textContent =
-    top.instruction || 'Stay with Coltrons First Alert Weather for the latest updates.';
-
-  document.getElementById('others').innerHTML = a.slice(1, 7).map(x => `
-    <div class="it">
-      <span class="tag ${x.event.includes('WARNING') ? 'w' : ''}">
-        ${x.event.includes('WARNING') ? 'WARN' : x.event.includes('WATCH') ? 'WATCH' : 'ADV'}</span>
-      <span class="n">${x.event}<span>${x.areas.slice(0, 64)}</span></span>
-    </div>`).join('') ||
-    '<div class="it"><span class="n">NO OTHER ACTIVE ALERTS</span></div>';
-
-  crawl.textContent = a.map(x =>
-    `${x.event} \u2014 ${x.areas}${x.expires_label ? ' UNTIL ' + x.expires_label : ''}`
-  ).join('  \u2022  ') + '  \u2022  ';
-  document.getElementById('crawlcap').textContent = `${a.length} ACTIVE`;
-});
-</script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<!-- SCENE: WEATHER - CURRENT CONDITIONS   1920x1080 -->
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>First Alert - Current Conditions</title>
-<link rel="stylesheet" href="style.css">
-<style>
-  .stage { position:absolute; top:296px; left:64px; right:64px; bottom:104px; display:flex; gap:34px; }
-
-  .big { flex:1.32; padding:44px 48px; display:flex; flex-direction:column; }
-  .big .city { font-family:var(--cond); font-size:60px; font-weight:600; line-height:1;
-               letter-spacing:1px; text-transform:uppercase; }
-  .big .sub  { margin-top:8px; }
-  .big .readout { display:flex; align-items:center; gap:36px; margin-top:auto; }
-  .big .temp { font-family:var(--cond); font-weight:700; font-size:250px; line-height:.82;
-               letter-spacing:-6px; }
-  .big .temp sup { font-size:96px; letter-spacing:0; vertical-align:top; line-height:1; }
-  .big .cond { font-family:var(--cond); font-size:52px; font-weight:500; line-height:1.02;
-               text-transform:uppercase; margin-top:26px; color:rgba(255,255,255,.94); }
-
-  .grid { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-auto-rows:1fr; gap:18px; }
-  .cell { padding:26px 28px; display:flex; flex-direction:column; justify-content:space-between; }
-  .cell .v { font-family:var(--cond); font-size:66px; font-weight:600; line-height:.9; }
-  .cell .v small { font-size:28px; font-weight:500; color:var(--ink-dim); margin-left:4px; }
-
-  .strip { position:absolute; left:64px; right:64px; bottom:104px; height:0; }
-  .offline { position:absolute; top:50%; left:0; right:0; text-align:center;
-             font-family:var(--cond); font-size:44px; color:var(--alert-2); }
-</style>
-</head>
-<body class="solid">
-  <div id="header"></div>
-
-  <div class="page-title">
-    <span class="kicker">Live</span>
-    <h1>Current Conditions</h1>
-  </div>
-
-  <div class="stage">
-    <div class="big panel panel-accent rise">
-      <div class="city" id="city">--</div>
-      <div class="label sub" id="station">OBSERVED AT --</div>
-      <div class="readout">
-        <div id="ico"></div>
-        <div>
-          <div class="temp" id="temp">--<sup>&deg;</sup></div>
-        </div>
-      </div>
-      <div class="cond" id="cond">--</div>
-    </div>
-
-    <div class="grid">
-      <div class="cell panel"><div class="label">Feels Like</div><div class="v" id="feels">--&deg;</div></div>
-      <div class="cell panel"><div class="label">Humidity</div><div class="v" id="hum">--<small>%</small></div></div>
-      <div class="cell panel"><div class="label">Wind</div><div class="v" id="wind">--</div></div>
-      <div class="cell panel"><div class="label">Dew Point</div><div class="v" id="dew">--&deg;</div></div>
-      <div class="cell panel"><div class="label">Pressure</div><div class="v" id="pres">--<small>in</small></div></div>
-      <div class="cell panel"><div class="label">Visibility</div><div class="v" id="vis">--<small>mi</small></div></div>
-    </div>
-  </div>
-
-  <div class="offline">FIRST ALERT DATA FEED OFFLINE &mdash; start wx_feed.py</div>
-  <div id="footer"></div>
-
-<script src="wx.js"></script>
-<script>
-mountHeader();
-mountFooter('');
-
-boot((d) => {
-  const p = d.primary || {};
-  document.getElementById('city').textContent = p.name || '--';
-  // NWS station names can be very long - keep it to one clean line
-  const st = (p.station_name || '--').toUpperCase().split(',')[0].slice(0, 42);
-  document.getElementById('station').textContent = 'OBSERVED AT ' + st;
-
-  const t = document.getElementById('temp');
-  t.innerHTML = `${num(p.temp)}<sup>&deg;</sup>`;
-  t.className = 'temp tabnum ' + tempClass(p.temp);
-
-  document.getElementById('cond').textContent = p.condition || '--';
-  document.getElementById('ico').innerHTML = icon(p.icon || 'pcloudy', 210);
-
-  document.getElementById('feels').innerHTML =
-    `${num(p.feels_like ?? p.temp)}<span>&deg;</span>`;
-  document.getElementById('hum').innerHTML  = `${num(p.humidity)}<small>%</small>`;
-  document.getElementById('wind').innerHTML = (p.wind === 0 || p.wind === null)
-    ? 'CALM'
-    : `${p.wind_dir || ''} ${p.wind}<small>mph</small>`;
-  document.getElementById('dew').innerHTML  = `${num(p.dewpoint)}<span>&deg;</span>`;
-  document.getElementById('pres').innerHTML = `${num(p.pressure)}<small>in</small>`;
-  document.getElementById('vis').innerHTML  = `${num(p.visibility)}<small>mi</small>`;
-
-  // rotating headline in the bottom bar: next few forecast periods
-  const msgs = (d.periods || []).slice(0, 4)
-    .map(x => `${x.name}: ${x.short}, ${x.temp}\u00b0`);
-  const fm = document.getElementById('footmsg');
-  if (fm && !fm.dataset.on) { fm.dataset.on = 1; rotate(fm, msgs, 6500); }
-});
-</script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>NEWS DESK - Coltrons First Alert Weather</title>
-<link rel="stylesheet" href="style.css">
-<style>
-  /* =====================================================================
-     FULL-FRAME NEWS DESK OVERLAY
-     Transparent. Your camera fills the whole 1920x1080 frame underneath;
-     this page only draws the furniture on top of it.
-     ===================================================================== */
-
-  /* top-left station slug */
-  .slug { position:absolute; left:0; top:0; display:flex; align-items:center;
-          background:linear-gradient(90deg, rgba(3,10,28,.94) 0%, rgba(3,10,28,.72) 100%);
-          border-bottom-right-radius:20px; padding:16px 34px 15px 24px;
-          box-shadow:0 14px 40px rgba(0,0,0,.45); }
-  .slug .c { width:52px; height:52px; border-radius:11px; background:var(--alert);
-             display:flex; align-items:center; justify-content:center;
-             font-family:var(--cond); font-size:38px; font-weight:800; margin-right:16px;
-             box-shadow:0 8px 22px rgba(226,0,26,.45); }
-  .slug h2 { font-family:var(--cond); font-size:32px; font-weight:800; letter-spacing:1px;
-             text-transform:uppercase; line-height:1; }
-  .slug h2 em { font-style:normal; color:var(--alert); }
-  .slug p { font-size:13px; font-weight:900; letter-spacing:5px; color:#7f9ec9; margin-top:5px; }
-
-  /* top-right clock + temp bug */
-  .bug { position:absolute; right:44px; top:34px; display:flex; align-items:center; gap:18px;
-         padding:14px 24px; border-radius:16px; background:rgba(3,10,28,.82);
-         border:1px solid rgba(53,200,255,.26); box-shadow:0 16px 44px rgba(0,0,0,.45); }
-  .bug .t { font-family:var(--cond); font-size:40px; font-weight:800; line-height:1;
-            font-variant-numeric:tabular-nums; }
-  .bug .div { width:1px; height:40px; background:rgba(255,255,255,.16); }
-  .bug .temp { display:flex; align-items:center; gap:12px; }
-  .bug .temp b { font-family:var(--cond); font-size:44px; font-weight:800; line-height:1; }
-  .bug .temp span { font-size:13px; font-weight:900; letter-spacing:3px; color:#9fc3ef; }
-
-  /* LIVE flag */
-  .live { position:absolute; left:34px; top:132px; display:flex; align-items:center; gap:12px;
-          background:var(--alert); padding:11px 22px 10px; border-radius:10px;
-          box-shadow:0 12px 34px rgba(226,0,26,.45); }
-  .live i { width:12px; height:12px; border-radius:50%; background:#fff;
-            animation:blink 1.6s infinite; }
-  .live span { font-size:19px; font-weight:900; letter-spacing:6px; }
-  @keyframes blink { 0%,60%{opacity:1} 80%,100%{opacity:.25} }
-
-  /* ---- headline stack, bottom left ---- */
-  .head { position:absolute; left:0; bottom:132px; max-width:1360px; }
-  .topic { display:inline-block; background:var(--cyan); color:#04162b;
-           font-size:19px; font-weight:900; letter-spacing:6px; padding:10px 22px 9px;
-           border-radius:0 10px 10px 0; margin-left:0; }
-  .topic.wx { background:var(--alert); color:#fff; }
-  .band { margin-top:10px; background:linear-gradient(90deg, rgba(3,10,28,.95) 0%,
-          rgba(7,22,52,.92) 78%, rgba(7,22,52,0) 100%);
-          border-left:9px solid var(--alert); padding:20px 90px 22px 30px; }
-  .band h1 { font-family:var(--cond); font-size:76px; font-weight:800; line-height:.96;
-             text-transform:uppercase; letter-spacing:-.5px; }
-  .band p { font-size:26px; font-weight:700; letter-spacing:2px; color:#bcd6f5; margin-top:10px; }
-
-  /* ---- ticker ---- */
-  .ticker { position:absolute; left:0; right:0; bottom:0; height:74px; display:flex;
-            align-items:stretch; background:rgba(3,10,28,.94);
-            border-top:2px solid rgba(53,200,255,.35); }
-  .ticker .tag { flex:0 0 250px; background:var(--alert); display:flex; align-items:center;
-                 justify-content:center; font-size:22px; font-weight:900; letter-spacing:5px; }
-  .ticker .win { flex:1; overflow:hidden; position:relative; }
-  .ticker .run { position:absolute; white-space:nowrap; top:50%; transform:translateY(-50%);
-                 font-size:27px; font-weight:800; letter-spacing:2px; color:#e9f3ff;
-                 animation:crawl 46s linear infinite; }
-  .ticker .run b { color:var(--cyan); margin:0 14px; }
-  @keyframes crawl { from{transform:translate(0,-50%)} to{transform:translate(-100%,-50%)} }
-  .ticker .clockcell { flex:0 0 210px; display:flex; align-items:center; justify-content:center;
-        border-left:1px solid rgba(255,255,255,.14); font-family:var(--cond); font-size:32px;
-        font-weight:700; letter-spacing:2px; color:#cfe2ff; }
-</style>
-</head>
-<body>
-  <!-- transparent: camera shows through everywhere except this furniture -->
-
-  <div class="slug">
-    <span class="c">C</span>
-    <div>
-      <h2>COLTRONS <em>FIRST ALERT</em> WEATHER</h2>
-      <p>WISCONSIN'S WEATHER AUTHORITY</p>
-    </div>
-  </div>
-
-  <div class="bug">
-    <div class="t" id="clock">--:--</div>
-    <div class="div"></div>
-    <div class="temp">
-      <span id="bugicon"></span>
-      <b id="bugtemp">--&deg;</b>
-      <span id="bugcity">WISCONSIN RAPIDS</span>
-    </div>
-  </div>
-
-  <div class="live"><i></i><span>LIVE</span></div>
-
-  <div class="head">
-    <div class="topic" id="topic">FIRST ALERT WEATHER</div>
-    <div class="band">
-      <h1 id="hl">TRACKING TONIGHT'S FORECAST</h1>
-      <p id="sub">WISCONSIN RAPIDS - WOOD COUNTY</p>
-    </div>
-  </div>
-
-  <div class="ticker">
-    <div class="tag">FIRST ALERT</div>
-    <div class="win"><div class="run" id="run">LOADING...</div></div>
-    <div class="clockcell" id="tclock">--:--</div>
-  </div>
-
-<script src="wx.js"></script>
-<script>
-/* =====================================================================
-   FIRST ALERT NIGHTCAST - rundown for Monday, August 24
-   SHOW_MODE "clock" walks the rundown by the wall clock, so the graphics
-   follow the show sheet on their own. Switch to "rotate" to just cycle.
-   Test any moment with  desk.html?now=21:06
-   ===================================================================== */
-const SHOW_MODE = "clock";
-const SHOW_NAME = "FIRST ALERT NIGHTCAST";
-
-const PRESHOW = { topic:"COMING UP AT 9:00", wx:true,
-  hl:"FIRST ALERT NIGHTCAST",
-  sub:"YOUR FORECAST FOR CENTRAL WISCONSIN - STARTS AT 9 PM" };
-
-const POSTSHOW = { topic:"FIRST ALERT WEATHER", wx:true,
-  hl:"THANKS FOR WATCHING",
-  sub:"NEXT UPDATE IN THE MORNING - COLTRONS FIRST ALERT WEATHER" };
-
-/* at = when this headline goes up, 24-hour local time */
-const STORIES = [
-  { at:"21:00", topic:"FIRST ALERT NIGHTCAST", wx:true,
-    hl:"A COOL, QUIET NIGHT AHEAD",
-    sub:"MONDAY, AUGUST 24 - WISCONSIN RAPIDS" },
-  { at:"21:02", topic:"RIGHT NOW", wx:true,
-    hl:"CLEAR AND CALM<br>ACROSS CENTRAL WISCONSIN",
-    sub:"WISCONSIN RAPIDS 61 DEGREES - WIND CALM" },
-  { at:"21:04", topic:"FIRST ALERT RADAR",
-    hl:"RADAR IS QUIET STATEWIDE",
-    sub:"NO RAIN ON THE MAP THROUGH SUNRISE" },
-  { at:"21:06", topic:"STATEWIDE",
-    hl:"LA CROSSE WARMEST AT 72",
-    sub:"SUPERIOR COOLEST AT 57 - 15 DEGREE SPREAD ACROSS THE STATE" },
-  { at:"21:08", topic:"TONIGHT", wx:true,
-    hl:"LOW OF 54 BY DAYBREAK",
-    sub:"PARTLY CLOUDY - PATCHY FOG POSSIBLE IN THE RIVER VALLEYS" },
-  { at:"21:10", topic:"FIRST ALERT FORECAST", wx:true,
-    hl:"82 AND HUMID TUESDAY",
-    sub:"HEAT INDEX NEAR 83 - SOUTH WIND GUSTING TO 21" },
-  { at:"21:13", topic:"FIRST ALERT WEATHER", wx:true,
-    hl:"STORM CHANCES RETURN<br>TUESDAY NIGHT",
-    sub:"30 PERCENT CHANCE - BEST WINDOW 7 PM TO 3 AM" },
-  { at:"21:16", topic:"LAKESHORE",
-    hl:"BEACH HAZARDS IN SHEBOYGAN COUNTY",
-    sub:"WAVES TO 4 FEET AND DANGEROUS CURRENTS TUESDAY AFTERNOON" },
-  { at:"21:18", topic:"7 DAY FORECAST", wx:true,
-    hl:"SUNSHINE HOLDS<br>THROUGH FRIDAY",
-    sub:"80 WEDNESDAY - 81 THURSDAY AND FRIDAY - STORMS THIS WEEKEND" },
-  { at:"21:21", topic:"FIRST ALERT NIGHTCAST", wx:true,
-    hl:"ONE MORE LOOK AT TONIGHT",
-    sub:"CLEAR, CALM AND 54 - GREAT SLEEPING WEATHER" },
-  { at:"21:23", ...POSTSHOW },
-];
-const STORY_SECONDS = 14;        // only used when SHOW_MODE = "rotate"
-
-const TICKER_LINES = [
-  "COLTRONS FIRST ALERT WEATHER - LIVE FROM WISCONSIN RAPIDS",
-  "TONIGHT: PARTLY CLOUDY, LOW NEAR 54, WIND CALM",
-  "TUESDAY: PARTLY SUNNY AND HUMID, HIGH 82, HEAT INDEX NEAR 83",
-  "TUESDAY NIGHT: SHOWERS AND STORMS POSSIBLE 7 PM TO 3 AM, 30 PERCENT CHANCE",
-  "BEACH HAZARDS STATEMENT - SHEBOYGAN COUNTY - WAVES TO 4 FEET TUESDAY",
-  "WEDNESDAY 80 AND SUNNY - THURSDAY 81 - FRIDAY 81",
-  "NEXT BEST RAIN CHANCE ARRIVES SATURDAY WITH SCATTERED STORMS",
-  "FORECAST DATA FROM THE NATIONAL WEATHER SERVICE, UPDATED EVERY FIVE MINUTES",
-];
-/* ===================================================================== */
-
-/* clock in two places (station bug + ticker) */
-(function () {
-  const a = document.getElementById('clock'), b = document.getElementById('tclock');
-  const tick = () => {
-    const d = new Date();
-    const h = d.getHours() % 12 || 12;
-    const m = String(d.getMinutes()).padStart(2, '0');
-    const label = `${h}:${m} ${d.getHours() >= 12 ? 'PM' : 'AM'}`;
-    if (a) a.textContent = label;
-    if (b) b.textContent = label;
-  };
-  tick(); setInterval(tick, 1000);
-})();
-
-function paint(st) {
-  const tab = document.getElementById('topic');
-  tab.textContent = st.topic;
-  tab.className = 'topic' + (st.wx ? ' wx' : '');
-  document.getElementById('hl').innerHTML = st.hl;
-  document.getElementById('sub').textContent = st.sub;
-}
-
-/* what time is it, honouring ?now=HH:MM for rehearsal */
-function minutesNow() {
-  const q = new URLSearchParams(location.search).get('now');
-  if (q && /^\d{1,2}:\d{2}$/.test(q)) {
-    const [h, m] = q.split(':').map(Number);
-    return h * 60 + m;
-  }
-  const d = new Date();
-  return d.getHours() * 60 + d.getMinutes();
-}
-const toMin = (hhmm) => {
-  const [h, m] = hhmm.split(':').map(Number);
-  return h * 60 + m;
-};
-
-if (SHOW_MODE === 'clock') {
-  let shown = null;
-  const follow = () => {
-    const now = minutesNow();
-    let cur = PRESHOW;
-    for (const st of STORIES) if (now >= toMin(st.at)) cur = st;
-    if (cur !== shown) { paint(cur); shown = cur; }
-  };
-  follow();
-  setInterval(follow, 5000);
-} else {
-  let s = 0;
-  const cycle = () => {
-    paint(STORIES[s % STORIES.length]);
-    s++;
-    setTimeout(cycle, STORY_SECONDS * 1000);
-  };
-  cycle();
-}
-
-/* live data: corner bug + crawl */
-boot(data => {
-  const p = data.primary || {};
-  document.getElementById('bugicon').innerHTML = icon(p.icon, 40);
-  const t = document.getElementById('bugtemp');
-  t.textContent = (p.temp ?? '--') + '\u00B0';
-  t.className = tempClass(p.temp);
-  document.getElementById('bugcity').textContent = p.name || '';
-
-  const wx = [];
-  const tn = (data.periods || []).find(x => !x.is_day) || (data.periods || [])[0];
-  if (tn) wx.push(`${tn.name || 'NEXT'}: ${tn.short || ''}, ${tn.temp ?? '--'}\u00B0`);
-  (data.alerts || []).forEach(a =>
-    wx.push(`${a.event}: ${(a.areas || '').slice(0, 90)}`));
-  (data.cities || []).slice(0, 10).forEach(c =>
-    wx.push(`${c.name} ${c.temp ?? '--'}\u00B0`));
-
-  const all = [...TICKER_LINES, ...wx];
-  const line = all.join('   \u2022   ') + '   \u2022   ';
-  document.getElementById('run').innerHTML = line + line;   // doubled = seamless loop
-});
-</script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<!-- SCENE: WEATHER - HOUR BY HOUR   1920x1080 -->
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>First Alert - Hour by Hour</title>
-<link rel="stylesheet" href="style.css">
-<style>
-  .stage { position:absolute; top:300px; left:64px; right:64px; bottom:104px;
-           padding:38px 44px 30px; display:flex; flex-direction:column; }
-  .chart { position:relative; flex:1; }
-  .chart svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
-  .line { fill:none; stroke:var(--cyan); stroke-width:5; stroke-linejoin:round;
-          filter:drop-shadow(0 0 14px rgba(53,200,255,.55)); }
-  .area { fill:url(#g1); }
-  .hours { display:grid; gap:0; margin-top:16px; }
-  .hr { text-align:center; }
-  .hr .ic { display:flex; justify-content:center; margin-bottom:12px; }
-  .hr .t  { font-family:var(--cond); font-weight:700; font-size:52px; line-height:.9; }
-  .hr .h  { font-family:var(--sans); font-size:15px; font-weight:700; letter-spacing:2.2px;
-            color:var(--ink-dim); margin-top:12px; }
-  .hr .p  { font-family:var(--sans); font-size:14px; font-weight:700; letter-spacing:1.4px;
-            color:var(--cyan); margin-top:7px; }
-  .hr .p.zero { color:rgba(255,255,255,.22); }
-  .offline { position:absolute; top:52%; left:0; right:0; text-align:center;
-             font-family:var(--cond); font-size:44px; color:var(--alert-2); }
-</style>
-</head>
-<body class="solid">
-  <div id="header"></div>
-
-  <div class="page-title">
-    <span class="kicker">Next 12 Hours</span>
-    <h1>Hour By Hour</h1>
-  </div>
-
-  <div class="stage panel panel-accent">
-    <div class="chart"><svg id="svg" preserveAspectRatio="none" viewBox="0 0 1000 260">
-      <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="rgba(53,200,255,.45)"/>
-        <stop offset="100%" stop-color="rgba(53,200,255,0)"/>
-      </linearGradient></defs>
-      <path class="area" id="area"></path><path class="line" id="ln"></path>
-    </svg></div>
-    <div class="hours" id="hours"></div>
-  </div>
-
-  <div class="offline">FIRST ALERT DATA FEED OFFLINE &mdash; start wx_feed.py</div>
-  <div id="footer"></div>
-
-<script src="wx.js"></script>
-<script>
-mountHeader();
-mountFooter('');
-
-boot((d) => {
-  const hrs = (d.hourly || []).slice(0, 12);
-  if (!hrs.length) return;
-
-  const temps = hrs.map(h => h.temp);
-  const lo = Math.min(...temps) - 4, hi = Math.max(...temps) + 4;
-  const W = 1000, H = 260;
-  const step = W / (hrs.length - 1 || 1);
-  const pt = (t, i) => [i * step, H - ((t - lo) / (hi - lo || 1)) * H];
-
-  const pts = temps.map(pt);
-  const dLine = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
-  document.getElementById('ln').setAttribute('d', dLine);
-  document.getElementById('area').setAttribute('d', `${dLine} L${W},${H} L0,${H} Z`);
-
-  const wrap = document.getElementById('hours');
-  wrap.style.gridTemplateColumns = `repeat(${hrs.length},1fr)`;
-  wrap.innerHTML = hrs.map(h => `
-    <div class="hr">
-      <div class="ic">${icon(h.icon, 54)}</div>
-      <div class="t tabnum ${tempClass(h.temp)}">${h.temp}&deg;</div>
-      <div class="h">${h.label}</div>
-      <div class="p ${(h.precip || 0) === 0 ? 'zero' : ''}">${h.precip || 0}%</div>
-    </div>`).join('');
-
-  const fm = document.getElementById('footmsg');
-  if (fm) fm.textContent =
-    `${(d.primary || {}).name || ''} \u00b7 HOURLY TEMPERATURE TREND AND RAIN CHANCE`;
-});
-</script>
-</body>
-</html>
-
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Coltrons First Alert Weather</title>
+
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;min-height:100%;background:#030a1c;color:#fff;font-family:Arial,Helvetica,sans-serif}
-body{padding:32px}
-.top{max-width:1500px;margin:auto;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:15px}
-.logo{width:60px;height:60px;background:#e2001a;border-radius:13px;display:grid;place-items:center;font-size:38px;font-weight:900}
-h1{margin:0;font-size:27px}
-.brand p{margin:5px 0 0;color:#8fa9cc;font-size:12px;font-weight:bold;letter-spacing:3px}
-.clock{font-size:24px;font-weight:bold}
-.line{max-width:1500px;margin:25px auto;border-top:1px solid #17345e}
-.grid{max-width:1500px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-.card{min-height:155px;text-decoration:none;color:white;background:linear-gradient(145deg,#0b1d40,#050f23);border:1px solid #18345b;border-radius:16px;padding:24px;display:block;transition:.15s}
-.card:hover{transform:translateY(-3px);border-color:#35c8ff;box-shadow:0 12px 35px #0008}
-.icon{font-size:34px;margin-bottom:18px}
-.title{font-size:21px;font-weight:900}
-.desc{margin-top:7px;color:#91aace;font-size:13px;line-height:1.45}
-.news{border-color:#66501e}
-.live{grid-column:span 2;border-color:#7e1825;background:linear-gradient(145deg,#4a0715,#110e20)}
-.live .title{font-size:24px}
-.footer{max-width:1500px;margin:28px auto;text-align:center;color:#657fa6;font-size:11px;letter-spacing:2px}
-@media(max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}.live{grid-column:span 2}}
-@media(max-width:600px){body{padding:18px}.grid{grid-template-columns:1fr}.live{grid-column:span 1}.top{gap:20px;align-items:flex-start}.clock{font-size:18px}}
+
+html,body{
+  margin:0;
+  width:100%;
+  min-height:100%;
+  background:#030a1c;
+  color:#fff;
+  font-family:Arial,Helvetica,sans-serif
+}
+
+body{
+  padding:32px
+}
+
+.top{
+  max-width:1500px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:15px
+}
+
+.logo{
+  width:60px;
+  height:60px;
+  background:#e2001a;
+  border-radius:13px;
+  display:grid;
+  place-items:center;
+  font-size:38px;
+  font-weight:900
+}
+
+h1{
+  margin:0;
+  font-size:27px
+}
+
+.brand p{
+  margin:5px 0 0;
+  color:#8fa9cc;
+  font-size:12px;
+  font-weight:bold;
+  letter-spacing:3px
+}
+
+.clock{
+  font-size:24px;
+  font-weight:bold
+}
+
+.line{
+  max-width:1500px;
+  margin:25px auto;
+  border-top:1px solid #17345e
+}
+
+.grid{
+  max-width:1500px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px
+}
+
+.card{
+  min-height:155px;
+  text-decoration:none;
+  color:white;
+  background:linear-gradient(145deg,#0b1d40,#050f23);
+  border:1px solid #18345b;
+  border-radius:16px;
+  padding:24px;
+  display:block;
+  transition:.15s
+}
+
+.card:hover{
+  transform:translateY(-3px);
+  border-color:#35c8ff;
+  box-shadow:0 12px 35px #0008
+}
+
+.icon{
+  font-size:34px;
+  margin-bottom:18px
+}
+
+.title{
+  font-size:21px;
+  font-weight:900
+}
+
+.desc{
+  margin-top:7px;
+  color:#91aace;
+  font-size:13px;
+  line-height:1.45
+}
+
+.news{
+  border-color:#66501e
+}
+
+.live{
+  grid-column:span 2;
+  border-color:#7e1825;
+  background:linear-gradient(145deg,#4a0715,#110e20)
+}
+
+.live .title{
+  font-size:24px
+}
+
+.footer{
+  max-width:1500px;
+  margin:28px auto;
+  text-align:center;
+  color:#657fa6;
+  font-size:11px;
+  letter-spacing:2px
+}
+
+@media(max-width:1000px){
+  .grid{
+    grid-template-columns:repeat(2,1fr)
+  }
+
+  .live{
+    grid-column:span 2
+  }
+}
+
+@media(max-width:600px){
+  body{
+    padding:18px
+  }
+
+  .grid{
+    grid-template-columns:1fr
+  }
+
+  .live{
+    grid-column:span 1
+  }
+
+  .top{
+    gap:20px;
+    align-items:flex-start
+  }
+
+  .clock{
+    font-size:18px
+  }
+}
 </style>
 </head>
+
 <body>
 
 <div class="top">
+
   <div class="brand">
+
     <div class="logo">C</div>
+
     <div>
       <h1>COLTRONS FIRST ALERT WEATHER</h1>
       <p>WEATHER CENTER CONTROL DASHBOARD</p>
     </div>
+
   </div>
+
   <div class="clock" id="clock">--:--:--</div>
+
 </div>
 
 <div class="line"></div>
 
 <div class="grid">
 
-<a class="card" href="current.html">
+<!-- CURRENT CONDITIONS -->
+<a class="card" href="Weather/current.html">
   <div class="icon">🌡️</div>
   <div class="title">Current Conditions</div>
-  <div class="desc">Live temperature, wind, humidity, pressure and conditions.</div>
+  <div class="desc">
+    Live temperature, wind, humidity, pressure and conditions.
+  </div>
 </a>
 
-<a class="card" href="hourly.html">
+<!-- HOURLY -->
+<a class="card" href="Weather/hourly.html">
   <div class="icon">🕐</div>
   <div class="title">Hourly Forecast</div>
-  <div class="desc">12-hour forecast with temperature and precipitation chances.</div>
+  <div class="desc">
+    12-hour forecast with temperature and precipitation chances.
+  </div>
 </a>
 
-<a class="card" href="sevenday.html">
+<!-- 7 DAY -->
+<a class="card" href="Weather/sevenday.html">
   <div class="icon">📅</div>
   <div class="title">7 Day Forecast</div>
-  <div class="desc">Seven-day highs, lows, conditions and rain chances.</div>
+  <div class="desc">
+    Seven-day highs, lows, conditions and rain chances.
+  </div>
 </a>
 
-<a class="card" href="radar.html">
+<!-- RADAR -->
+<a class="card" href="Weather/radar.html">
   <div class="icon">🗺️</div>
   <div class="title">Doppler Radar</div>
-  <div class="desc">Animated Wisconsin radar display.</div>
+  <div class="desc">
+    Animated Wisconsin radar display.
+  </div>
 </a>
 
-<a class="card" href="alert.html">
+<!-- ALERTS -->
+<a class="card" href="Weather/alert.html">
   <div class="icon">🚨</div>
   <div class="title">First Alert</div>
-  <div class="desc">Active watches, warnings and advisories.</div>
+  <div class="desc">
+    Active watches, warnings and advisories.
+  </div>
 </a>
 
-<a class="card" href="statewide.html">
+<!-- STATEWIDE -->
+<a class="card" href="Weather/statewide.html">
   <div class="icon">🌎</div>
   <div class="title">Wisconsin Temps</div>
-  <div class="desc">Statewide temperatures and warm/cool spots.</div>
+  <div class="desc">
+    Statewide temperatures and warm/cool spots.
+  </div>
 </a>
 
-<a class="card" href="overnight.html">
+<!-- OVERNIGHT -->
+<a class="card" href="Weather/overnight.html">
   <div class="icon">🌙</div>
   <div class="title">Overnight</div>
-  <div class="desc">Your overnight and morning weather presentation.</div>
+  <div class="desc">
+    Your overnight and morning weather presentation.
+  </div>
 </a>
 
-<a class="card news" href="desk.html">
+<!-- NEWS DESK -->
+<a class="card news" href="Weather/desk.html">
   <div class="icon">🎙️</div>
   <div class="title">News Desk</div>
-  <div class="desc">Open the full-frame News Desk overlay.</div>
+  <div class="desc">
+    Open the full-frame News Desk overlay.
+  </div>
 </a>
 
-<a class="card live" href="desk.html">
+<!-- GO LIVE -->
+<a class="card live" href="Weather/desk.html">
   <div class="icon">🔴</div>
   <div class="title">GO LIVE / NEWS DESK</div>
-  <div class="desc">Open the broadcast-ready News Desk. OBS remains responsible for the actual YouTube stream.</div>
+  <div class="desc">
+    Open the broadcast-ready News Desk. OBS remains responsible for the actual YouTube stream.
+  </div>
 </a>
 
 </div>
 
-<div class="footer">COLTRONS FIRST ALERT WEATHER • WEATHER CENTER</div>
+<div class="footer">
+  COLTRONS FIRST ALERT WEATHER • WEATHER CENTER
+</div>
 
 <script>
+
 function updateClock(){
-  const d=new Date();
-  document.getElementById("clock").textContent=d.toLocaleTimeString([],{
-    hour:"numeric",minute:"2-digit",second:"2-digit"
-  });
-}
-updateClock();
-setInterval(updateClock,1000);
-</script>
 
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>OVERNIGHT - Coltrons First Alert Weather</title>
-<link rel="stylesheet" href="style.css">
-<style>
-  /* =====================================================================
-     OVERNIGHT / BED TIME SLATE
-     Goes up at 9 PM and sits there all night. At 8 AM it turns itself into
-     a GOOD MORNING card. Nothing to press.
-     Rehearse any moment:  overnight.html?now=03:20
-     ===================================================================== */
-
-  .sky { position:absolute; inset:0;
-         background:
-           radial-gradient(1400px 900px at 50% 120%, #0b2a5e 0%, transparent 60%),
-           radial-gradient(900px 700px at 15% 10%, #10265a 0%, transparent 55%),
-           linear-gradient(180deg, #030a1c 0%, #010512 100%); }
-
-  /* slow drifting star field - gentle, so it can sit on screen for hours */
-  .stars, .stars2 { position:absolute; inset:-10% -10%; opacity:.5;
-        background-image:
-          radial-gradient(1.6px 1.6px at 12% 22%, #cfe4ff 50%, transparent 51%),
-          radial-gradient(1.4px 1.4px at 28% 61%, #9fc3ef 50%, transparent 51%),
-          radial-gradient(1.8px 1.8px at 44% 15%, #e9f3ff 50%, transparent 51%),
-          radial-gradient(1.3px 1.3px at 61% 44%, #bcd6f5 50%, transparent 51%),
-          radial-gradient(1.7px 1.7px at 74% 26%, #dff1ff 50%, transparent 51%),
-          radial-gradient(1.4px 1.4px at 86% 68%, #a9cbf2 50%, transparent 51%),
-          radial-gradient(1.5px 1.5px at 35% 84%, #cfe4ff 50%, transparent 51%),
-          radial-gradient(1.3px 1.3px at 68% 88%, #9fc3ef 50%, transparent 51%);
-        animation:drift 220s linear infinite, twinkle 7s ease-in-out infinite alternate; }
-  .stars2 { animation-duration:340s, 9s; animation-direction:reverse, alternate; opacity:.3; }
-  @keyframes drift { to { transform:translate(-60px, 30px); } }
-  @keyframes twinkle { from{opacity:.28} to{opacity:.55} }
-
-  /* moon */
-  .moon { position:absolute; right:210px; top:150px; width:170px; height:170px;
-          border-radius:50%; background:radial-gradient(circle at 36% 32%, #ffffff, #cddff5 60%, #93b3d8 100%);
-          box-shadow:0 0 90px rgba(180,215,255,.35), 0 0 220px rgba(120,170,240,.22);
-          animation:breathe 12s ease-in-out infinite alternate; }
-  .moon::after { content:''; position:absolute; right:-14px; top:-6px; width:150px; height:150px;
-          border-radius:50%; background:#030a1c; }
-  @keyframes breathe { from{opacity:.9} to{opacity:1} }
-
-  .wrap { position:absolute; inset:0; display:flex; flex-direction:column;
-          align-items:center; justify-content:center; text-align:center; }
-
-  .mark { display:flex; align-items:center; gap:18px; margin-bottom:34px; }
-  .mark .c { width:66px; height:66px; border-radius:14px; background:var(--alert);
-             display:flex; align-items:center; justify-content:center;
-             font-family:var(--cond); font-size:46px; font-weight:800;
-             box-shadow:0 10px 30px rgba(226,0,26,.45); }
-  .mark .n { font-family:var(--cond); font-size:38px; font-weight:800; letter-spacing:2px;
-             text-transform:uppercase; line-height:1; text-align:left; }
-  .mark .n em { font-style:normal; color:var(--alert); }
-  .mark .n span { display:block; font-family:var(--sans); font-size:13px; font-weight:900;
-             letter-spacing:6px; color:#7f9ec9; margin-top:6px; }
-
-  h1 { font-family:var(--cond); font-size:210px; font-weight:800; line-height:.84;
-       letter-spacing:-2px; text-transform:uppercase;
-       text-shadow:0 20px 70px rgba(0,0,0,.6); }
-  h1 em { font-style:normal; color:var(--cyan); }
-  .sub { font-size:31px; font-weight:700; letter-spacing:8px; color:#bcd6f5; margin-top:22px; }
-
-  .rule { width:340px; height:5px; margin:34px auto 30px; border-radius:3px;
-          background:linear-gradient(90deg, transparent, var(--cyan), transparent); }
-
-  .back { font-size:19px; font-weight:900; letter-spacing:8px; color:#7f9ec9; }
-  .count { font-family:var(--cond); font-size:104px; font-weight:800; line-height:1;
-           margin-top:8px; font-variant-numeric:tabular-nums; color:#fff; }
-
-  /* overnight numbers */
-  .strip { display:flex; gap:16px; justify-content:center; margin-top:40px; }
-  .chip { display:flex; align-items:center; gap:14px; padding:16px 26px; border-radius:14px;
-          background:rgba(255,255,255,.055); border:1px solid rgba(53,200,255,.2); }
-  .chip .k { font-size:14px; font-weight:900; letter-spacing:5px; color:#7f9ec9; }
-  .chip .v { font-family:var(--cond); font-size:44px; font-weight:800; line-height:1; }
-  .chip .w { font-size:17px; font-weight:800; letter-spacing:2px; color:#cfe2ff; }
-
-  .foot { position:absolute; left:0; right:0; bottom:0; height:70px; display:flex;
-          align-items:center; justify-content:space-between; padding:0 40px;
-          background:rgba(3,10,28,.75); border-top:1px solid rgba(53,200,255,.22);
-          font-size:17px; font-weight:900; letter-spacing:5px; color:#8fb0d8; }
-  .foot .now { font-family:var(--cond); font-size:30px; letter-spacing:2px; color:#e9f3ff; }
-
-  /* morning variant */
-  body.morning .sky { background:
-        radial-gradient(1300px 900px at 50% 120%, #1b4f8c 0%, transparent 60%),
-        radial-gradient(900px 700px at 80% 8%, #2a6ca8 0%, transparent 55%),
-        linear-gradient(180deg, #071634 0%, #0d2a5c 100%); }
-  body.morning .stars, body.morning .stars2 { opacity:.12; }
-  body.morning .moon { background:radial-gradient(circle at 40% 35%, #fff6d8, #ffcf5e 55%, #ff9d1f 100%);
-        box-shadow:0 0 110px rgba(255,190,90,.45), 0 0 240px rgba(255,160,50,.25); }
-  body.morning .moon::after { display:none; }
-  body.morning h1 em { color:var(--amber); }
-</style>
-</head>
-<body>
-  <div class="sky"></div>
-  <div class="stars"></div>
-  <div class="stars2"></div>
-  <div class="moon"></div>
-
-  <div class="wrap">
-    <div class="mark">
-      <span class="c">C</span>
-      <div class="n">COLTRONS <em>FIRST ALERT</em> WEATHER<span id="slogan">WISCONSIN'S WEATHER AUTHORITY</span></div>
-    </div>
-
-    <h1 id="big">BED <em>TIME</em></h1>
-    <div class="sub" id="sub">WE'RE OFF THE AIR FOR THE NIGHT</div>
-
-    <div class="rule"></div>
-
-    <div class="back" id="backlabel">BACK ON AIR AT 8:00 AM</div>
-    <div class="count" id="count">--H --M</div>
-
-    <div class="strip">
-      <div class="chip"><span class="k">NOW</span><span id="nowicon"></span>
-        <span class="v" id="nowtemp">--&deg;</span><span class="w" id="nowcond">--</span></div>
-      <div class="chip"><span class="k" id="ovkey">OVERNIGHT LOW</span>
-        <span class="v" id="lowtemp">--&deg;</span><span class="w" id="lowtext">--</span></div>
-    </div>
-  </div>
-
-  <div class="foot">
-    <span id="footleft">COLTRONS FIRST ALERT WEATHER &nbsp;&middot;&nbsp; WISCONSIN RAPIDS</span>
-    <span class="now" id="clocknow">--:--</span>
-    <span id="stamp">UPDATED --:--</span>
-  </div>
-
-<script src="wx.js"></script>
-<script>
-/* =====================================================================
-   EDIT THESE
-   ===================================================================== */
-const BED_TIME = "21:00";      // slate goes to BED TIME at 9 PM
-const REOPEN   = "08:00";      // flips to GOOD MORNING at 8 AM
-
-const NIGHT = {
-  big:  "BED <em>TIME</em>",
-  sub:  "WE'RE OFF THE AIR FOR THE NIGHT",
-  back: "BACK ON AIR AT 8:00 AM",
-  foot: "COLTRONS FIRST ALERT WEATHER \u00B7 WISCONSIN RAPIDS",
-};
-const MORNING = {
-  big:  "GOOD <em>MORNING</em>",
-  sub:  "COLTRONS FIRST ALERT WEATHER IS BACK",
-  back: "STARTING THE DAY AT",
-  foot: "GOOD MORNING, WISCONSIN \u00B7 FIRST ALERT WEATHER",
-};
-/* ===================================================================== */
-
-const q = new URLSearchParams(location.search).get('now');
-function fakeable() {
   const d = new Date();
-  if (q && /^\d{1,2}:\d{2}$/.test(q)) {
-    const [h, m] = q.split(':').map(Number);
-    d.setHours(h, m, 0, 0);
-  }
-  return d;
-}
-const toMin = (s) => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
-const bed = toMin(BED_TIME), open = toMin(REOPEN);
 
-/* night runs from BED_TIME through REOPEN, crossing midnight */
-function isNight(d) {
-  const n = d.getHours() * 60 + d.getMinutes();
-  return bed > open ? (n >= bed || n < open) : (n >= bed && n < open);
+  document.getElementById("clock").textContent =
+    d.toLocaleTimeString([],{
+      hour:"numeric",
+      minute:"2-digit",
+      second:"2-digit"
+    });
+
 }
 
-function label12(mins) {
-  const h24 = Math.floor(mins / 60), m = mins % 60;
-  const h = h24 % 12 || 12;
-  return `${h}:${String(m).padStart(2, '0')} ${h24 >= 12 ? 'PM' : 'AM'}`;
-}
+updateClock();
 
-let mode = null;
-function paint() {
-  const d = fakeable();
-  const night = isNight(d);
+setInterval(updateClock,1000);
 
-  if (mode !== night) {
-    const t = night ? NIGHT : MORNING;
-    document.body.classList.toggle('morning', !night);
-    document.getElementById('big').innerHTML = t.big;
-    document.getElementById('sub').textContent = t.sub;
-    document.getElementById('footleft').textContent = t.foot;
-    document.getElementById('ovkey').textContent = night ? 'OVERNIGHT LOW' : 'TODAY\u0027S HIGH';
-    mode = night;
-  }
-
-  /* clock in the footer */
-  const h = d.getHours() % 12 || 12;
-  document.getElementById('clocknow').textContent =
-    `${h}:${String(d.getMinutes()).padStart(2, '0')} ${d.getHours() >= 12 ? 'PM' : 'AM'}`;
-
-  /* countdown to 8 AM, or the current time once we're back */
-  if (isNight(d)) {
-    const target = new Date(d);
-    target.setHours(Math.floor(open / 60), open % 60, 0, 0);
-    if (target <= d) target.setDate(target.getDate() + 1);
-    const secs = Math.max(0, Math.round((target - d) / 1000));
-    const hh = Math.floor(secs / 3600), mm = Math.floor((secs % 3600) / 60);
-    document.getElementById('backlabel').textContent = `BACK ON AIR AT ${label12(open)}`;
-    document.getElementById('count').textContent =
-      hh > 0 ? `${hh}H ${String(mm).padStart(2, '0')}M` : `${mm}M`;
-  } else {
-    document.getElementById('backlabel').textContent = MORNING.back;
-    document.getElementById('count').textContent = document.getElementById('clocknow').textContent;
-  }
-}
-paint();
-setInterval(paint, 1000);
-
-/* live numbers, still refreshing all night */
-boot(data => {
-  const p = data.primary || {};
-  document.getElementById('nowicon').innerHTML = icon(p.icon, 40);
-  const t = document.getElementById('nowtemp');
-  t.textContent = (p.temp ?? '--') + '\u00B0';
-  t.className = 'v ' + tempClass(p.temp);
-  document.getElementById('nowcond').textContent = p.condition || '';
-
-  const night = isNight(fakeable());
-  const periods = data.periods || [];
-  const pick = night ? (periods.find(x => !x.is_day) || periods[0])
-                     : (periods.find(x => x.is_day) || periods[0]);
-  const lt = document.getElementById('lowtemp');
-  lt.textContent = (pick && pick.temp !== null && pick.temp !== undefined ? pick.temp : '--') + '\u00B0';
-  lt.className = 'v ' + tempClass(pick && pick.temp);
-  document.getElementById('lowtext').textContent = pick ? (pick.short || '') : '';
-});
 </script>
-</body>
-</html>
 
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>First Alert - Radar</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="stylesheet" href="style.css">
-<style>
-#map{position:absolute;top:132px;left:0;right:0;bottom:74px;background:#02060f}.leaflet-container{background:#02060f}.leaflet-control-attribution{display:none}#header,#footer{z-index:900}.overlay{position:absolute;pointer-events:none;z-index:850}.titlecard{top:172px;left:56px;padding:22px 30px}.titlecard h1{font-family:var(--cond);font-weight:700;font-size:62px;line-height:.92;text-transform:uppercase}.titlecard .k{font-family:var(--sans);font-size:13px;font-weight:800;letter-spacing:4px;color:var(--cyan);margin-bottom:8px}.legend{bottom:110px;left:56px;padding:20px 24px}.legend .label{margin-bottom:12px}.legend .scale{width:400px;height:16px;border-radius:3px;background:linear-gradient(90deg,#00c6a2,#00a2ff 14%,#00e13c 30%,#f6ff00 50%,#ff9c00 66%,#ff2200 80%,#c400ff)}.legend .ticks{display:flex;justify-content:space-between;width:400px;margin-top:8px;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:1.6px;color:var(--ink-dim)}.loop{bottom:110px;right:56px;padding:18px 24px;text-align:right}.loop .frame{font-family:var(--cond);font-weight:700;font-size:46px;line-height:1}.loop .bars{display:flex;gap:5px;justify-content:flex-end;margin-top:12px}.loop .bars i{width:20px;height:6px;border-radius:3px;background:rgba(255,255,255,.2)}.loop .bars i.on{background:var(--cyan)}.alertstrip{top:132px;left:0;right:0;height:56px;display:none;align-items:center;gap:18px;padding:0 56px;background:var(--alert)}body.hasalert .alertstrip{display:flex}.alertstrip .l{font-family:var(--sans);font-size:13px;font-weight:800;letter-spacing:3px}.alertstrip .v{font-family:var(--cond);font-size:32px;letter-spacing:.6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}to{transform:translateY(980px)}}
-.leaflet-container{background:#00040a!important}.panel{background:rgba(0,4,10,.90)!important;border-color:rgba(255,255,255,.10)!important}
-</style></head><body><div id="map"></div><div id="header"></div><div class="overlay alertstrip"><span class="l">FIRST ALERT</span><span class="v" id="astrip"></span></div><div class="overlay titlecard panel panel-accent"><div class="k">First Alert</div><h1>Doppler Radar</h1></div><div class="overlay legend panel" id="legend"><div class="label" id="legendLabel">Rainfall Reflectivity</div><div class="scale"></div><div class="ticks" id="legendTicks"><span>LIGHT</span><span>MODERATE</span><span>HEAVY</span><span>SEVERE</span></div></div><div class="overlay loop panel" id="loopPanel"><div class="frame" id="frame">-- MIN AGO</div><div class="bars" id="bars"></div></div><div id="footer"></div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="wx.js"></script>
-<script>
-/*
-  CARTO API KEY
-  Paste your key between the quotation marks below.
-*/
-const CARTO_API_KEY = "cb1_3qog_2_d109f0b6c16b560a67dccd7b";
-
-mountHeader();
-mountFooter('');
-
-const map = L.map('map', {
-  zoomControl: false,
-  attributionControl: false,
-  zoomSnap: 0.1,
-  dragging: false,
-  scrollWheelZoom: false,
-  doubleClickZoom: false,
-  keyboard: false
-});
-
-map.fitBounds(
-  [[42.40, -93.20], [47.20, -86.60]],
-  { paddingTopLeft: [430, 90], paddingBottomRight: [430, 120] }
-);
-
-const cartoUrl =
-  'https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png' +
-  '?api_key=' + encodeURIComponent(CARTO_API_KEY);
-
-L.tileLayer(
-  `https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(CARTO_API_KEY)}`,
-  {
-    maxZoom: 20,
-    opacity: 0.9,
-    attribution: '© OpenStreetMap contributors, © CARTO'
-  }
-).addTo(map);
-
-const OFFSETS = [50,45,40,35,30,25,20,15,10,5,0];
-
-function makeRainLayers() {
-  return OFFSETS.map(minutes => {
-    const suffix = minutes === 0
-      ? ''
-      : '-m' + String(minutes).padStart(2, '0') + 'm';
-
-    return L.tileLayer(
-      'https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913' +
-      suffix + '/{z}/{x}/{y}.png',
-      { opacity: 0, maxZoom: 12 }
-    ).addTo(map);
-  });
-}
-
-const rainLayers = makeRainLayers();
-
-fetch('wi.geojson')
-  .then(response => response.json())
-  .then(geojson => {
-    L.geoJSON(geojson, {
-      style: {
-        color: '#8fd8ff',
-        weight: 2.5,
-        fill: false,
-        opacity: 0.95
-      }
-    }).addTo(map);
-  })
-  .catch(() => {});
-
-const MARKS = [
-  ['WISCONSIN RAPIDS', 44.3836, -89.8173, true],
-  ['MILWAUKEE', 43.0389, -87.9065, false],
-  ['MADISON', 43.0731, -89.4012, false],
-  ['GREEN BAY', 44.5133, -88.0133, false],
-  ['WAUSAU', 44.9591, -89.6301, false],
-  ['EAU CLAIRE', 44.8113, -91.4985, false],
-  ['LA CROSSE', 43.8014, -91.2396, false]
-];
-
-MARKS.forEach(([name, lat, lon, highlight]) => {
-  L.marker([lat, lon], {
-    interactive: false,
-    icon: L.divIcon({
-      className: '',
-      iconSize: [0, 0],
-      html:
-        '<div style="transform:translate(-50%,-50%);white-space:nowrap;' +
-        'display:flex;align-items:center;gap:7px;font-family:Arial,sans-serif;' +
-        'font-size:' + (highlight ? 15 : 12) + 'px;font-weight:800;' +
-        'letter-spacing:1.6px;color:' +
-        (highlight ? '#fff' : 'rgba(255,255,255,.72)') +
-        ';text-shadow:0 2px 8px #000">' +
-        '<span style="width:' + (highlight ? 12 : 7) + 'px;height:' +
-        (highlight ? 12 : 7) + 'px;border-radius:50%;background:' +
-        (highlight ? '#e2001a' : '#fff') + '"></span>' +
-        name + '</div>'
-    })
-  }).addTo(map);
-});
-
-document.getElementById('bars').innerHTML =
-  OFFSETS.map(() => '<i></i>').join('');
-
-const bars = [...document.querySelectorAll('#bars i')];
-let frameIndex = 0;
-
-function renderRadar() {
-  rainLayers.forEach((layer, index) => {
-    layer.setOpacity(index === frameIndex ? 0.82 : 0);
-  });
-
-  bars.forEach((bar, index) => {
-    bar.classList.toggle('on', index <= frameIndex);
-  });
-
-  const minutes = OFFSETS[frameIndex];
-  document.getElementById('frame').textContent =
-    minutes === 0 ? 'CURRENT' : '-' + minutes + ' MIN';
-}
-
-function stepRadar() {
-  renderRadar();
-  frameIndex = (frameIndex + 1) % OFFSETS.length;
-  setTimeout(stepRadar, frameIndex === 0 ? 1400 : 420);
-}
-
-setTimeout(stepRadar, 1200);
-
-setInterval(() => {
-  rainLayers.forEach(layer => layer.redraw());
-}, 240000);
-
-boot(data => {
-  const alerts = data.alerts || [];
-
-  document.body.classList.toggle('hasalert', alerts.length > 0);
-
-  if (alerts.length) {
-    document.getElementById('astrip').textContent =
-      alerts.map(x => x.event + ': ' + x.areas).join('   •   ');
-  }
-
-  const footerMessage = document.getElementById('footmsg');
-
-  if (footerMessage) {
-    footerMessage.textContent = alerts.length
-      ? alerts[0].event + ' · ' + alerts[0].areas.slice(0, 80)
-      : 'RADAR LOOP · LAST 50 MINUTES · NO ACTIVE WARNINGS';
-  }
-});
-</script>
-</script></body></html>
-<!DOCTYPE html>
-<!-- SCENE: WEATHER - 7 DAY FORECAST   1920x1080 -->
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>First Alert - 7 Day Forecast</title>
-<link rel="stylesheet" href="style.css">
-<style>
-  .stage { position:absolute; top:300px; left:64px; right:64px; bottom:104px;
-           display:grid; grid-template-columns:repeat(7,1fr); gap:16px; }
-
-  .day { padding:30px 14px 26px; display:flex; flex-direction:column; align-items:center;
-         text-align:center; }
-  .day.today { background:linear-gradient(170deg, rgba(226,0,26,.42) 0%, rgba(7,22,52,.9) 100%);
-               border-top:4px solid var(--alert-2); }
-  .day .dow { font-family:var(--cond); font-weight:700; font-size:42px; line-height:1;
-              letter-spacing:1px; text-transform:uppercase; }
-  .day .dt  { font-family:var(--sans); font-size:13px; font-weight:700; letter-spacing:2.4px;
-              color:var(--ink-dim); margin-top:7px; }
-  .day .ic  { margin:22px 0 18px; }
-  .day .hi  { font-family:var(--cond); font-weight:700; font-size:88px; line-height:.85; }
-  .day .lo  { font-family:var(--cond); font-weight:600; font-size:44px; line-height:1;
-              color:rgba(255,255,255,.5); margin-top:8px; }
-  .day .sky { margin-top:20px; font-family:var(--cond); font-size:26px; line-height:1.12;
-              text-transform:uppercase; color:rgba(255,255,255,.9); height:88px;
-              display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
-              overflow:hidden; }
-  .day .lowlabel { font-family:var(--sans); font-size:12px; font-weight:800;
-                   letter-spacing:2.4px; color:rgba(255,255,255,.55); margin-top:10px; }
-  .day .pop { margin-top:6px; padding-top:14px; display:flex; align-items:center; gap:7px;
-              font-family:var(--sans); font-size:15px; font-weight:700; letter-spacing:1.6px;
-              color:var(--cyan); }
-  .day .pop.zero { color:rgba(255,255,255,.28); }
-  .offline { position:absolute; top:52%; left:0; right:0; text-align:center;
-             font-family:var(--cond); font-size:44px; color:var(--alert-2); }
-</style>
-</head>
-<body class="solid">
-  <div id="header"></div>
-
-  <div class="page-title">
-    <span class="kicker">First Alert</span>
-    <h1>7 Day Forecast</h1>
-  </div>
-
-  <div class="stage" id="stage"></div>
-  <div class="offline">FIRST ALERT DATA FEED OFFLINE &mdash; start wx_feed.py</div>
-  <div id="footer"></div>
-
-<script src="wx.js"></script>
-<script>
-mountHeader();
-mountFooter('');
-
-boot((d) => {
-  const days = (d.days || []).slice(0, 7);
-  document.getElementById('stage').innerHTML = days.map((x, i) => {
-    // first "day" can be tonight-only (no daytime high yet)
-    const nightOnly = (x.hi === null || x.hi === undefined);
-    const bigT = nightOnly ? x.lo : x.hi;
-    const sky = (x.short || '').split(' THEN ')[0].slice(0, 40);
-    return `
-    <div class="day panel ${i === 0 ? 'today' : 'panel-accent'} rise" style="animation-delay:${i * 45}ms">
-      <div class="dow">${nightOnly ? 'TONIGHT' : x.dow}</div>
-      <div class="dt">${x.short_date || ''}</div>
-      <div class="ic">${icon(x.icon, 96)}</div>
-      <div class="hi ${tempClass(bigT)} tabnum">${num(bigT)}&deg;</div>
-      ${nightOnly
-        ? '<div class="lowlabel">OVERNIGHT LOW</div>'
-        : `<div class="lo tabnum">${num(x.lo)}&deg;</div>`}
-      <div class="sky">${sky}</div>
-      <div class="pop ${(x.precip || 0) === 0 ? 'zero' : ''}">
-        ${icon('rain', 18).replace('<svg', '<svg style="opacity:.85"')}${x.precip || 0}%
-      </div>
-    </div>`; }).join('');
-
-  const fm = document.getElementById('footmsg');
-  if (fm) fm.textContent =
-    `${(d.primary || {}).name || ''} 7 DAY OUTLOOK \u00b7 ${d.date_label || ''}`;
-});
-</script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<!-- SCENE: WEATHER - STATEWIDE TEMPS   1920x1080 -->
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>First Alert - Statewide Temperatures</title>
-<link rel="stylesheet" href="style.css">
-<style>
-  .stage { position:absolute; top:266px; left:64px; right:64px; bottom:104px; display:flex; gap:30px; }
-
-  .mapwrap { flex:none; width:790px; position:relative; }
-  #map { position:absolute; inset:0; }
-  #map svg { position:absolute; top:0; left:50%; transform:translateX(-50%); overflow:visible; }
-  .wi-fill { fill:rgba(53,200,255,.10); stroke:var(--cyan); stroke-width:3.5;
-             filter:drop-shadow(0 0 26px rgba(53,200,255,.35)); }
-
-  .dot { position:absolute; width:10px; height:10px; border-radius:50%; background:#fff;
-         transform:translate(-50%,-50%); box-shadow:0 0 0 3px rgba(3,10,28,.8); }
-  .pin { position:absolute; transform:translateY(-50%); display:flex; flex-direction:column;
-         white-space:nowrap; pointer-events:none; }
-  .pin.left { align-items:flex-end; transform:translate(-100%,-50%); }
-  .pin .t { font-family:var(--cond); font-weight:700; font-size:42px; line-height:.88;
-            text-shadow:0 3px 12px rgba(0,0,0,.9); }
-  .pin .n { font-family:var(--sans); font-size:11px; font-weight:700; letter-spacing:1.5px;
-            color:rgba(255,255,255,.8); text-shadow:0 2px 8px rgba(0,0,0,.95); margin-top:3px; }
-
-  .side { flex:1; min-width:0; display:flex; flex-direction:column; gap:16px; }
-  .rowlist { flex:1 1 auto; min-height:0; overflow:hidden;
-             display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-             gap:4px 22px; align-content:start; padding:22px 26px; }
-  .row { display:flex; align-items:center; gap:11px; padding:3px 0; min-width:0;
-         border-bottom:1px solid rgba(255,255,255,.07); }
-  .row .rn { font-family:var(--cond); font-size:26px; line-height:1; letter-spacing:.4px;
-             text-transform:uppercase; white-space:nowrap; overflow:hidden;
-             text-overflow:ellipsis; flex:1; }
-  .row .rt { font-family:var(--cond); font-weight:700; font-size:32px; line-height:1; }
-
-  .extremes { flex:0 0 158px; display:flex; gap:16px; }
-  .ex { flex:1; padding:20px 24px; }
-  .ex .label { margin-bottom:10px; }
-  .ex .v { font-family:var(--cond); font-weight:700; font-size:54px; line-height:.9; }
-  .ex .c { font-family:var(--cond); font-size:25px; color:var(--ink-dim);
-           text-transform:uppercase; margin-top:5px; }
-  .offline { position:absolute; top:52%; left:0; right:0; text-align:center;
-             font-family:var(--cond); font-size:44px; color:var(--alert-2); }
-</style>
-</head>
-<body class="solid">
-  <div id="header"></div>
-
-  <div class="page-title">
-    <span class="kicker">Statewide</span>
-    <h1>Wisconsin Temperatures</h1>
-  </div>
-
-  <div class="stage">
-    <div class="mapwrap"><div id="map"></div></div>
-    <div class="side">
-      <div class="rowlist panel panel-accent" id="list"></div>
-      <div class="extremes">
-        <div class="ex panel"><div class="label">State's Warm Spot</div>
-          <div class="v" id="hiv">--&deg;</div><div class="c" id="hic">--</div></div>
-        <div class="ex panel"><div class="label">State's Cool Spot</div>
-          <div class="v" id="lov">--&deg;</div><div class="c" id="loc">--</div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="offline">FIRST ALERT DATA FEED OFFLINE &mdash; start wx_feed.py</div>
-  <div id="footer"></div>
-
-<script src="wimap.js"></script>
-<script src="wx.js"></script>
-<script>
-mountHeader();
-mountFooter('');
-
-const MAP_H = 646;                       // drawn height of the state, px
-const SCALE = MAP_H / WI_VIEW.h;
-const MAP_W = WI_VIEW.w * SCALE;
-
-/* Which cities get plotted on the map, and which side their label sits on.
-   Everything else still shows in the list on the right. Hand-placed so the
-   labels never collide on air -- add your own with [side, dx, dy].          */
-const MAP_LABELS = {
-  'SUPERIOR':         ['r',  0,  -4],
-  'ASHLAND':          ['r',  0,   6],
-  'RHINELANDER':      ['r',  0,   0],
-  'GREEN BAY':        ['r',  0,  -6],
-  'SHEBOYGAN':        ['r',  0,   0],
-  'MILWAUKEE':        ['r',  0,  -4],
-  'KENOSHA':          ['r',  0, -10],
-  'EAU CLAIRE':       ['l',  0,   0],
-  'LA CROSSE':        ['l',  0,   0],
-  'WAUSAU':           ['l',  0,  -8],
-  'WISCONSIN RAPIDS': ['l',  0,  10],
-  'APPLETON':         ['l',  0,  14],
-  'MADISON':          ['l',  0,   0],
-};
-
-function drawMap(cities) {
-  const wrap = document.getElementById('map');
-  const pad = (wrap.clientWidth - MAP_W) / 2;
-
-  const pins = cities.filter(c => c.lat !== undefined && MAP_LABELS[c.name]).map(c => {
-    const cfg = MAP_LABELS[c.name];
-    const p = wiXY(c.lat, c.lon);
-    const x = pad + p[0] * SCALE, y = p[1] * SCALE;
-    return { c: c, x: x, y: y, ly: y + cfg[2], dx: cfg[1], flip: cfg[0] === 'l' };
-  });
-
-  wrap.innerHTML =
-    '<svg width="' + MAP_W + '" height="' + MAP_H + '" viewBox="0 0 ' +
-      WI_VIEW.w + ' ' + WI_VIEW.h + '"><path class="wi-fill" d="' + WI_PATH + '"/></svg>' +
-    pins.map(p => `
-      <div class="dot" style="left:${p.x}px; top:${p.y}px"></div>
-      <div class="pin ${p.flip ? 'left' : ''}"
-           style="left:${p.x + p.dx + (p.flip ? -18 : 18)}px; top:${p.ly}px">
-        <span class="t tabnum ${tempClass(p.c.temp)}">${num(p.c.temp)}&deg;</span>
-        <span class="n">${p.c.name}</span>
-      </div>`).join('');
-}
-
-boot((d) => {
-  const cities = (d.cities || []);
-  drawMap(cities);
-
-  document.getElementById('list').innerHTML = cities
-    .slice().sort((a, b) => b.temp - a.temp)
-    .map(c => `<div class="row">
-        ${icon(c.icon, 26)}
-        <span class="rn">${c.name}</span>
-        <span class="rt tabnum ${tempClass(c.temp)}">${num(c.temp)}&deg;</span>
-      </div>`).join('');
-
-  if (cities.length) {
-    const s = cities.slice().sort((a, b) => b.temp - a.temp);
-    const hi = s[0], lo = s[s.length - 1];
-    document.getElementById('hiv').innerHTML = `${hi.temp}&deg;`;
-    document.getElementById('hiv').className = 'v tabnum ' + tempClass(hi.temp);
-    document.getElementById('hic').textContent = hi.name;
-    document.getElementById('lov').innerHTML = `${lo.temp}&deg;`;
-    document.getElementById('lov').className = 'v tabnum ' + tempClass(lo.temp);
-    document.getElementById('loc').textContent = lo.name;
-  }
-
-  const fm = document.getElementById('footmsg');
-  if (fm) fm.textContent =
-    `CURRENT TEMPERATURES ACROSS WISCONSIN \u00b7 ${cities.length} REPORTING STATIONS`;
-});
-</script>
 </body>
 </html>
