@@ -64,7 +64,7 @@ h1{margin:0;font-size:27px}
   <div class="desc">Seven-day highs, lows, conditions and rain chances.</div>
 </a>
 
-<a class="card" href="radar(3).html">
+<a class="card" href="radar.html">
   <div class="icon">🗺️</div>
   <div class="title">Doppler Radar</div>
   <div class="desc">Animated Wisconsin radar display.</div>
