@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NEWS DESK SPLIT - Coltrons First Alert Weather</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* =====================================================================
+     TWO-BOX NEWS DESK
+     Left: a transparent window for your camera.
+       >>> Position your camera source at  X 56  Y 214  W 1096  H 616  <<<
+     Right: an over-the-shoulder panel that rotates its own graphics.
+     Solid background, so this scene is self-contained.
+     ===================================================================== */
+
+  /* Painted background with the camera window cut out of it.
+     Because this hole istruly transparent, OBS shows whatever source sits
+     underneath the browser source. */
+  .bg { position:absolute; inset:0;
+        background:
+          radial-gradient(1200px 800px at 18% 8%, var(--navy-3) 0%, transparent 62%),
+          radial-gradient(900px 700px at 88% 92%, var(--navy-2) 0%, transparent 60%),
+          linear-gradient(160deg, var(--navy-1) 0%, var(--navy-0) 100%);
+        clip-path: path(evenodd,
+          "M0,0 H1920 V1080 H0 Z \
+           M76,214 H1132 A20,20 0 0 1 1152,234 V810 A20,20 0 0 1 1132,830 \
+           H76 A20,20 0 0 1 56,810 V234 A20,20 0 0 1 76,214 Z"); }
+  .bg::after { content:''; position:absolute; inset:0; pointer-events:none;
+        background-image:repeating-linear-gradient(0deg,
+          rgba(255,255,255,.022) 0 1px, transparent 1px 3px); }
+
+  .kicker-row { position:absolute; left:56px; top:150px; display:flex; align-items:center; gap:14px; }
+  .flag { display:flex; align-items:center; gap:11px; background:var(--alert);
+          padding:9px 18px 8px; border-radius:8px; }
+  .flag i { width:11px; height:11px; border-radius:50%; background:#fff;
+            animation:blink 1.6s infinite; }
+  .flag span { font-size:17px; font-weight:900; letter-spacing:5px; }
+  @keyframes blink { 0%,60%{opacity:1} 80%,100%{opacity:.25} }
+  .fromline { font-size:17px; font-weight:900; letter-spacing:5px; color:#7f9ec9; }
+
+  /* ---- camera window ---- */
+  .cam { position:absolute; left:56px; top:214px; width:1096px; height:616px;
+         border-radius:22px; border:2px solid rgba(53,200,255,.45);
+         box-shadow:0 30px 90px rgba(0,0,0,.55), inset 0 0 60px rgba(0,0,0,.35);
+         background:transparent; }
+  .cam .hint { animation:guidefade .5s linear var(--guide, 25s) forwards;
+               position:absolute; inset:0; display:flex; align-items:center;
+               justify-content:center; flex-direction:column; gap:10px;
+               font-size:20px; font-weight:900; letter-spacing:6px; color:rgba(159,195,239,.5);
+               text-align:center; }
+  @keyframes guidefade { to { opacity:0; visibility:hidden; } }
+  .cam .corner { position:absolute; width:26px; height:26px; border:3px solid var(--cyan); }
+  .cam .tl{left:-2px;top:-2px;border-right:0;border-bottom:0;border-radius:22px 0 0 0}
+  .cam .tr{right:-2px;top:-2px;border-left:0;border-bottom:0;border-radius:0 22px 0 0}
+  .cam .bl{left:-2px;bottom:-2px;border-right:0;border-top:0;border-radius:0 0 0 22px}
+  .cam .br{right:-2px;bottom:-2px;border-left:0;border-top:0;border-radius:0 0 22px 0}
+
+  /* name plate under the camera window */
+  .plate { position:absolute; left:88px; top:696px; display:flex; align-items:stretch;
+           border-radius:14px; overflow:hidden; box-shadow:0 18px 46px rgba(0,0,0,.5); }
+  .plate .chip { background:var(--alert); display:flex; align-items:center; padding:0 20px;
+                 font-size:17px; font-weight:900; letter-spacing:5px; }
+  .plate .who { background:rgba(3,10,28,.92); padding:12px 26px 11px; }
+  .plate .who b { display:block; font-family:var(--cond); font-size:38px; font-weight:800;
+                  line-height:1; text-transform:uppercase; letter-spacing:1px; }
+  .plate .who span { display:block; font-size:14px; font-weight:800; letter-spacing:4px;
+                     color:#9fc3ef; margin-top:5px; }
+
+  /* ---- over-the-shoulder panel ---- */
+  .ots { position:absolute; right:56px; top:214px; width:656px; height:616px;
+         border-radius:22px; overflow:hidden; border:1px solid rgba(53,200,255,.28);
+         background:linear-gradient(180deg, rgba(13,42,92,.75), rgba(3,12,32,.9));
+         box-shadow:0 30px 90px rgba(0,0,0,.5); }
+  .ots .cap { padding:18px 26px 16px; background:rgba(3,10,28,.85);
+              border-bottom:1px solid rgba(53,200,255,.22); }
+  .ots .cap b { font-family:var(--cond); font-size:34px; font-weight:800; letter-spacing:2px;
+                text-transform:uppercase; }
+  .ots .cap span { display:block; font-size:14px; font-weight:900; letter-spacing:5px;
+                   color:var(--cyan); margin-bottom:6px; }
+  .ots .body { position:relative; height:calc(100% - 78px); }
+  .pane { position:absolute; inset:0; padding:24px 26px; opacity:0;
+          transition:opacity .45s ease; }
+  .pane.on { opacity:1; }
+
+  /* pane: big current conditions */
+  .now { display:flex; flex-direction:column; align-items:center; justify-content:center;
+         height:100%; text-align:center; }
+  .now .big { font-family:var(--cond); font-size:170px; font-weight:800; line-height:.84; }
+  .now .big sup { font-size:70px; vertical-align:top; color:var(--cyan); }
+  .now .cond { font-family:var(--cond); font-size:40px; font-weight:700; letter-spacing:3px;
+               text-transform:uppercase; margin-top:8px; }
+  .now .where { font-size:17px; font-weight:900; letter-spacing:5px; color:#9fc3ef;
+                margin-top:12px; white-space:nowrap; }
+  .now .metrics { font-size:15px; font-weight:800; letter-spacing:3px; color:#7f9ec9;
+                margin-top:8px; white-space:nowrap; }
+
+  /* pane: list rows */
+  .rows { display:flex; flex-direction:column; gap:11px; height:100%; justify-content:center; }
+  .row { display:flex; align-items:center; gap:14px; padding:10px 16px; border-radius:12px;
+         background:rgba(255,255,255,.05); }
+  .row .nm { flex:1; font-size:23px; font-weight:800; letter-spacing:2px; }
+  .row .vl { font-family:var(--cond); font-size:38px; font-weight:800; line-height:1; }
+
+  /* pane: bullet headlines */
+  .bullets { display:flex; flex-direction:column; gap:20px; height:100%;
+             justify-content:center; }
+  .bullets div { display:flex; gap:16px; font-size:27px; font-weight:700; line-height:1.25;
+                 letter-spacing:1px; color:#e4efff; }
+  .bullets div i { flex:0 0 12px; height:12px; margin-top:11px; border-radius:50%;
+                   background:var(--cyan); }
+
+  /* ---- headline band + ticker ---- */
+  .head { position:absolute; left:0; bottom:80px; max-width:1500px; }
+  .topic { display:inline-block; background:var(--cyan); color:#04162b; font-size:18px;
+           font-weight:900; letter-spacing:6px; padding:9px 20px 8px; border-radius:0 10px 10px 0; }
+  .topic.wx { background:var(--alert); color:#fff; }
+  .band { margin-top:9px; background:linear-gradient(90deg, rgba(3,10,28,.96) 0%,
+          rgba(7,22,52,.9) 76%, rgba(7,22,52,0) 100%);
+          border-left:9px solid var(--alert); padding:14px 90px 16px 30px; }
+  .band h1 { font-family:var(--cond); font-size:58px; font-weight:800; line-height:.98;
+             text-transform:uppercase; }
+
+  .ticker { position:absolute; left:0; right:0; bottom:0; height:66px; display:flex;
+            background:rgba(3,10,28,.96); border-top:2px solid rgba(53,200,255,.35); }
+  .ticker .tag { flex:0 0 230px; background:var(--alert); display:flex; align-items:center;
+                 justify-content:center; font-size:20px; font-weight:900; letter-spacing:5px; }
+  .ticker .win { flex:1; overflow:hidden; position:relative; }
+  .ticker .run { position:absolute; white-space:nowrap; top:50%; transform:translateY(-50%);
+                 font-size:25px; font-weight:800; letter-spacing:2px; color:#e9f3ff;
+                 animation:crawl 46s linear infinite; }
+  @keyframes crawl { from{transform:translate(0,-50%)} to{transform:translate(-100%,-50%)} }
+  .ticker .cl { flex:0 0 200px; display:flex; align-items:center; justify-content:center;
+                border-left:1px solid rgba(255,255,255,.14); font-family:var(--cond);
+                font-size:30px; font-weight:700; letter-spacing:2px; color:#cfe2ff; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div id="header"></div>
+
+  <div class="kicker-row">
+    <div class="flag"><i></i><span>LIVE</span></div>
+    <div class="fromline" id="fromline">WISCONSIN RAPIDS, WISCONSIN</div>
+  </div>
+
+  <!-- camera window: transparent, put your camera source behind it -->
+  <div class="cam">
+    <div class="hint">CAMERA<br>X 56 &nbsp; Y 214 &nbsp; W 1096 &nbsp; H 616</div>
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+  </div>
+
+  <div class="plate">
+    <div class="chip">FIRST ALERT</div>
+    <div class="who"><b id="anchor">COLTON ZOGLMAN</b><span id="role">CHIEF METEOROLOGIST</span></div>
+  </div>
+
+  <!-- over the shoulder -->
+  <div class="ots">
+    <div class="cap"><span id="otskick">FIRST ALERT WEATHER</span><b id="otstitle">RIGHT NOW</b></div>
+    <div class="body">
+      <div class="pane on" id="p1">
+        <div class="now">
+          <div id="nowicon"></div>
+          <div class="big" id="nowtemp">--<sup>&deg;</sup></div>
+          <div class="cond" id="nowcond">--</div>
+          <div class="where" id="nowwhere">--</div>
+          <div class="metrics" id="nowmetrics"></div>
+        </div>
+      </div>
+      <div class="pane" id="p2"><div class="rows" id="cityrows"></div></div>
+      <div class="pane" id="p3"><div class="rows" id="dayrows"></div></div>
+      <div class="pane" id="p4"><div class="bullets" id="bullets"></div></div>
+    </div>
+  </div>
+
+  <div class="head">
+    <div class="topic" id="topic">FIRST ALERT WEATHER</div>
+    <div class="band"><h1 id="hl">TRACKING TONIGHT'S FORECAST</h1></div>
+  </div>
+
+  <div class="ticker">
+    <div class="tag">FIRST ALERT</div>
+    <div class="win"><div class="run" id="run">LOADING...</div></div>
+    <div class="cl" id="tclock">--:--</div>
+  </div>
+
+<script src="wx.js"></script>
+<script>
+/* =====================================================================
+   EDIT THESE
+   ===================================================================== */
+const ANCHOR   = "COLTON ZOGLMAN";
+const ROLE     = "CHIEF METEOROLOGIST";
+const FROMLINE = "WISCONSIN RAPIDS, WISCONSIN";
+
+// Headline band + matching over-the-shoulder pane.
+// pane: 1 = current conditions, 2 = city temps, 3 = next days, 4 = your bullets
+const SEGMENTS = [
+  { topic:"FIRST ALERT WEATHER", wx:true, pane:1,
+    hl:"CONDITIONS RIGHT NOW", otskick:"FIRST ALERT WEATHER", otstitle:"RIGHT NOW" },
+  { topic:"STATEWIDE", pane:2,
+    hl:"TEMPERATURES ACROSS WISCONSIN", otskick:"STATEWIDE", otstitle:"CITY BY CITY" },
+  { topic:"FIRST ALERT WEATHER", wx:true, pane:3,
+    hl:"WHAT'S COMING NEXT", otskick:"FIRST ALERT", otstitle:"THE NEXT FEW DAYS" },
+  { topic:"TOP STORIES", pane:4,
+    hl:"HEADLINES AT THIS HOUR", otskick:"COLTRONS FIRST ALERT", otstitle:"TOP STORIES" },
+];
+const SEGMENT_SECONDS = 15;
+
+// Pane 4 bullets - write whatever you're covering
+const BULLETS = [
+  "Quiet stretch of weather holds through midweek",
+  "Warmer air builds in from the southwest",
+  "Next rain chance arrives Wednesday afternoon",
+  "Lake breeze keeps the shoreline cooler",
+];
+
+const TICKER_LINES = [
+  "COLTRONS FIRST ALERT WEATHER - STREAMING FROM WISCONSIN RAPIDS",
+  "FORECAST DATA UPDATES EVERY FIVE MINUTES FROM THE NATIONAL WEATHER SERVICE",
+];
+/* ===================================================================== */
+
+mountHeader();
+document.getElementById('anchor').textContent = ANCHOR;
+document.getElementById('role').textContent = ROLE;
+document.getElementById('fromline').textContent = FROMLINE;
+document.getElementById('bullets').innerHTML =
+  BULLETS.map(b => `<div><i></i><span>${b}</span></div>`).join('');
+
+(function () {
+  const b = document.getElementById('tclock');
+  const tick = () => {
+    const d = new Date();
+    const h = d.getHours() % 12 || 12;
+    const m = String(d.getMinutes()).padStart(2, '0');
+    b.textContent = `${h}:${m} ${d.getHours() >= 12 ? 'PM' : 'AM'}`;
+  };
+  tick(); setInterval(tick, 1000);
+})();
+
+/* walk the rundown: headline + matching OTS pane together */
+let i = 0;
+function segment() {
+  const s = SEGMENTS[i % SEGMENTS.length];
+  const tab = document.getElementById('topic');
+  tab.textContent = s.topic;
+  tab.className = 'topic' + (s.wx ? ' wx' : '');
+  document.getElementById('hl').innerHTML = s.hl;
+  document.getElementById('otskick').textContent = s.otskick;
+  document.getElementById('otstitle').textContent = s.otstitle;
+  [1, 2, 3, 4].forEach(n =>
+    document.getElementById('p' + n).classList.toggle('on', n === s.pane));
+  i++;
+  setTimeout(segment, SEGMENT_SECONDS * 1000);
+}
+segment();
+
+/* live data */
+boot(data => {
+  const p = data.primary || {};
+  document.getElementById('nowicon').innerHTML = icon(p.icon, 120);
+  const t = document.getElementById('nowtemp');
+  t.innerHTML = (p.temp ?? '--') + '<sup>&deg;</sup>';
+  t.className = 'big ' + tempClass(p.temp);
+  document.getElementById('nowcond').textContent = p.condition || '';
+  document.getElementById('nowwhere').textContent = p.name || '';
+  const bits = [];
+  if (p.feels_like !== null && p.feels_like !== undefined) bits.push(`FEELS LIKE ${p.feels_like}\u00B0`);
+  if (p.humidity !== null && p.humidity !== undefined) bits.push(`HUMIDITY ${p.humidity}%`);
+  bits.push(p.wind ? `WIND ${p.wind_dir || ''} ${p.wind} MPH` : 'WIND CALM');
+  document.getElementById('nowmetrics').textContent = bits.join('  \u00B7  ');
+
+  document.getElementById('cityrows').innerHTML = (data.cities || [])
+    .slice()
+    .sort((a, b) => (b.temp ?? -99) - (a.temp ?? -99))
+    .slice(0, 6)
+    .map(c => `<div class="row">${icon(c.icon, 30)}<span class="nm">${c.name}</span>
+       <span class="vl ${tempClass(c.temp)}">${c.temp ?? '--'}\u00B0</span></div>`).join('');
+
+  document.getElementById('dayrows').innerHTML = (data.days || [])
+    .filter(d => d.hi !== null && d.hi !== undefined)
+    .slice(0, 5)
+    .map(d => `<div class="row">${icon(d.icon, 30)}<span class="nm">${d.dow}</span>
+       <span class="vl ${tempClass(d.hi)}">${d.hi ?? '--'}\u00B0</span>
+       <span class="vl" style="font-size:26px;color:#9fc3ef">${d.lo ?? '--'}\u00B0</span></div>`).join('');
+
+  const wx = [];
+  const tn = (data.periods || []).find(x => !x.is_day) || (data.periods || [])[0];
+  if (tn) wx.push(`${tn.name || 'NEXT'}: ${tn.short || ''}, ${tn.temp ?? '--'}\u00B0`);
+  (data.alerts || []).forEach(a => wx.push(`${a.event}: ${(a.areas || '').slice(0, 90)}`));
+  (data.cities || []).slice(0, 10).forEach(c => wx.push(`${c.name} ${c.temp ?? '--'}\u00B0`));
+  const line = [...TICKER_LINES, ...wx].join('   \u2022   ') + '   \u2022   ';
+  document.getElementById('run').innerHTML = line + line;
+});
+</script>
+</body>
+</html>

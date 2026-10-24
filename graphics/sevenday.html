@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<!-- SCENE: WEATHER - 7 DAY FORECAST   1920x1080 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>First Alert - 7 Day Forecast</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .stage { position:absolute; top:300px; left:64px; right:64px; bottom:104px;
+           display:grid; grid-template-columns:repeat(7,1fr); gap:16px; }
+
+  .day { padding:30px 14px 26px; display:flex; flex-direction:column; align-items:center;
+         text-align:center; }
+  .day.today { background:linear-gradient(170deg, rgba(226,0,26,.42) 0%, rgba(7,22,52,.9) 100%);
+               border-top:4px solid var(--alert-2); }
+  .day .dow { font-family:var(--cond); font-weight:700; font-size:42px; line-height:1;
+              letter-spacing:1px; text-transform:uppercase; }
+  .day .dt  { font-family:var(--sans); font-size:13px; font-weight:700; letter-spacing:2.4px;
+              color:var(--ink-dim); margin-top:7px; }
+  .day .ic  { margin:22px 0 18px; }
+  .day .hi  { font-family:var(--cond); font-weight:700; font-size:88px; line-height:.85; }
+  .day .lo  { font-family:var(--cond); font-weight:600; font-size:44px; line-height:1;
+              color:rgba(255,255,255,.5); margin-top:8px; }
+  .day .sky { margin-top:20px; font-family:var(--cond); font-size:26px; line-height:1.12;
+              text-transform:uppercase; color:rgba(255,255,255,.9); height:88px;
+              display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
+              overflow:hidden; }
+  .day .lowlabel { font-family:var(--sans); font-size:12px; font-weight:800;
+                   letter-spacing:2.4px; color:rgba(255,255,255,.55); margin-top:10px; }
+  .day .pop { margin-top:6px; padding-top:14px; display:flex; align-items:center; gap:7px;
+              font-family:var(--sans); font-size:15px; font-weight:700; letter-spacing:1.6px;
+              color:var(--cyan); }
+  .day .pop.zero { color:rgba(255,255,255,.28); }
+  .offline { position:absolute; top:52%; left:0; right:0; text-align:center;
+             font-family:var(--cond); font-size:44px; color:var(--alert-2); }
+</style>
+</head>
+<body class="solid">
+  <div id="header"></div>
+
+  <div class="page-title">
+    <span class="kicker">First Alert</span>
+    <h1>7 Day Forecast</h1>
+  </div>
+
+  <div class="stage" id="stage"></div>
+  <div class="offline">FIRST ALERT DATA FEED OFFLINE &mdash; start wx_feed.py</div>
+  <div id="footer"></div>
+
+<script src="wx.js"></script>
+<script>
+mountHeader();
+mountFooter('');
+
+boot((d) => {
+  const days = (d.days || []).slice(0, 7);
+  document.getElementById('stage').innerHTML = days.map((x, i) => {
+    // first "day" can be tonight-only (no daytime high yet)
+    const nightOnly = (x.hi === null || x.hi === undefined);
+    const bigT = nightOnly ? x.lo : x.hi;
+    const sky = (x.short || '').split(' THEN ')[0].slice(0, 40);
+    return `
+    <div class="day panel ${i === 0 ? 'today' : 'panel-accent'} rise" style="animation-delay:${i * 45}ms">
+      <div class="dow">${nightOnly ? 'TONIGHT' : x.dow}</div>
+      <div class="dt">${x.short_date || ''}</div>
+      <div class="ic">${icon(x.icon, 96)}</div>
+      <div class="hi ${tempClass(bigT)} tabnum">${num(bigT)}&deg;</div>
+      ${nightOnly
+        ? '<div class="lowlabel">OVERNIGHT LOW</div>'
+        : `<div class="lo tabnum">${num(x.lo)}&deg;</div>`}
+      <div class="sky">${sky}</div>
+      <div class="pop ${(x.precip || 0) === 0 ? 'zero' : ''}">
+        ${icon('rain', 18).replace('<svg', '<svg style="opacity:.85"')}${x.precip || 0}%
+      </div>
+    </div>`; }).join('');
+
+  const fm = document.getElementById('footmsg');
+  if (fm) fm.textContent =
+    `${(d.primary || {}).name || ''} 7 DAY OUTLOOK \u00b7 ${d.date_label || ''}`;
+});
+</script>
+</body>
+</html>

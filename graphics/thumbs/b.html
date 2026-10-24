@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<title>Thumb B</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1280px;height:720px;overflow:hidden;
+    font-family:'Inter',Arial,sans-serif;color:#fff;
+    background:
+      radial-gradient(900px 600px at 12% 6%,#14418c 0%,transparent 60%),
+      radial-gradient(700px 520px at 92% 96%,#071634 0%,transparent 62%),
+      linear-gradient(160deg,#061127 0%,#030a1c 60%,#02060f 100%);}
+  .grid{position:absolute;inset:0;opacity:.16;
+    background-image:linear-gradient(rgba(53,200,255,.35) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(53,200,255,.35) 1px,transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(760px 520px at 30% 40%,#000 20%,transparent 78%)}
+  .bar{position:absolute;left:0;top:0;width:100%;height:12px;
+       background:linear-gradient(90deg,#e2001a 0%,#e2001a 34%,#35c8ff 34%,#35c8ff 100%)}
+  .head{position:absolute;left:56px;top:56px;display:flex;align-items:center;gap:18px}
+  .head .c{width:70px;height:70px;border-radius:14px;background:#e2001a;
+    display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';
+    font-size:50px;font-weight:800;box-shadow:0 12px 34px rgba(226,0,26,.5)}
+  .head h2{font-family:'Barlow Condensed';font-size:40px;font-weight:800;letter-spacing:2px;
+           text-transform:uppercase;line-height:1}
+  .head h2 em{font-style:normal;color:#ff2233}
+  .head p{font-size:16px;font-weight:900;letter-spacing:6px;color:#7f9ec9;margin-top:5px}
+
+  h1{position:absolute;left:56px;top:186px;width:660px;font-family:'Barlow Condensed';
+     font-weight:800;text-transform:uppercase;line-height:.84;
+     text-shadow:0 12px 44px rgba(0,0,0,.85)}
+  h1 .a{display:block;font-size:96px}
+  h1 .b{display:block;font-size:132px;color:#ffd23f;letter-spacing:-2px}
+  .sub{position:absolute;left:60px;top:520px;font-family:'Barlow Condensed';
+       font-size:40px;font-weight:700;letter-spacing:5px;color:#cfe2ff;
+       text-transform:uppercase}
+  .sub b{color:#7ff0a8}
+
+  .cards{position:absolute;right:52px;top:196px;display:flex;gap:16px}
+  .card{width:142px;border-radius:20px;padding:20px 12px 18px;text-align:center;
+    background:linear-gradient(180deg,rgba(20,65,140,.85),rgba(7,22,52,.9));
+    border:2px solid rgba(53,200,255,.35);box-shadow:0 18px 50px rgba(0,0,0,.6)}
+  .card.hot{background:linear-gradient(180deg,rgba(160,60,10,.9),rgba(60,16,8,.92));
+            border-color:rgba(255,180,60,.55)}
+  .card h3{font-family:'Barlow Condensed';font-size:34px;font-weight:800;letter-spacing:3px}
+  .card .ic{margin:12px 0 6px}
+  .card .hi{font-family:'Barlow Condensed';font-size:74px;font-weight:800;line-height:.9}
+  .card .lo{font-family:'Barlow Condensed';font-size:30px;font-weight:700;color:#9fc3ef}
+  .h1c{color:#ffd23f}.h2c{color:#ff9a3c}.h3c{color:#ff9a3c}
+
+  .stamp{position:absolute;right:56px;bottom:44px;font-size:18px;font-weight:900;
+         letter-spacing:5px;color:#6f8db8}
+  svg{display:block;margin:0 auto}
+</style></head>
+<body>
+<div class="grid"></div><div class="bar"></div>
+
+<div class="head">
+  <span class="c">C</span>
+  <div><h2>COLTRONS <em>FIRST ALERT</em> WEATHER</h2>
+       <p>WISCONSIN'S WEATHER AUTHORITY</p></div>
+</div>
+
+<h1><span class="a">THE HEAT IS</span><span class="b">COMING BACK</span></h1>
+<div class="sub">80s ALL WEEK &nbsp;&middot;&nbsp; <b>STORMS BY WEDNESDAY</b></div>
+
+<div class="cards">
+  <div class="card"><h3>MON</h3>
+    <div class="ic"><svg width="62" height="62" viewBox="0 0 64 64" fill="none">
+      <circle cx="27" cy="26" r="12" fill="#ffd23f"/>
+      <path d="M20 44h26a9 9 0 000-18 13 13 0 00-25 3 8 8 0 00-1 15z" fill="#e9f3ff"/></svg></div>
+    <div class="hi h1c">78&deg;</div><div class="lo">54&deg;</div></div>
+
+  <div class="card hot"><h3>TUE</h3>
+    <div class="ic"><svg width="62" height="62" viewBox="0 0 64 64" fill="none">
+      <circle cx="32" cy="32" r="14" fill="#ffd23f"/>
+      <g stroke="#ffd23f" stroke-width="4" stroke-linecap="round">
+      <path d="M32 6v8M32 50v8M6 32h8M50 32h8M14 14l6 6M44 44l6 6M50 14l-6 6M20 44l-6 6"/></g></svg></div>
+    <div class="hi h2c">83&deg;</div><div class="lo">63&deg;</div></div>
+
+  <div class="card hot"><h3>WED</h3>
+    <div class="ic"><svg width="62" height="62" viewBox="0 0 64 64" fill="none">
+      <path d="M18 40h28a10 10 0 000-20 14 14 0 00-27 3 9 9 0 00-1 17z" fill="#c8d8ee"/>
+      <path d="M34 40l-9 16h8l-4 10 14-18h-8l5-8z" fill="#ffd23f"/></svg></div>
+    <div class="hi h3c">81&deg;</div><div class="lo">59&deg;</div></div>
+</div>
+
+<div class="stamp">FIRST ALERT 7 DAY</div>
+</body></html>

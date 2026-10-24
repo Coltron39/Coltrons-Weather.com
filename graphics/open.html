@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<!-- SCENE: STATION ID / SHOW OPEN   1920x1080 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coltrons First Alert Weather - Station ID</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .center { position:absolute; inset:0; display:flex; flex-direction:column;
+            align-items:center; justify-content:center; text-align:center; }
+  .mark { width:190px; height:190px; border-radius:26px;
+          background:linear-gradient(155deg, var(--alert) 0%, #8b000f 100%);
+          display:flex; align-items:center; justify-content:center;
+          font-family:var(--cond); font-weight:700; font-size:120px; line-height:1;
+          box-shadow:0 26px 80px rgba(226,0,26,.45); }
+  .n1 { font-family:var(--cond); font-weight:700; font-size:130px; line-height:.92;
+        letter-spacing:1px; text-transform:uppercase; margin-top:48px; }
+  .n1 em { font-style:normal; color:var(--alert-2); }
+  .n2 { font-family:var(--sans); font-size:22px; font-weight:800; letter-spacing:12px;
+        color:var(--ink-dim); margin-top:22px; text-transform:uppercase; }
+  .rule { width:520px; height:4px; background:var(--cyan); margin:44px 0 40px;
+          box-shadow:0 0 22px rgba(53,200,255,.7); }
+  .now { display:flex; align-items:center; gap:26px; padding:22px 44px; border-radius:14px;
+         background:rgba(7,22,52,.7); border:1px solid var(--hairline); }
+  .now .t { font-family:var(--cond); font-weight:700; font-size:82px; line-height:.9; }
+  .now .m { text-align:left; }
+  .now .m .c1 { font-family:var(--cond); font-size:32px; line-height:1; text-transform:uppercase; }
+  .now .m .c2 { font-family:var(--sans); font-size:13px; font-weight:700; letter-spacing:2.6px;
+                color:var(--ink-dim); margin-top:7px; }
+  .clockline { margin-top:38px; font-family:var(--cond); font-size:44px; letter-spacing:1px; }
+  .clockline span { color:var(--ink-dim); font-size:20px; font-family:var(--sans);
+                    font-weight:700; letter-spacing:3.4px; display:block; margin-top:8px; }
+  .corner { position:absolute; bottom:52px; left:0; right:0; text-align:center;
+            font-family:var(--sans); font-size:14px; font-weight:700; letter-spacing:5px;
+            color:rgba(255,255,255,.35); }
+</style>
+</head>
+<body class="solid">
+  <div class="center">
+    <div class="mark rise">C</div>
+    <div class="n1 rise" style="animation-delay:.12s">Coltrons<br><em>First Alert</em> Weather</div>
+    <div class="n2 rise" style="animation-delay:.24s">Wisconsin's Weather Authority</div>
+    <div class="rule wipe" style="animation-delay:.3s"></div>
+    <div class="now rise" style="animation-delay:.36s">
+      <div id="ico"></div>
+      <div class="t tabnum" id="temp">--&deg;</div>
+      <div class="m">
+        <div class="c1" id="city">--</div>
+        <div class="c2" id="cond">--</div>
+      </div>
+    </div>
+    <div class="clockline"><span id="date"></span><div id="clock">--:--</div></div>
+  </div>
+  <div class="corner">WEATHER DATA: NOAA / NATIONAL WEATHER SERVICE &middot; API.WEATHER.GOV</div>
+
+<script src="wx.js"></script>
+<script>
+startClock();
+boot((d) => {
+  const p = d.primary || {};
+  document.getElementById('temp').innerHTML = `${num(p.temp)}&deg;`;
+  document.getElementById('temp').className = 't tabnum ' + tempClass(p.temp);
+  document.getElementById('city').textContent = p.name || '';
+  document.getElementById('cond').textContent = p.condition || '';
+  document.getElementById('ico').innerHTML = icon(p.icon || 'pcloudy', 92);
+});
+</script>
+</body>
+</html>

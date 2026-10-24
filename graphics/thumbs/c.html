@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<title>Thumb C</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1280px;height:720px;overflow:hidden;background:#08040a;
+            font-family:'Inter',Arial,sans-serif;color:#fff}
+  #map{position:absolute;inset:0;filter:saturate(1.35) contrast(1.1)}
+  .leaflet-container{background:#08040a}
+  .scrim{position:absolute;inset:0;background:
+    radial-gradient(780px 640px at 76% 52%,rgba(0,0,0,0) 26%,rgba(20,0,4,.45) 74%),
+    linear-gradient(90deg,rgba(60,0,8,.95) 0%,rgba(30,0,6,.86) 34%,rgba(20,2,8,.25) 62%,rgba(20,0,4,.6) 100%)}
+  .redline{position:absolute;left:0;top:0;width:100%;height:14px;background:#e2001a}
+  .banner{position:absolute;left:0;top:118px;background:#e2001a;padding:14px 44px 12px;
+    box-shadow:0 16px 44px rgba(226,0,26,.45);transform:skewX(-6deg);margin-left:-14px}
+  .banner span{display:block;transform:skewX(6deg);font-family:'Barlow Condensed';
+    font-size:46px;font-weight:800;letter-spacing:10px}
+  h1{position:absolute;left:56px;top:212px;font-family:'Barlow Condensed';
+     font-weight:800;text-transform:uppercase;line-height:.82;
+     text-shadow:0 0 3px rgba(0,0,0,.9),0 14px 46px rgba(0,0,0,.95)}
+  h1 .a{display:block;font-size:158px}
+  h1 .b{display:block;font-size:158px;color:#ffd23f}
+  .sub{position:absolute;left:60px;top:520px;font-family:'Barlow Condensed';
+       font-size:42px;font-weight:700;letter-spacing:4px;text-transform:uppercase;
+       color:#ffdede;text-shadow:0 4px 20px #000}
+  .badge{position:absolute;right:54px;top:48px;display:flex;align-items:center;gap:14px;
+    background:rgba(10,2,6,.72);border:3px solid rgba(255,60,60,.6);border-radius:18px;
+    padding:14px 22px;backdrop-filter:blur(3px)}
+  .badge .dot{width:16px;height:16px;border-radius:50%;background:#ff2233;
+    box-shadow:0 0 18px 5px rgba(255,34,51,.8)}
+  .badge b{font-family:'Barlow Condensed';font-size:34px;font-weight:800;letter-spacing:5px}
+  .logo{position:absolute;left:60px;bottom:40px;display:flex;align-items:center;gap:16px}
+  .logo .c{width:62px;height:62px;border-radius:12px;background:#fff;color:#e2001a;
+    display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';
+    font-size:46px;font-weight:800}
+  .logo div{font-family:'Barlow Condensed';font-size:30px;font-weight:800;letter-spacing:3px}
+  .logo div em{font-style:normal;color:#ffd23f}
+</style></head>
+<body>
+<div id="map"></div><div class="scrim"></div><div class="redline"></div>
+
+<div class="banner"><span>FIRST ALERT WEATHER DAY</span></div>
+<h1><span class="a">STORMS</span><span class="b">MOVING IN</span></h1>
+<div class="sub">TRACKING EVERY COUNTY IN WISCONSIN</div>
+
+<div class="badge"><span class="dot"></span><b>LIVE RADAR</b></div>
+
+<div class="logo"><span class="c">C</span>
+  <div>COLTRONS <em>FIRST ALERT</em> WEATHER</div></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map = L.map('map',{zoomControl:false,attributionControl:false,zoomSnap:.05,
+  dragging:false,scrollWheelZoom:false,keyboard:false});
+map.fitBounds([[42.4,-93.2],[47.2,-86.6]],{paddingTopLeft:[470,0],paddingBottomRight:[0,30]});
+L.tileLayer('https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:12,opacity:.8}).addTo(map);
+L.tileLayer('https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png',
+  {maxZoom:12,opacity:1}).addTo(map);
+fetch('../wi.geojson').then(r=>r.json()).then(gj=>{
+  L.geoJSON(gj,{style:{color:'#ffffff',weight:7,fill:false,opacity:1}}).addTo(map);
+});
+</script>
+</body></html>

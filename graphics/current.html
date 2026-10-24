@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!-- SCENE: WEATHER - CURRENT CONDITIONS   1920x1080 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>First Alert - Current Conditions</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .stage { position:absolute; top:296px; left:64px; right:64px; bottom:104px; display:flex; gap:34px; }
+
+  .big { flex:1.32; padding:44px 48px; display:flex; flex-direction:column; }
+  .big .city { font-family:var(--cond); font-size:60px; font-weight:600; line-height:1;
+               letter-spacing:1px; text-transform:uppercase; }
+  .big .sub  { margin-top:8px; }
+  .big .readout { display:flex; align-items:center; gap:36px; margin-top:auto; }
+  .big .temp { font-family:var(--cond); font-weight:700; font-size:250px; line-height:.82;
+               letter-spacing:-6px; }
+  .big .temp sup { font-size:96px; letter-spacing:0; vertical-align:top; line-height:1; }
+  .big .cond { font-family:var(--cond); font-size:52px; font-weight:500; line-height:1.02;
+               text-transform:uppercase; margin-top:26px; color:rgba(255,255,255,.94); }
+
+  .grid { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-auto-rows:1fr; gap:18px; }
+  .cell { padding:26px 28px; display:flex; flex-direction:column; justify-content:space-between; }
+  .cell .v { font-family:var(--cond); font-size:66px; font-weight:600; line-height:.9; }
+  .cell .v small { font-size:28px; font-weight:500; color:var(--ink-dim); margin-left:4px; }
+
+  .strip { position:absolute; left:64px; right:64px; bottom:104px; height:0; }
+  .offline { position:absolute; top:50%; left:0; right:0; text-align:center;
+             font-family:var(--cond); font-size:44px; color:var(--alert-2); }
+</style>
+</head>
+<body class="solid">
+  <div id="header"></div>
+
+  <div class="page-title">
+    <span class="kicker">Live</span>
+    <h1>Current Conditions</h1>
+  </div>
+
+  <div class="stage">
+    <div class="big panel panel-accent rise">
+      <div class="city" id="city">--</div>
+      <div class="label sub" id="station">OBSERVED AT --</div>
+      <div class="readout">
+        <div id="ico"></div>
+        <div>
+          <div class="temp" id="temp">--<sup>&deg;</sup></div>
+        </div>
+      </div>
+      <div class="cond" id="cond">--</div>
+    </div>
+
+    <div class="grid">
+      <div class="cell panel"><div class="label">Feels Like</div><div class="v" id="feels">--&deg;</div></div>
+      <div class="cell panel"><div class="label">Humidity</div><div class="v" id="hum">--<small>%</small></div></div>
+      <div class="cell panel"><div class="label">Wind</div><div class="v" id="wind">--</div></div>
+      <div class="cell panel"><div class="label">Dew Point</div><div class="v" id="dew">--&deg;</div></div>
+      <div class="cell panel"><div class="label">Pressure</div><div class="v" id="pres">--<small>in</small></div></div>
+      <div class="cell panel"><div class="label">Visibility</div><div class="v" id="vis">--<small>mi</small></div></div>
+    </div>
+  </div>
+
+  <div class="offline">FIRST ALERT DATA FEED OFFLINE &mdash; start wx_feed.py</div>
+  <div id="footer"></div>
+
+<script src="wx.js"></script>
+<script>
+mountHeader();
+mountFooter('');
+
+boot((d) => {
+  const p = d.primary || {};
+  document.getElementById('city').textContent = p.name || '--';
+  // NWS station names can be very long - keep it to one clean line
+  const st = (p.station_name || '--').toUpperCase().split(',')[0].slice(0, 42);
+  document.getElementById('station').textContent = 'OBSERVED AT ' + st;
+
+  const t = document.getElementById('temp');
+  t.innerHTML = `${num(p.temp)}<sup>&deg;</sup>`;
+  t.className = 'temp tabnum ' + tempClass(p.temp);
+
+  document.getElementById('cond').textContent = p.condition || '--';
+  document.getElementById('ico').innerHTML = icon(p.icon || 'pcloudy', 210);
+
+  document.getElementById('feels').innerHTML =
+    `${num(p.feels_like ?? p.temp)}<span>&deg;</span>`;
+  document.getElementById('hum').innerHTML  = `${num(p.humidity)}<small>%</small>`;
+  document.getElementById('wind').innerHTML = (p.wind === 0 || p.wind === null)
+    ? 'CALM'
+    : `${p.wind_dir || ''} ${p.wind}<small>mph</small>`;
+  document.getElementById('dew').innerHTML  = `${num(p.dewpoint)}<span>&deg;</span>`;
+  document.getElementById('pres').innerHTML = `${num(p.pressure)}<small>in</small>`;
+  document.getElementById('vis').innerHTML  = `${num(p.visibility)}<small>mi</small>`;
+
+  // rotating headline in the bottom bar: next few forecast periods
+  const msgs = (d.periods || []).slice(0, 4)
+    .map(x => `${x.name}: ${x.short}, ${x.temp}\u00b0`);
+  const fm = document.getElementById('footmsg');
+  if (fm && !fm.dataset.on) { fm.dataset.on = 1; rotate(fm, msgs, 6500); }
+});
+</script>
+</body>
+</html>

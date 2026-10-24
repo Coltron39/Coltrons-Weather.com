@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>QA sheet</title>
+<style>
+  html,body{margin:0;background:#000;width:1940px}
+  .w{position:relative;width:960px;height:540px;overflow:hidden;float:left;
+     outline:1px solid #333}
+  .w iframe{width:1920px;height:1080px;border:0;transform:scale(.5);transform-origin:top left}
+  .t{position:absolute;z-index:9;left:0;top:0;background:#0f0;color:#000;font:11px monospace;padding:2px 6px}
+</style></head>
+<body>
+<script>
+['open.html','current.html','radar.html','hourly.html','sevenday.html','statewide.html',
+ 'alert.html','lowerthird.html','bug.html'].forEach(f=>{
+  document.write(`<div class="w"><span class="t">${f}</span><iframe src="${f}" scrolling="no"></iframe></div>`);
+});
+</script>
+</body></html>

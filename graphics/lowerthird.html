@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!-- OVERLAY: LOWER THIRD (transparent background)   1920x1080 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>First Alert - Lower Third</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .lt { position:absolute; left:70px; bottom:118px; display:flex; align-items:stretch;
+        box-shadow:0 22px 60px rgba(0,0,0,.55); }
+  .lt .cap { width:150px; flex:none; background:linear-gradient(160deg, var(--alert) 0%, #93000f 100%);
+             display:flex; flex-direction:column; align-items:center; justify-content:center;
+             gap:2px; padding:0 10px; }
+  .lt .cap .c1 { font-family:var(--cond); font-weight:700; font-size:38px; line-height:.9; }
+  .lt .cap .c2 { font-family:var(--sans); font-size:10px; font-weight:800; letter-spacing:2.6px;
+                 color:rgba(255,255,255,.85); }
+  .lt .now { flex:none; padding:20px 30px; display:flex; align-items:center; gap:20px;
+             background:linear-gradient(120deg, rgba(20,65,140,.97), rgba(7,22,52,.97)); }
+  .lt .now .t { font-family:var(--cond); font-weight:700; font-size:88px; line-height:.86; }
+  .lt .now .meta .city { font-family:var(--cond); font-size:34px; line-height:1;
+                         text-transform:uppercase; letter-spacing:.6px; }
+  .lt .now .meta .cond { font-family:var(--sans); font-size:14px; font-weight:700;
+                         letter-spacing:2.6px; color:var(--ink-dim); margin-top:7px; }
+  .lt .fcast { width:800px; padding:22px 30px; background:rgba(3,10,28,.95);
+               border-left:2px solid rgba(255,255,255,.12); display:flex; flex-direction:column;
+               justify-content:center; }
+  .lt .fcast .l { font-family:var(--sans); font-size:12px; font-weight:800; letter-spacing:3.4px;
+                  color:var(--cyan); }
+  .lt .fcast .v { font-family:var(--cond); font-size:40px; line-height:1.06; margin-top:8px;
+                  text-transform:uppercase; transition:opacity .26s; }
+
+  .bar { position:absolute; left:0; right:0; bottom:70px; height:48px; display:flex;
+         align-items:center; background:rgba(3,10,28,.94); }
+  .bar .tag { flex:none; padding:0 22px; height:100%; display:flex; align-items:center;
+              background:var(--cyan-dim); font-family:var(--sans); font-size:13px; font-weight:800;
+              letter-spacing:3px; }
+  .bar .track { flex:1; overflow:hidden; height:100%; position:relative; }
+  .bar .move { position:absolute; white-space:nowrap; top:50%; transform:translateY(-50%);
+               font-family:var(--cond); font-size:30px; letter-spacing:.5px; padding-left:100%;
+               animation:scroll 52s linear infinite; }
+  @keyframes scroll { from { transform:translate(0,-50%); } to { transform:translate(-100%,-50%); } }
+</style>
+</head>
+<body>
+  <div class="lt wipe">
+    <div class="cap"><div class="c1">FIRST</div><div class="c1">ALERT</div><div class="c2">WEATHER</div></div>
+    <div class="now">
+      <div id="ico"></div>
+      <div class="t tabnum" id="temp">--&deg;</div>
+      <div class="meta">
+        <div class="city" id="city">--</div>
+        <div class="cond" id="cond">--</div>
+      </div>
+    </div>
+    <div class="fcast">
+      <div class="l" id="flabel">FORECAST</div>
+      <div class="v" id="fvalue">--</div>
+    </div>
+  </div>
+
+  <div class="bar">
+    <div class="tag" id="tag">WISCONSIN TEMPS</div>
+    <div class="track"><div class="move" id="crawl"></div></div>
+  </div>
+
+<script src="wx.js"></script>
+<script>
+let idx = 0, periods = [];
+
+boot((d) => {
+  const p = d.primary || {};
+  document.getElementById('temp').innerHTML = `${num(p.temp)}&deg;`;
+  document.getElementById('temp').className = 't tabnum ' + tempClass(p.temp);
+  document.getElementById('city').textContent = p.name || '--';
+  document.getElementById('cond').textContent = p.condition || '--';
+  document.getElementById('ico').innerHTML = icon(p.icon || 'pcloudy', 78);
+
+  periods = (d.periods || []).slice(0, 4);
+
+  const alerts = d.alerts || [];
+  document.getElementById('tag').textContent = alerts.length
+    ? `${alerts.length} ACTIVE ALERT${alerts.length > 1 ? 'S' : ''}`
+    : 'WISCONSIN TEMPS';
+  document.getElementById('tag').style.background = alerts.length ? 'var(--alert)' : '';
+
+  const parts = alerts.length
+    ? alerts.map(a => `${a.event}: ${a.areas}`)
+    : (d.cities || []).map(c => `${c.name} ${c.temp}\u00b0`);
+  document.getElementById('crawl').textContent =
+    parts.join('   \u2022   ') + `   \u2022   UPDATED ${d.updated_label}   \u2022   `;
+});
+
+// rotate through the next forecast periods in the right-hand block
+setInterval(() => {
+  if (!periods.length) return;
+  idx = (idx + 1) % periods.length;
+  const p = periods[idx];
+  const lab = document.getElementById('flabel'), val = document.getElementById('fvalue');
+  val.style.opacity = 0;
+  setTimeout(() => {
+    lab.textContent = p.name;
+    val.textContent = `${p.short}, ${p.temp}\u00b0`;
+    val.style.opacity = 1;
+  }, 260);
+}, 6000);
+
+setTimeout(() => {
+  if (periods.length) {
+    document.getElementById('flabel').textContent = periods[0].name;
+    document.getElementById('fvalue').textContent = `${periods[0].short}, ${periods[0].temp}\u00b0`;
+  }
+}, 900);
+</script>
+</body>
+</html>

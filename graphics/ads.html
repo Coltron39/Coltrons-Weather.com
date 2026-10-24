@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AD REEL - Coltrons First Alert Weather</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* Self-contained on purpose: each spot sets its own colors, so this page
+     does NOT inherit the weather-blue palette from style.css. */
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:#000;
+    font-family:'Inter',Arial,sans-serif;color:#fff}
+  body{position:relative}
+
+  .spot{position:absolute;inset:0;opacity:0;transition:opacity .5s ease;
+        display:flex;align-items:center;justify-content:center}
+  .spot.on{opacity:1}
+
+  .inner{width:1560px;display:flex;align-items:center;gap:72px}
+  .inner.center{flex-direction:column;text-align:center;gap:26px}
+
+  .mark{width:280px;height:280px;border-radius:40px;flex:0 0 280px;
+        display:flex;align-items:center;justify-content:center;
+        font-family:'Barlow Condensed';font-size:150px;font-weight:800;line-height:1;
+        box-shadow:0 30px 90px rgba(0,0,0,.45)}
+
+  .copy{flex:1;min-width:0}
+  .cat{font-size:22px;font-weight:900;letter-spacing:10px;opacity:.75;margin-bottom:16px}
+  h1{font-family:'Barlow Condensed';font-weight:800;font-size:120px;line-height:.88;
+     text-transform:uppercase;letter-spacing:-1px}
+  .tag{font-family:'Barlow Condensed';font-size:56px;font-weight:600;line-height:1.05;
+       margin-top:20px;opacity:.95}
+  .offer{display:inline-block;margin-top:28px;padding:16px 30px 14px;border-radius:14px;
+         font-family:'Barlow Condensed';font-size:44px;font-weight:800;letter-spacing:2px}
+  .meta{margin-top:30px;display:flex;gap:40px;flex-wrap:wrap;
+        font-size:26px;font-weight:800;letter-spacing:3px;opacity:.9}
+
+  /* paid-advertisement disclosure + station bug */
+  .paid{position:absolute;left:0;top:0;padding:14px 34px 12px;border-bottom-right-radius:16px;
+        background:rgba(0,0,0,.55);font-size:19px;font-weight:900;letter-spacing:8px;
+        color:rgba(255,255,255,.9)}
+  .bug{position:absolute;right:44px;top:36px;display:flex;align-items:center;gap:12px;
+       padding:12px 20px;border-radius:14px;background:rgba(0,0,0,.5)}
+  .bug .c{width:42px;height:42px;border-radius:9px;background:#e2001a;color:#fff;
+     display:flex;align-items:center;justify-content:center;
+     font-family:'Barlow Condensed';font-size:32px;font-weight:800}
+  .bug span{font-family:'Barlow Condensed';font-size:22px;font-weight:700;letter-spacing:3px;
+            color:rgba(255,255,255,.9)}
+
+  /* break timer + spot dots */
+  .dots{position:absolute;left:0;right:0;bottom:34px;display:flex;justify-content:center;gap:10px}
+  .dots i{width:46px;height:7px;border-radius:4px;background:rgba(255,255,255,.28)}
+  .dots i.on{background:#fff}
+  .timer{position:absolute;right:44px;bottom:30px;font-family:'Barlow Condensed';
+         font-size:30px;font-weight:700;letter-spacing:4px;color:rgba(255,255,255,.7);
+         font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+  <div id="reel"></div>
+  <div class="paid">PAID ADVERTISEMENT</div>
+  <div class="bug"><span class="c">C</span><span>COLTRONS FIRST ALERT</span></div>
+  <div class="dots" id="dots"></div>
+  <div class="timer" id="timer"></div>
+
+<script>
+/* =====================================================================
+   YOUR COMMERCIALS - edit, add, or delete freely.
+   seconds  = how long the spot stays up
+   bg / ink / accent = the spot's own color scheme
+   ===================================================================== */
+const SPOTS = [
+  {
+    seconds: 15, cat: "HARDWARE - DOWNTOWN WISCONSIN RAPIDS",
+    name: "RAPIDS<br>HARDWARE",
+    tag: "Everything for the job, from the folks who live here.",
+    offer: "20% OFF ALL POWER TOOLS",
+    meta: ["OPEN 7 DAYS - 7A TO 8P", "2ND STREET SOUTH", "(715) 555-0142"],
+    initials: "RH",
+    bg: "linear-gradient(135deg,#f6a01a 0%,#c9600a 55%,#8a3b04 100%)",
+    ink: "#1b0c00", accent: "#fff5df", markbg: "#1b0c00", markink: "#f6a01a"
+  },
+  {
+    seconds: 15, cat: "FAMILY DINING SINCE 1978",
+    name: "RIVER CITY<br>DINER",
+    tag: "Breakfast all day. Pie that's worth the drive.",
+    offer: "2 EGGS, TOAST & COFFEE - $6",
+    meta: ["OPEN 6A DAILY", "RIVERSIDE DRIVE", "(715) 555-0198"],
+    initials: "RC",
+    bg: "linear-gradient(135deg,#0f7a5a 0%,#0a5140 55%,#04261f 100%)",
+    ink: "#eafff6", accent: "#ffd23f", markbg: "#eafff6", markink: "#0a5140"
+  },
+  {
+    seconds: 15, cat: "SERVICE - TIRES - COLLISION",
+    name: "NORTHWOODS<br>AUTO",
+    tag: "Winter's coming. Get in before the first snow.",
+    offer: "FREE BATTERY & TIRE CHECK",
+    meta: ["MON-SAT 7A TO 6P", "HIGHWAY 13 NORTH", "(715) 555-0177"],
+    initials: "NA",
+    bg: "linear-gradient(135deg,#1f4f96 0%,#12325f 55%,#08172e 100%)",
+    ink: "#eaf3ff", accent: "#35c8ff", markbg: "#eaf3ff", markink: "#12325f"
+  },
+  {
+    seconds: 12, cat: "PROUD SPONSOR", center: true,
+    name: "WOOD COUNTY DAIRY",
+    tag: "Wisconsin milk, cheese and butter - straight from our farms.",
+    offer: "FIND US AT YOUR LOCAL GROCER",
+    meta: [],
+    initials: "WC",
+    bg: "linear-gradient(135deg,#e9eef6 0%,#c8d6e8 60%,#9fb3cc 100%)",
+    ink: "#0a1b33", accent: "#e2001a", markbg: "#0a1b33", markink: "#e9eef6"
+  },
+  {
+    seconds: 10, cat: "COLTRONS FIRST ALERT WEATHER", center: true,
+    name: "WANT YOUR<br>BUSINESS HERE?",
+    tag: "Local spots available in every weathercast.",
+    offer: "SPONSOR THE FORECAST",
+    meta: ["COLTRONS FIRST ALERT WEATHER"],
+    initials: "C",
+    bg: "linear-gradient(135deg,#14418c 0%,#071634 60%,#02060f 100%)",
+    ink: "#eaf3ff", accent: "#ffd23f", markbg: "#e2001a", markink: "#fff"
+  }
+];
+/* ===================================================================== */
+
+const reel = document.getElementById('reel');
+
+reel.innerHTML = SPOTS.map((s, i) => `
+  <div class="spot" data-i="${i}" style="background:${s.bg};color:${s.ink}">
+    <div class="inner ${s.center ? 'center' : ''}">
+      <div class="mark" style="background:${s.markbg};color:${s.markink}">${s.initials}</div>
+      <div class="copy">
+        <div class="cat">${s.cat}</div>
+        <h1>${s.name}</h1>
+        <div class="tag">${s.tag}</div>
+        ${s.offer ? `<div class="offer" style="background:${s.accent};color:${s.ink}">${s.offer}</div>` : ''}
+        ${s.meta && s.meta.length ? `<div class="meta">${s.meta.map(m => `<span>${m}</span>`).join('')}</div>` : ''}
+      </div>
+    </div>
+  </div>`).join('');
+
+document.getElementById('dots').innerHTML = SPOTS.map(() => '<i></i>').join('');
+const dots = [...document.querySelectorAll('#dots i')];
+const spots = [...document.querySelectorAll('.spot')];
+const timerEl = document.getElementById('timer');
+
+const TOTAL = SPOTS.reduce((a, s) => a + s.seconds, 0);
+let left = TOTAL;
+setInterval(() => {
+  left = left > 0 ? left - 1 : 0;
+  const m = Math.floor(left / 60), s = left % 60;
+  timerEl.textContent = `BREAK ${m}:${String(s).padStart(2, '0')}`;
+}, 1000);
+
+let i = 0;
+function show() {
+  spots.forEach((el, n) => el.classList.toggle('on', n === i));
+  dots.forEach((el, n) => el.classList.toggle('on', n === i));
+  const ms = SPOTS[i].seconds * 1000;
+  i = (i + 1) % SPOTS.length;
+  setTimeout(show, ms);
+}
+show();
+</script>
+</body>
+</html>

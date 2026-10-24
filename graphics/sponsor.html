@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SPONSOR OVERLAY - Coltrons First Alert Weather</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* Transparent overlay. Sits over any scene - camera, radar, forecast.
+     Slides in, holds, slides out, waits, repeats. */
+  .sbox { position:absolute; right:56px; bottom:150px; display:flex; align-items:stretch;
+          border-radius:18px; overflow:hidden;
+          box-shadow:0 26px 70px rgba(0,0,0,.6);
+          transform:translateX(140%); transition:transform .7s cubic-bezier(.16,.9,.2,1); }
+  .sbox.in { transform:translateX(0); }
+
+  .sbox .lab { display:flex; align-items:center; padding:0 22px;
+               background:linear-gradient(180deg, var(--navy-3), var(--navy-2));
+               border-right:1px solid rgba(53,200,255,.28); }
+  .sbox .lab span { font-size:15px; font-weight:900; letter-spacing:5px; color:var(--cyan);
+                    line-height:1.35; max-width:150px; }
+
+  .sbox .who { display:flex; align-items:center; gap:20px; padding:22px 34px 20px;
+               background:rgba(3,10,28,.92); }
+  .sbox .mark { width:66px; height:66px; border-radius:14px; background:#fff;
+                display:flex; align-items:center; justify-content:center;
+                font-family:var(--cond); font-size:40px; font-weight:800; color:#0a1b33; }
+  .sbox .name { font-family:var(--cond); font-size:52px; font-weight:800; line-height:.94;
+                text-transform:uppercase; letter-spacing:1px; }
+  .sbox .line { font-size:19px; font-weight:800; letter-spacing:3px; color:#9fc3ef;
+                margin-top:6px; }
+</style>
+</head>
+<body>
+  <div class="sbox" id="sbox">
+    <div class="lab"><span>WEATHER<br>SPONSORED BY</span></div>
+    <div class="who">
+      <div class="mark" id="mark">RH</div>
+      <div>
+        <div class="name" id="name">RAPIDS HARDWARE</div>
+        <div class="line" id="line">2ND STREET SOUTH - WISCONSIN RAPIDS</div>
+      </div>
+    </div>
+  </div>
+
+<script src="wx.js"></script>
+<script>
+/* =====================================================================
+   EDIT THESE - rotates through them all show long
+   ===================================================================== */
+const SPONSORS = [
+  { initials:"RH", name:"RAPIDS HARDWARE",  line:"2ND STREET SOUTH - WISCONSIN RAPIDS" },
+  { initials:"RC", name:"RIVER CITY DINER", line:"BREAKFAST ALL DAY - RIVERSIDE DRIVE" },
+  { initials:"NA", name:"NORTHWOODS AUTO",  line:"SERVICE - TIRES - HIGHWAY 13 NORTH" },
+  { initials:"WC", name:"WOOD COUNTY DAIRY",line:"WISCONSIN MILK, CHEESE AND BUTTER" }
+];
+const HOLD_SECONDS = 12;   // how long each sponsor stays on screen
+const GAP_SECONDS  = 25;   // dead air between sponsors
+/* ===================================================================== */
+
+const box = document.getElementById('sbox');
+let i = 0;
+
+function cycle() {
+  const s = SPONSORS[i % SPONSORS.length];
+  document.getElementById('mark').textContent = s.initials;
+  document.getElementById('name').textContent = s.name;
+  document.getElementById('line').textContent = s.line;
+  i++;
+
+  box.classList.add('in');
+  setTimeout(() => {
+    box.classList.remove('in');
+    setTimeout(cycle, GAP_SECONDS * 1000);
+  }, HOLD_SECONDS * 1000);
+}
+setTimeout(cycle, 1500);
+</script>
+</body>
+</html>
