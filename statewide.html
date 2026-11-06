@@ -255,696 +255,219 @@
 <script src="wx.js"></script>
 
 <script>
-/* ============================================================
-   COLTRONS FIRST ALERT WEATHER
-   STATEWIDE NWS OBSERVATIONS
-
-   Uses the National Weather Service API directly.
-   No wx_feed.py.
-   No local server.
-   ============================================================ */
-
+/* Live statewide observations from the National Weather Service. */
 mountHeader();
 mountFooter('');
 
-
-/* ============================================================
-   WISCONSIN CITY LOCATIONS
-   ============================================================ */
-
 const CITY_POINTS = [
-  ["SUPERIOR",          46.7208, -92.1041],
-  ["ASHLAND",           46.5927, -90.8838],
-  ["EAU CLAIRE",        44.8113, -91.4985],
-  ["LA CROSSE",         43.8014, -91.2396],
-  ["WAUSAU",            44.9591, -89.6301],
-  ["RHINELANDER",       45.6366, -89.4121],
-  ["GREEN BAY",         44.5133, -88.0133],
-  ["APPLETON",          44.2619, -88.4154],
-  ["SHEBOYGAN",         43.7508, -87.7145],
-  ["MILWAUKEE",         43.0389, -87.9065],
-  ["KENOSHA",           42.5847, -87.8212],
-  ["MADISON",           43.0731, -89.4012],
-  ["WISCONSIN RAPIDS",  44.3836, -89.8173]
+  ['SUPERIOR', 46.7208, -92.1041],
+  ['ASHLAND', 46.5924, -90.8834],
+  ['RHINELANDER', 45.6366, -89.4121],
+  ['WAUSAU', 44.9591, -89.6301],
+  ['EAU CLAIRE', 44.8113, -91.4985],
+  ['STEVENS POINT', 44.5236, -89.5746],
+  ['WISCONSIN RAPIDS', 44.3836, -89.8173],
+  ['GREEN BAY', 44.5133, -88.0133],
+  ['APPLETON', 44.2619, -88.4154],
+  ['LA CROSSE', 43.8014, -91.2396],
+  ['FOND DU LAC', 43.7730, -88.4470],
+  ['SHEBOYGAN', 43.7508, -87.7145],
+  ['MADISON', 43.0731, -89.4012],
+  ['MILWAUKEE', 43.0389, -87.9065],
+  ['JANESVILLE', 42.6828, -89.0187],
+  ['KENOSHA', 42.5847, -87.8212]
 ];
-
-
-/* ============================================================
-   MAP SETTINGS
-   ============================================================ */
 
 const MAP_H = 646;
 const SCALE = MAP_H / WI_VIEW.h;
 const MAP_W = WI_VIEW.w * SCALE;
+const STATION_CACHE = new Map();
+let refreshing = false;
+let lastCities = [];
 
-
-/* ============================================================
-   MAP LABEL POSITIONS
-   ============================================================ */
-
+/* Offsets keep the labels for nearby cities from sitting on top of each other. */
 const MAP_LABELS = {
-
-  'SUPERIOR':
-    ['r', 0, -4],
-
-  'ASHLAND':
-    ['r', 0, 6],
-
-  'RHINELANDER':
-    ['r', 0, 0],
-
-  'GREEN BAY':
-    ['r', 0, -6],
-
-  'SHEBOYGAN':
-    ['r', 0, 0],
-
-  'MILWAUKEE':
-    ['r', 0, -4],
-
-  'KENOSHA':
-    ['r', 0, -10],
-
-  'EAU CLAIRE':
-    ['l', 0, 0],
-
-  'LA CROSSE':
-    ['l', 0, 0],
-
-  'WAUSAU':
-    ['l', 0, -8],
-
-  'WISCONSIN RAPIDS':
-    ['l', 0, 10],
-
-  'APPLETON':
-    ['l', 0, 14],
-
-  'MADISON':
-    ['l', 0, 0]
+  'SUPERIOR': ['r', 0, -4], 'ASHLAND': ['r', 0, 6],
+  'RHINELANDER': ['r', 0, 0], 'GREEN BAY': ['r', 0, -6],
+  'SHEBOYGAN': ['r', 0, 0], 'MILWAUKEE': ['r', 0, -4],
+  'KENOSHA': ['r', 0, -10], 'EAU CLAIRE': ['l', 0, 0],
+  'LA CROSSE': ['l', 0, 0], 'WAUSAU': ['l', 0, -8],
+  'WISCONSIN RAPIDS': ['l', 0, 10], 'STEVENS POINT': ['l', 0, -21],
+  'APPLETON': ['l', 0, 14], 'FOND DU LAC': ['l', 0, -8],
+  'MADISON': ['l', 0, 0], 'JANESVILLE': ['l', 0, 17]
 };
 
-
-/* ============================================================
-   NWS API
-   ============================================================ */
-
 async function nws(url) {
-
   const response = await fetch(url, {
-    headers: {
-      "Accept":
-        "application/geo+json, application/ld+json, application/json"
-    },
-    cache: "no-store"
+    headers: { Accept: 'application/geo+json, application/ld+json, application/json' },
+    cache: 'no-store'
   });
-
-  if (!response.ok) {
-    throw new Error("NWS " + response.status);
-  }
-
+  if (!response.ok) throw new Error(`NWS ${response.status}`);
   return response.json();
 }
 
-
-/* ============================================================
-   CELSIUS TO FAHRENHEIT
-   ============================================================ */
-
-function cToF(c) {
-
-  if (c === null || c === undefined) {
-    return null;
-  }
-
-  return Math.round((c * 9 / 5) + 32);
+function cToF(celsius) {
+  return celsius === null || celsius === undefined ? null : Math.round(celsius * 9 / 5 + 32);
 }
-
-
-/* ============================================================
-   TEMPERATURE DISPLAY
-   ============================================================ */
 
 function displayTemp(value) {
-
-  if (value === null || value === undefined || isNaN(value)) {
-    return "--";
-  }
-
-  return Math.round(value);
+  return value === null || value === undefined || !Number.isFinite(Number(value)) ? '--' : Math.round(Number(value));
 }
-
 
 function tempClass(value) {
-
-  if (value === null || value === undefined || isNaN(value)) {
-    return "";
-  }
-
-  if (value >= 85) return "hot";
-  if (value >= 70) return "warm";
-  if (value <= 20) return "cold";
-  if (value <= 35) return "cool";
-
-  return "";
+  if (value === null || value === undefined || !Number.isFinite(Number(value))) return '';
+  if (value >= 85) return 'hot';
+  if (value >= 70) return 'warm';
+  if (value <= 20) return 'cold';
+  if (value <= 35) return 'cool';
+  return '';
 }
-
-
-/* ============================================================
-   SIMPLE WEATHER ICON
-   ============================================================ */
 
 function weatherIcon(text) {
-
-  const s = String(text || "").toLowerCase();
-
-  if (
-    s.includes("thunder") ||
-    s.includes("storm")
-  ) {
-    return `
-      <span style="
-        font-size:24px;
-        width:26px;
-        display:inline-block;
-        text-align:center;
-      ">⛈</span>`;
-  }
-
-  if (
-    s.includes("snow") ||
-    s.includes("sleet") ||
-    s.includes("flurr")
-  ) {
-    return `
-      <span style="
-        font-size:23px;
-        width:26px;
-        display:inline-block;
-        text-align:center;
-      ">❄</span>`;
-  }
-
-  if (
-    s.includes("rain") ||
-    s.includes("shower")
-  ) {
-    return `
-      <span style="
-        font-size:23px;
-        width:26px;
-        display:inline-block;
-        text-align:center;
-      ">🌧</span>`;
-  }
-
-  if (
-    s.includes("cloud") ||
-    s.includes("overcast")
-  ) {
-    return `
-      <span style="
-        font-size:23px;
-        width:26px;
-        display:inline-block;
-        text-align:center;
-      ">☁</span>`;
-  }
-
-  return `
-    <span style="
-      font-size:23px;
-      width:26px;
-      display:inline-block;
-      text-align:center;
-    ">☀</span>`;
+  const s = String(text || '').toLowerCase();
+  if (s.includes('thunder') || s.includes('storm')) return '⛈️';
+  if (s.includes('snow') || s.includes('sleet') || s.includes('flurr')) return '❄️';
+  if (s.includes('rain') || s.includes('shower')) return '🌧️';
+  if (s.includes('cloud') || s.includes('overcast') || s.includes('fog')) return '☁️';
+  return '☀️';
 }
 
-
-/* ============================================================
-   GET CURRENT OBSERVATION FOR A CITY
-   ============================================================ */
+/* Cache each city's station list; only the latest observation is refreshed each minute. */
+async function getStationIds(lat, lon) {
+  const key = `${lat},${lon}`;
+  if (!STATION_CACHE.has(key)) {
+    const request = (async () => {
+      const point = await nws(`https://api.weather.gov/points/${lat},${lon}`);
+      const stationsUrl = point.properties && point.properties.observationStations;
+      if (!stationsUrl) throw new Error('No observation station URL');
+      const stations = await nws(stationsUrl);
+      const ids = (stations.features || [])
+        .map(feature => feature.properties && feature.properties.stationIdentifier)
+        .filter(Boolean);
+      if (!ids.length) throw new Error('No NWS stations found');
+      return ids;
+    })();
+    STATION_CACHE.set(key, request);
+    request.catch(() => STATION_CACHE.delete(key));
+  }
+  return STATION_CACHE.get(key);
+}
 
 async function getCityWeather(name, lat, lon) {
-
+  const base = { name, lat, lon, temp: null, condition: '', icon: '' };
   try {
-
-    /*
-       STEP 1
-       Convert the latitude/longitude into the current NWS
-       forecast office/grid and observation station endpoint.
-    */
-
-    const point = await nws(
-      `https://api.weather.gov/points/${lat},${lon}`
-    );
-
-    const stationUrl =
-      point.properties &&
-      point.properties.observationStations;
-
-    if (!stationUrl) {
-      throw new Error("No observation station URL");
+    const stationIds = await getStationIds(lat, lon);
+    let lastError = null;
+    /* A station may report no temperature; try nearby stations before giving up. */
+    for (const stationId of stationIds.slice(0, 4)) {
+      try {
+        const observation = await nws(`https://api.weather.gov/stations/${stationId}/observations/latest`);
+        const p = observation.properties || {};
+        const celsius = p.temperature && p.temperature.value;
+        if (celsius === null || celsius === undefined || !Number.isFinite(Number(celsius))) continue;
+        return { ...base, temp: cToF(Number(celsius)), condition: p.textDescription || '', icon: p.textDescription || '' };
+      } catch (error) {
+        lastError = error;
+      }
     }
-
-
-    /*
-       STEP 2
-       Get the nearest NWS observation station.
-    */
-
-    const stations = await nws(stationUrl);
-
-    const station =
-      stations.features &&
-      stations.features[0];
-
-    const stationId =
-      station &&
-      station.properties &&
-      station.properties.stationIdentifier;
-
-    if (!stationId) {
-      throw new Error("No NWS station");
-    }
-
-
-    /*
-       STEP 3
-       Get the latest observation.
-    */
-
-    const observation = await nws(
-      `https://api.weather.gov/stations/${stationId}/observations/latest`
-    );
-
-    const p = observation.properties || {};
-
-    const temp = cToF(
-      p.temperature &&
-      p.temperature.value
-    );
-
-    return {
-      name: name,
-      lat: lat,
-      lon: lon,
-      temp: temp,
-      condition: p.textDescription || "",
-      icon: p.textDescription || ""
-    };
-
+    if (lastError) throw lastError;
+    throw new Error('No nearby station has a temperature reading');
   } catch (error) {
-
-    console.warn(
-      "Statewide NWS request failed for",
-      name,
-      error
-    );
-
-    /*
-       Keep the city on the page even if one station
-       temporarily fails.
-    */
-
-    return {
-      name: name,
-      lat: lat,
-      lon: lon,
-      temp: null,
-      condition: "",
-      icon: ""
-    };
+    console.warn('Statewide NWS request failed for', name, error);
+    return base;
   }
 }
-
-
-/* ============================================================
-   GET ALL WISCONSIN OBSERVATIONS
-   ============================================================ */
-
-async function getAllCities() {
-
-  const results = await Promise.all(
-    CITY_POINTS.map(city =>
-      getCityWeather(
-        city[0],
-        city[1],
-        city[2]
-      )
-    )
-  );
-
-  return results;
-}
-
-
-/* ============================================================
-   DRAW WISCONSIN MAP
-   ============================================================ */
 
 function drawMap(cities) {
-
-  const wrap =
-    document.getElementById("map");
-
-  const pad =
-    (wrap.clientWidth - MAP_W) / 2;
-
-  const pins =
-    cities
-      .filter(c =>
-        c.lat !== undefined &&
-        c.lon !== undefined &&
-        MAP_LABELS[c.name]
-      )
-      .map(c => {
-
-        const cfg =
-          MAP_LABELS[c.name];
-
-        const p =
-          wiXY(c.lat, c.lon);
-
-        const x =
-          pad + p[0] * SCALE;
-
-        const y =
-          p[1] * SCALE;
-
-        return {
-          c: c,
-          x: x,
-          y: y,
-          ly: y + cfg[2],
-          dx: cfg[1],
-          flip: cfg[0] === "l"
-        };
-      });
-
-
-  wrap.innerHTML =
-
-    '<svg width="' + MAP_W +
-    '" height="' + MAP_H +
-    '" viewBox="0 0 ' +
-    WI_VIEW.w + ' ' +
-    WI_VIEW.h +
-    '">' +
-
-      '<path class="wi-fill" d="' +
-      WI_PATH +
-      '"/>' +
-
-    '</svg>' +
-
-    pins.map(p => {
-
-      const temp =
-        displayTemp(p.c.temp);
-
-      const cls =
-        tempClass(p.c.temp);
-
-      return `
-
-        <div
-          class="dot"
-          style="
-            left:${p.x}px;
-            top:${p.y}px;
-          ">
-        </div>
-
-        <div
-          class="pin ${p.flip ? "left" : ""}"
-          style="
-            left:${p.x + p.dx + (p.flip ? -18 : 18)}px;
-            top:${p.ly}px;
-          ">
-
-          <span class="t tabnum ${cls}">
-            ${temp}&deg;
-          </span>
-
-          <span class="n">
-            ${p.c.name}
-          </span>
-
-        </div>
-
-      `;
-    }).join("");
-
+  const wrap = document.getElementById('map');
+  const pad = Math.max(0, (wrap.clientWidth - MAP_W) / 2);
+  const pins = cities.filter(c => MAP_LABELS[c.name]).map(c => {
+    const [side, dx, dy] = MAP_LABELS[c.name];
+    const point = wiXY(c.lat, c.lon);
+    return { c, x: pad + point[0] * SCALE, y: point[1] * SCALE + dy, dx, left: side === 'l' };
+  });
+  wrap.innerHTML = `<svg width="${MAP_W}" height="${MAP_H}" viewBox="0 0 ${WI_VIEW.w} ${WI_VIEW.h}" aria-hidden="true"><path class="wi-fill" d="${WI_PATH}"/></svg>` +
+    pins.map(p => `<span class="dot" style="left:${p.x}px;top:${p.y}px" aria-hidden="true"></span>
+      <span class="pin ${p.left ? 'left' : ''}" style="left:${p.x + p.dx + (p.left ? -18 : 18)}px;top:${p.y}px">
+        <span class="t tabnum ${tempClass(p.c.temp)}">${displayTemp(p.c.temp)}&deg;</span>
+        <span class="n">${p.c.name}</span>
+      </span>`).join('');
 }
-
-
-/* ============================================================
-   DRAW RIGHT-HAND CITY LIST
-   ============================================================ */
 
 function drawList(cities) {
-
-  const list =
-    document.getElementById("list");
-
-  const sorted =
-    cities
-      .slice()
-      .sort((a, b) => {
-
-        const at =
-          a.temp === null ? -999 : a.temp;
-
-        const bt =
-          b.temp === null ? -999 : b.temp;
-
-        return bt - at;
-      });
-
-
-  list.innerHTML =
-    sorted.map(c => {
-
-      const temp =
-        displayTemp(c.temp);
-
-      return `
-
-        <div class="row">
-
-          ${weatherIcon(c.icon)}
-
-          <span class="rn">
-            ${c.name}
-          </span>
-
-          <span class="
-            rt
-            tabnum
-            ${tempClass(c.temp)}
-          ">
-            ${temp}&deg;
-          </span>
-
-        </div>
-
-      `;
-
-    }).join("");
+  const list = document.getElementById('list');
+  const sorted = cities.slice().sort((a, b) => {
+    const at = a.temp === null ? -Infinity : Number(a.temp);
+    const bt = b.temp === null ? -Infinity : Number(b.temp);
+    return bt - at;
+  });
+  list.innerHTML = sorted.map(c => `<div class="row">
+    <span aria-hidden="true" style="font-size:21px;width:26px;text-align:center">${weatherIcon(c.icon || c.condition)}</span>
+    <span class="rn">${c.name}</span>
+    <span class="rt tabnum ${tempClass(c.temp)}">${displayTemp(c.temp)}&deg;</span>
+  </div>`).join('');
 }
-
-
-/* ============================================================
-   FIND WARMEST / COOLEST
-   ============================================================ */
 
 function drawExtremes(cities) {
-
-  const valid =
-    cities.filter(c =>
-      c.temp !== null &&
-      c.temp !== undefined &&
-      !isNaN(c.temp)
-    );
-
-
+  const valid = cities.filter(c => c.temp !== null && c.temp !== undefined && Number.isFinite(Number(c.temp)));
+  const highValue = document.getElementById('hiv');
+  const highCity = document.getElementById('hic');
+  const lowValue = document.getElementById('lov');
+  const lowCity = document.getElementById('loc');
   if (!valid.length) {
-
-    document.body.classList.add("nodata");
-
+    highValue.textContent = lowValue.textContent = '--°';
+    highCity.textContent = lowCity.textContent = '--';
     return;
   }
-
-
-  document.body.classList.remove("nodata");
-
-
-  const sorted =
-    valid
-      .slice()
-      .sort((a, b) =>
-        b.temp - a.temp
-      );
-
-
-  const warm =
-    sorted[0];
-
-  const cool =
-    sorted[sorted.length - 1];
-
-
-  const hi =
-    document.getElementById("hiv");
-
-  const hc =
-    document.getElementById("hic");
-
-  const lo =
-    document.getElementById("lov");
-
-  const lc =
-    document.getElementById("loc");
-
-
-  hi.textContent =
-    `${warm.temp}°`;
-
-  hi.className =
-    "v tabnum " +
-    tempClass(warm.temp);
-
-  hc.textContent =
-    warm.name;
-
-
-  lo.textContent =
-    `${cool.temp}°`;
-
-  lo.className =
-    "v tabnum " +
-    tempClass(cool.temp);
-
-  lc.textContent =
-    cool.name;
+  const warm = valid.reduce((a, b) => Number(a.temp) >= Number(b.temp) ? a : b);
+  const cool = valid.reduce((a, b) => Number(a.temp) <= Number(b.temp) ? a : b);
+  highValue.textContent = `${Math.round(Number(warm.temp))}°`;
+  highValue.className = `v tabnum ${tempClass(warm.temp)}`;
+  highCity.textContent = warm.name;
+  lowValue.textContent = `${Math.round(Number(cool.temp))}°`;
+  lowValue.className = `v tabnum ${tempClass(cool.temp)}`;
+  lowCity.textContent = cool.name;
 }
-
-
-/* ============================================================
-   MAIN REFRESH
-   ============================================================ */
 
 async function refreshStatewide() {
-
-  const loading =
-    document.getElementById("loading");
-
+  if (refreshing) return;
+  refreshing = true;
+  const loading = document.getElementById('loading');
   try {
-
-    loading.textContent =
-      "LOADING NWS OBSERVATIONS...";
-
-    const cities =
-      await getAllCities();
-
-
-    const valid =
-      cities.filter(c =>
-        c.temp !== null &&
-        c.temp !== undefined
-      );
-
-
-    /*
-       Draw everything even if one or two
-       NWS stations fail.
-    */
-
+    loading.textContent = 'LOADING NWS OBSERVATIONS...';
+    const cities = await Promise.all(CITY_POINTS.map(([name, lat, lon]) => getCityWeather(name, lat, lon)));
+    lastCities = cities;
+    const validCount = cities.filter(c => c.temp !== null).length;
     drawMap(cities);
-
     drawList(cities);
-
     drawExtremes(cities);
-
-
-    /*
-       At least one station successfully
-       returned data.
-    */
-
-    if (valid.length > 0) {
-
-      document.body.classList.add("ready");
-      document.body.classList.remove("nodata");
-
-      const fm =
-        document.getElementById("footmsg");
-
-      if (fm) {
-
-        fm.textContent =
-          `CURRENT TEMPERATURES ACROSS WISCONSIN · ${valid.length} REPORTING STATIONS`;
-      }
-
+    if (validCount > 0) {
+      document.body.classList.add('ready');
+      document.body.classList.remove('nodata');
+      const footer = document.getElementById('footmsg');
+      if (footer) footer.textContent = `CURRENT TEMPERATURES ACROSS WISCONSIN · ${validCount} OF ${cities.length} REPORTING STATIONS`;
     } else {
-
-      document.body.classList.remove("ready");
-      document.body.classList.add("nodata");
-
+      document.body.classList.remove('ready');
+      document.body.classList.add('nodata');
     }
-
   } catch (error) {
-
-    console.error(
-      "Statewide weather error:",
-      error
-    );
-
-    document.body.classList.remove("ready");
-    document.body.classList.add("nodata");
-
+    console.error('Statewide weather error:', error);
+    document.body.classList.remove('ready');
+    document.body.classList.add('nodata');
+  } finally {
+    refreshing = false;
   }
 }
 
-
-/* ============================================================
-   START
-   ============================================================ */
-
 refreshStatewide();
-
-
-/*
-   Refresh every 60 seconds.
-   This matches the online NWS weather engine.
-*/
-
-setInterval(
-  refreshStatewide,
-  60000
-);
-
-
-/*
-   Redraw the map when the browser/OBS
-   window changes size.
-*/
-
-window.addEventListener(
-  "resize",
-  () => {
-
-    /*
-       Re-fetching isn't necessary.
-       The next scheduled refresh will
-       redraw with the new dimensions.
-    */
-
-  }
-);
-
-</script>
+setInterval(refreshStatewide, 60000);
+window.addEventListener('resize', () => { if (lastCities.length) drawMap(lastCities); });</script>
 
 </body>
 </html>
+
+
+
+
+
+
